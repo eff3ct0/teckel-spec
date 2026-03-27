@@ -17,7 +17,7 @@ Executes a raw SQL query against one or more assets registered as temporary view
 
 All assets listed in `views` are registered as temporary views using their asset name as the view name. The SQL dialect is implementation-defined (e.g., Spark SQL for the Spark runtime).
 
-**Example -- complex query across multiple assets:**
+**Example — complex query across multiple assets:**
 
 ```yaml
 transformation:
@@ -31,7 +31,7 @@ transformation:
         WHERE o.amount > 100
 ```
 
-**Example -- using SQL for complex aggregation:**
+**Example — using SQL for complex aggregation:**
 
 ```yaml
 transformation:
@@ -55,7 +55,7 @@ transformation:
 
 ## SCD Type 2 (8.25)
 
-Slowly Changing Dimension Type 2 -- tracks historical changes to dimension records. This transformation takes two inputs rather than a single `from`.
+Slowly Changing Dimension Type 2 — tracks historical changes to dimension records. This transformation takes two inputs rather than a single `from`.
 
 **Schema:**
 
@@ -79,7 +79,7 @@ Slowly Changing Dimension Type 2 -- tracks historical changes to dimension recor
 4. For new records (no match in `current`): insert with `startDateColumn` = current timestamp, `endDateColumn` = `NULL`, `currentFlagColumn` = `true`.
 5. Output is the full dimension table (all historical + current records).
 
-**Example -- customer dimension with history tracking:**
+**Example — customer dimension with history tracking:**
 
 ```yaml
 transformation:
@@ -106,11 +106,11 @@ Enriches records by calling an external HTTP API for each distinct key value.
 
 | Field            | Type                | Required | Default   | Description                                           |
 |------------------|---------------------|----------|-----------|-------------------------------------------------------|
-| `from`           | AssetRef            | Yes      | --        | Source asset.                                         |
-| `url`            | string              | Yes      | --        | API endpoint URL. May contain `${keyColumn}` placeholder. |
+| `from`           | AssetRef            | Yes      | —         | Source asset.                                         |
+| `url`            | string              | Yes      | —         | API endpoint URL. May contain `${keyColumn}` placeholder. |
 | `method`         | string              | No       | `"GET"`   | HTTP method.                                          |
-| `keyColumn`      | Column              | Yes      | --        | Column whose value is sent to the API.                |
-| `responseColumn` | string              | Yes      | --        | Name for the column holding the API response.         |
+| `keyColumn`      | Column              | Yes      | —         | Column whose value is sent to the API.                |
+| `responseColumn` | string              | Yes      | —         | Name for the column holding the API response.         |
 | `headers`        | Map[string, string] | No       | `{}`      | HTTP request headers.                                 |
 | `onError`        | string              | No       | `"null"`  | Error handling: `"null"`, `"fail"`, or `"skip"`.      |
 | `timeout`        | integer             | No       | `30000`   | Request timeout in milliseconds.                      |
@@ -121,7 +121,7 @@ Enriches records by calling an external HTTP API for each distinct key value.
 - The response body is stored as a string in `responseColumn`.
 - HTTP 4xx errors are not retried. HTTP 5xx and timeouts are retried with exponential backoff.
 
-**Example -- enrich orders with customer data from an API:**
+**Example — enrich orders with customer data from an API:**
 
 ```yaml
 transformation:
@@ -152,18 +152,18 @@ Validates and/or evolves the schema of a dataset against an expected definition.
 
 | Field     | Type                        | Required | Default    | Description             |
 |-----------|-----------------------------|----------|------------|-------------------------|
-| `from`    | AssetRef                    | Yes      | --         | Source asset.           |
+| `from`    | AssetRef                    | Yes      | —          | Source asset.           |
 | `mode`    | string                      | No       | `"strict"` | Enforcement mode.       |
-| `columns` | NonEmptyList[SchemaColumn]  | Yes      | --         | Expected schema.        |
+| `columns` | NonEmptyList[SchemaColumn]  | Yes      | —          | Expected schema.        |
 
 **SchemaColumn object:**
 
 | Field      | Type       | Required | Default | Description                                           |
 |------------|------------|----------|---------|-------------------------------------------------------|
-| `name`     | Column     | Yes      | --      | Column name.                                          |
-| `dataType` | string     | Yes      | --      | Expected data type.                                   |
+| `name`     | Column     | Yes      | —       | Column name.                                          |
+| `dataType` | string     | Yes      | —       | Expected data type.                                   |
 | `nullable` | boolean    | No       | `true`  | Whether NULL values are allowed.                      |
-| `default`  | Expression | No       | --      | Default value for missing columns (evolve mode only). |
+| `default`  | Expression | No       | —       | Default value for missing columns (evolve mode only). |
 
 **Modes:**
 
@@ -172,7 +172,7 @@ Validates and/or evolves the schema of a dataset against an expected definition.
 | `strict` | Error E-SCHEMA-003 | Error E-SCHEMA-004                     | Attempt cast; NULL on fail  |
 | `evolve` | Preserved          | Added with `default` (or NULL if none) | Attempt cast; NULL on fail  |
 
-**Example -- strict schema enforcement:**
+**Example — strict schema enforcement:**
 
 ```yaml
 transformation:
@@ -195,7 +195,7 @@ transformation:
           nullable: false
 ```
 
-**Example -- schema evolution with defaults:**
+**Example — schema evolution with defaults:**
 
 ```yaml
 transformation:
@@ -229,8 +229,8 @@ Validates data quality rules without modifying the dataset (unless `onFailure: d
 
 | Field       | Type                  | Required | Default  | Description               |
 |-------------|-----------------------|----------|----------|---------------------------|
-| `from`      | AssetRef              | Yes      | --       | Source asset.             |
-| `checks`    | NonEmptyList[Check]   | Yes      | --       | Quality checks.           |
+| `from`      | AssetRef              | Yes      | —        | Source asset.             |
+| `checks`    | NonEmptyList[Check]   | Yes      | —        | Quality checks.           |
 | `onFailure` | string                | No       | `"fail"` | Failure handling mode.    |
 
 **Check object:**
@@ -257,7 +257,7 @@ Validates data quality rules without modifying the dataset (unless `onFailure: d
 | `warn` | Log a warning with failing row count. Continue unchanged. |
 | `drop` | Remove rows that fail any check. Log dropped row count.   |
 
-**Example -- validate data quality before output:**
+**Example — validate data quality before output:**
 
 ```yaml
 transformation:
@@ -276,7 +276,7 @@ transformation:
           description: "Age must be within valid range"
 ```
 
-**Example -- drop invalid rows with a warning:**
+**Example — drop invalid rows with a warning:**
 
 ```yaml
 transformation:
@@ -303,11 +303,11 @@ Changes the number of partitions with a full shuffle. Use this to increase or re
 
 | Field           | Type          | Required | Default | Description                                          |
 |-----------------|---------------|----------|---------|------------------------------------------------------|
-| `from`          | AssetRef      | Yes      | --      | Source asset.                                        |
-| `numPartitions` | integer       | Yes      | --      | Target partition count. Must be > 0.                 |
+| `from`          | AssetRef      | Yes      | —       | Source asset.                                        |
+| `numPartitions` | integer       | Yes      | —       | Target partition count. Must be > 0.                 |
 | `columns`       | List[Column]  | No       | `[]`    | Columns to hash-partition by. Empty = round-robin.   |
 
-**Example -- repartition by hash on a key column:**
+**Example — repartition by hash on a key column:**
 
 ```yaml
 transformation:
@@ -318,7 +318,7 @@ transformation:
       columns: [customer_id]
 ```
 
-**Example -- round-robin repartition:**
+**Example — round-robin repartition:**
 
 ```yaml
 transformation:
@@ -343,7 +343,7 @@ Reduces the number of partitions without a full shuffle. This is more efficient 
 | `from`          | AssetRef | Yes      | Source asset.                                              |
 | `numPartitions` | integer  | Yes      | Target partition count. Must be > 0 and <= current count.  |
 
-**Example -- reduce partitions before writing output:**
+**Example — reduce partitions before writing output:**
 
 ```yaml
 transformation:
@@ -365,8 +365,8 @@ Invokes a user-registered component for transformations not covered by built-in 
 
 | Field       | Type                | Required | Default | Description                              |
 |-------------|---------------------|----------|---------|------------------------------------------|
-| `from`      | AssetRef            | Yes      | --      | Source asset.                            |
-| `component` | string              | Yes      | --      | Registered component identifier.         |
+| `from`      | AssetRef            | Yes      | —       | Source asset.                            |
+| `component` | string              | Yes      | —       | Registered component identifier.         |
 | `options`   | Map[string, string] | No       | `{}`    | Component-specific options.              |
 
 A custom component must:
@@ -376,7 +376,7 @@ A custom component must:
 
 The registration mechanism is implementation-defined. The component must be registered before the pipeline executes; otherwise, the runtime raises `E-COMP-001`.
 
-**Example -- apply a custom ML scoring component:**
+**Example — apply a custom ML scoring component:**
 
 ```yaml
 transformation:
@@ -390,7 +390,7 @@ transformation:
         output_column: "prediction"
 ```
 
-**Example -- custom data masking:**
+**Example — custom data masking:**
 
 ```yaml
 transformation:
@@ -403,4 +403,4 @@ transformation:
         method: "sha256"
 ```
 
-> **Tip:** Use `custom` as an escape hatch for domain-specific logic that cannot be expressed with built-in transformations. Keep the component interface simple -- one dataset in, one dataset out.
+> **Tip:** Use `custom` as an escape hatch for domain-specific logic that cannot be expressed with built-in transformations. Keep the component interface simple — one dataset in, one dataset out.

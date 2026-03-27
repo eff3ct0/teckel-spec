@@ -5,7 +5,7 @@ sidebar_position: 1
 
 # Introduction
 
-Teckel is a declarative language for building data pipelines. You describe your data sources, transformations, and outputs in YAML, and a runtime engine takes care of execution. No imperative code, no boilerplate -- just a clear description of what your data should look like when it comes out the other end.
+Teckel is a declarative language for building data pipelines. You describe your data sources, transformations, and outputs in YAML, and a runtime engine takes care of execution. No imperative code, no boilerplate — just a clear description of what your data should look like when it comes out the other end.
 
 ## The Problem
 
@@ -15,11 +15,11 @@ Teckel separates the two. You declare the "what" in a YAML document. The runtime
 
 ## Key Features
 
-- **Declarative pipelines** -- Define inputs, transformations, and outputs as a directed acyclic graph (DAG). Teckel resolves execution order automatically from data dependencies.
-- **Rich transformation library** -- Select, filter, join, group, window functions, pivoting, set operations, and more. All expressed in YAML with an embedded expression language.
-- **Runtime-agnostic** -- The spec is not tied to any single engine. Implementations exist for Apache Spark, and the format is designed to support others (DuckDB, Polars, etc.).
-- **Built-in data quality** -- Attach validation checks directly to your pipeline assets.
-- **Metadata and governance** -- Describe ownership, tags, lineage, and downstream consumers alongside the pipeline logic itself.
+- **Declarative pipelines** — Define inputs, transformations, and outputs as a directed acyclic graph (DAG). Teckel resolves execution order automatically from data dependencies.
+- **Rich transformation library** — Select, filter, join, group, window functions, pivoting, set operations, and more. All expressed in YAML with an embedded expression language.
+- **Runtime-agnostic** — The spec is not tied to any single engine. Implementations exist for Apache Spark, and the format is designed to support others (DuckDB, Polars, etc.).
+- **Built-in data quality** — Attach validation checks directly to your pipeline assets.
+- **Metadata and governance** — Describe ownership, tags, lineage, and downstream consumers alongside the pipeline logic itself.
 
 ## Who Is This For?
 
@@ -54,8 +54,8 @@ Things get more interesting when you add transformations between input and outpu
 
 This documentation is a user-friendly guide. For the formal, normative specification with RFC 2119 requirement levels, EBNF grammar, JSON Schema, and conformance rules, see:
 
-- **[Teckel Specification v2.0](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md)** -- The complete formal specification (27 sections, 3500+ lines).
-- **[JSON Schema v2.0](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-schema.json)** -- Machine-readable schema for validating Teckel documents.
+- **[Teckel Specification v2.0](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md)** — The complete formal specification (27 sections, 3500+ lines).
+- **[JSON Schema v2.0](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-schema.json)** — Machine-readable schema for validating Teckel documents.
 
 ## How This Guide Is Organized
 

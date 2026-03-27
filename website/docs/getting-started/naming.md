@@ -1,6 +1,6 @@
 # Naming and References
 
-Every asset in a Teckel pipeline -- inputs, transformations, and outputs -- is identified by a name called an **AssetRef**. This page explains the naming rules, how references connect the pipeline together, and how to refer to columns unambiguously.
+Every asset in a Teckel pipeline — inputs, transformations, and outputs — is identified by a name called an **AssetRef**. This page explains the naming rules, how references connect the pipeline together, and how to refer to columns unambiguously.
 
 ## AssetRef Rules
 
@@ -9,7 +9,7 @@ An AssetRef is the `name` field on any input or transformation entry. It must fo
 1. **Starts with a letter** (A-Z or a-z).
 2. **Contains only** ASCII letters, digits, underscores (`_`), and hyphens (`-`).
 3. **Between 1 and 128 characters** long.
-4. **Case-sensitive** -- `Orders` and `orders` are different assets.
+4. **Case-sensitive** — `Orders` and `orders` are different assets.
 5. Leading and trailing whitespace is stripped before validation.
 
 ### Valid Names
@@ -73,7 +73,7 @@ The `from` value must match the `name` of an existing input or transformation. I
 
 ### Output References (the `name` field)
 
-Outputs work differently. An output's `name` field is not creating a new asset -- it is **referencing** an existing one:
+Outputs work differently. An output's `name` field is not creating a new asset — it is **referencing** an existing one:
 
 ```yaml
 output:
@@ -89,7 +89,7 @@ This means the output writes whatever dataset the `activeUsers` transformation p
 
 ### Join References
 
-Joins reference multiple assets -- a `left` side and one or more `right` targets:
+Joins reference multiple assets — a `left` side and one or more `right` targets:
 
 ```yaml
 transformation:
@@ -118,11 +118,11 @@ input:
   - name: orders
 
 transformation:
-  - name: filteredOrders       # different from "orders" -- OK
+  - name: filteredOrders       # different from "orders" — OK
 
 output:
-  - name: filteredOrders       # references the transformation -- OK
-  - name: orders               # references the input -- also OK
+  - name: filteredOrders       # references the transformation — OK
+  - name: orders               # references the input — also OK
 ```
 
 ### Invalid namespace usage
@@ -155,11 +155,11 @@ This tells the runtime that `customer_id` comes from the `orders` asset and `id`
 
 ### When Qualification Is Required
 
-- **Join conditions** -- Always use qualified references. Unqualified column names in a join condition will produce error `E-JOIN-001` if the name is ambiguous.
+- **Join conditions** — Always use qualified references. Unqualified column names in a join condition will produce error `E-JOIN-001` if the name is ambiguous.
 
 ### When Qualification Is Optional
 
-- **Select, where, group, and other single-source transformations** -- Since there is only one upstream asset, column names are unambiguous. You can write just `amount` instead of `sales.amount`. However, qualified references are always accepted.
+- **Select, where, group, and other single-source transformations** — Since there is only one upstream asset, column names are unambiguous. You can write just `amount` instead of `sales.amount`. However, qualified references are always accepted.
 
 ### Column Name Rules
 

@@ -12,13 +12,13 @@ Rotates rows into columns (long to wide format). Distinct values from a chosen c
 
 | Field         | Type                      | Required | Default       | Description                                |
 |---------------|---------------------------|----------|---------------|--------------------------------------------|
-| `from`        | AssetRef                  | Yes      | --            | Source asset.                              |
-| `groupBy`     | NonEmptyList[Column]      | Yes      | --            | Columns to group by (these remain as rows).|
-| `pivotColumn` | Column                    | Yes      | --            | Column whose distinct values become new columns. |
+| `from`        | AssetRef                  | Yes      | —             | Source asset.                              |
+| `groupBy`     | NonEmptyList[Column]      | Yes      | —             | Columns to group by (these remain as rows).|
+| `pivotColumn` | Column                    | Yes      | —             | Column whose distinct values become new columns. |
 | `values`      | List[string]              | No       | all distinct  | Specific values to pivot on.               |
-| `agg`         | NonEmptyList[Expression]  | Yes      | --            | Aggregate expressions applied per pivot value. |
+| `agg`         | NonEmptyList[Expression]  | Yes      | —             | Aggregate expressions applied per pivot value. |
 
-**Example -- sales by region and product:**
+**Example — sales by region and product:**
 
 ```yaml
 transformation:
@@ -65,7 +65,7 @@ Rotates columns into rows (wide to long format). The inverse of pivot.
 | `variableColumn` | string                | Yes      | Name for the column holding original column names. |
 | `valueColumn`    | string                | Yes      | Name for the column holding the values.            |
 
-**Example -- unpivot quarterly sales columns:**
+**Example — unpivot quarterly sales columns:**
 
 ```yaml
 transformation:
@@ -103,11 +103,11 @@ Flattens nested structures (structs and optionally arrays) into a flat schema.
 
 | Field           | Type     | Required | Default | Description                                        |
 |-----------------|----------|----------|---------|----------------------------------------------------|
-| `from`          | AssetRef | Yes      | --      | Source asset.                                      |
+| `from`          | AssetRef | Yes      | —       | Source asset.                                      |
 | `separator`     | string   | No       | `"_"`   | Separator between parent and child field names.    |
 | `explodeArrays` | boolean  | No       | `false` | If true, array fields produce multiple rows.       |
 
-**Example -- flatten nested JSON data:**
+**Example — flatten nested JSON data:**
 
 ```yaml
 transformation:
@@ -121,10 +121,10 @@ transformation:
 Given a struct field `address` with subfields `city` and `zip`, the output columns become `address_city` and `address_zip`.
 
 **Semantics:**
-- Flattening is recursive -- nested structs within nested structs are fully flattened.
+- Flattening is recursive — nested structs within nested structs are fully flattened.
 - When `explodeArrays` is `true`, a row with an array of N elements produces N rows. Empty or NULL arrays cause the row to be dropped.
 
-**Example -- flatten and explode arrays:**
+**Example — flatten and explode arrays:**
 
 ```yaml
 transformation:
@@ -147,9 +147,9 @@ Adds a column with values determined by conditional logic, equivalent to SQL `CA
 
 | Field          | Type                    | Required | Default | Description                              |
 |----------------|-------------------------|----------|---------|------------------------------------------|
-| `from`         | AssetRef                | Yes      | --      | Source asset.                            |
-| `outputColumn` | string                  | Yes      | --      | Name for the new column.                 |
-| `branches`     | NonEmptyList[Branch]    | Yes      | --      | Conditions evaluated in order.           |
+| `from`         | AssetRef                | Yes      | —       | Source asset.                            |
+| `outputColumn` | string                  | Yes      | —       | Name for the new column.                 |
+| `branches`     | NonEmptyList[Branch]    | Yes      | —       | Conditions evaluated in order.           |
 | `otherwise`    | Expression              | No       | `NULL`  | Default value if no branch matches.      |
 
 **Branch object:**
@@ -161,7 +161,7 @@ Adds a column with values determined by conditional logic, equivalent to SQL `CA
 
 Branches are evaluated in order. The first matching condition determines the value.
 
-**Example -- categorize orders by size:**
+**Example — categorize orders by size:**
 
 ```yaml
 transformation:
@@ -177,7 +177,7 @@ transformation:
       otherwise: "'small'"
 ```
 
-**Example -- business logic with multiple conditions:**
+**Example — business logic with multiple conditions:**
 
 ```yaml
 transformation:
@@ -216,7 +216,7 @@ The `name` of the split transformation itself is **not** a referenceable asset. 
 
 Rows where `condition` evaluates to `NULL` go to `fail`.
 
-**Example -- split API results by status:**
+**Example — split API results by status:**
 
 ```yaml
 transformation:

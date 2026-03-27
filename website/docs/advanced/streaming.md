@@ -6,7 +6,7 @@ This chapter covers Teckel's streaming capabilities, which extend the batch proc
 
 ## Overview
 
-Streaming extends the standard batch pipeline model by introducing two new top-level sections: `streamingInput` for continuous data sources and `streamingOutput` for continuous data sinks. Transformations are shared between batch and streaming -- the same transformation definitions work with both.
+Streaming extends the standard batch pipeline model by introducing two new top-level sections: `streamingInput` for continuous data sources and `streamingOutput` for continuous data sinks. Transformations are shared between batch and streaming — the same transformation definitions work with both.
 
 ---
 
@@ -29,9 +29,9 @@ streamingInput:
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `name` | AssetRef | Yes | -- | Unique asset name |
-| `format` | string | Yes | -- | Stream format (e.g., `"kafka"`, `"json"`, `"csv"`) |
-| `path` | string | No | -- | For file-based streams, the monitored directory |
+| `name` | AssetRef | Yes | — | Unique asset name |
+| `format` | string | Yes | — | Stream format (e.g., `"kafka"`, `"json"`, `"csv"`) |
+| `path` | string | No | — | For file-based streams, the monitored directory |
 | `options` | Map[string, primitive] | No | `{}` | Source-specific options |
 | `trigger` | string | No | impl-defined | Trigger specification |
 
@@ -85,12 +85,12 @@ streamingOutput:
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `name` | AssetRef | Yes | -- | Must match an existing asset |
-| `format` | string | Yes | -- | Output format |
-| `path` | string | No | -- | Output path (for file-based sinks) |
+| `name` | AssetRef | Yes | — | Must match an existing asset |
+| `format` | string | Yes | — | Output format |
+| `path` | string | No | — | Output path (for file-based sinks) |
 | `options` | Map[string, primitive] | No | `{}` | Sink-specific options |
 | `outputMode` | string | No | `"append"` | Output mode |
-| `checkpointLocation` | string | No | -- | Path for streaming state checkpointing |
+| `checkpointLocation` | string | No | — | Path for streaming state checkpointing |
 | `trigger` | string | No | impl-defined | Trigger specification |
 
 ### Output Modes

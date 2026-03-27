@@ -62,9 +62,9 @@ Notifications alert on pipeline success or failure.
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `channel` | string | Yes | -- | `"log"`, `"webhook"`, or `"file"` |
-| `url` | string | Conditional | -- | Required for `"webhook"` |
-| `path` | string | Conditional | -- | Required for `"file"` |
+| `channel` | string | Yes | — | `"log"`, `"webhook"`, or `"file"` |
+| `url` | string | Conditional | — | Required for `"webhook"` |
+| `path` | string | Conditional | — | Required for `"file"` |
 
 ```yaml
 config:
@@ -173,7 +173,7 @@ Each subsequent file overlays the accumulated result.
 
 ### Example
 
-**base.yaml** -- the production pipeline definition:
+**base.yaml** — the production pipeline definition:
 
 ```yaml
 version: "2.0"
@@ -195,7 +195,7 @@ output:
     path: "${OUTPUT_PATH}"
 ```
 
-**dev.yaml** -- the development overlay:
+**dev.yaml** — the development overlay:
 
 ```yaml
 input:

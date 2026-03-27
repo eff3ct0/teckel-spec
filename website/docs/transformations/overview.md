@@ -94,5 +94,5 @@ Every transformation entry must have exactly one operation key. Unless otherwise
 
 - Each transformation entry must have exactly **one** operation key.
 - Unknown operation keys produce an error.
-- The pipeline forms a DAG -- execution order is determined by data dependencies, not YAML order.
+- The pipeline forms a DAG — execution order is determined by data dependencies, not YAML order.
 - Asset names must be unique across all inputs and transformations.

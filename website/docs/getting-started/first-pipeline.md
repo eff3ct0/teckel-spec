@@ -27,7 +27,7 @@ output:
 A few things to notice:
 
 - `version` is always required. For the current spec, it must be `"2.0"`.
-- The `output` name matches the `input` name. This is how Teckel connects them -- the output is a **sink** that writes the dataset produced by the named asset.
+- The `output` name matches the `input` name. This is how Teckel connects them — the output is a **sink** that writes the dataset produced by the named asset.
 - `mode: overwrite` means the output directory will be replaced on each run. The default mode is `error`, which fails if the destination already exists.
 
 > **Note:** The `header` and `inferSchema` options are passed directly to the CSV reader. Teckel supports any key-value options your runtime understands.
@@ -64,7 +64,7 @@ What changed:
 
 - A `transformation` section appeared with one entry named `recentSales`.
 - The `where` operation reads from the `sales` input (`from: sales`) and keeps only rows where the condition is true.
-- The output now references `recentSales` instead of `sales` -- it writes the filtered dataset, not the raw input.
+- The output now references `recentSales` instead of `sales` — it writes the filtered dataset, not the raw input.
 
 > **Note:** The order of `input`, `transformation`, and `output` sections in the YAML file does not matter. Teckel determines execution order from data dependencies, not from the position in the file.
 
@@ -108,9 +108,9 @@ output:
 
 Now the pipeline has three stages:
 
-1. **sales** (input) -- read the raw CSV.
-2. **recentSales** (transformation) -- filter to 2025+.
-3. **salesByRegion** (transformation) -- group by region and compute aggregates.
+1. **sales** (input) — read the raw CSV.
+2. **recentSales** (transformation) — filter to 2025+.
+3. **salesByRegion** (transformation) — group by region and compute aggregates.
 
 The output writes the final aggregated dataset. Notice how each transformation refers to the previous one via `from`. This chain of references is what builds the DAG.
 
@@ -216,7 +216,7 @@ output:
     mode: overwrite
 ```
 
-> **Warning:** Join conditions require **qualified column references** -- you must prefix column names with the asset name (e.g., `sales.customer_id`). Unqualified references in join conditions will produce an error.
+> **Warning:** Join conditions require **qualified column references** — you must prefix column names with the asset name (e.g., `sales.customer_id`). Unqualified references in join conditions will produce an error.
 
 ## What's Next
 

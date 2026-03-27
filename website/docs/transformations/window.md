@@ -18,11 +18,11 @@ The `window` transformation applies window functions over partitions of a datase
 
 | Field         | Type                         | Required | Default   | Description                         |
 |---------------|------------------------------|----------|-----------|-------------------------------------|
-| `from`        | AssetRef                     | Yes      | --        | Source asset.                       |
-| `partitionBy` | NonEmptyList[Column]         | Yes      | --        | Partition columns.                  |
+| `from`        | AssetRef                     | Yes      | —         | Source asset.                       |
+| `partitionBy` | NonEmptyList[Column]         | Yes      | —         | Partition columns.                  |
 | `orderBy`     | List[SortColumn]             | No       | `[]`      | Sort within each partition.         |
 | `frame`       | FrameSpec                    | No       | see below | Window frame specification.         |
-| `functions`   | NonEmptyList[WindowFuncDef]  | Yes      | --        | Window functions to apply.          |
+| `functions`   | NonEmptyList[WindowFuncDef]  | Yes      | —         | Window functions to apply.          |
 
 ---
 
@@ -36,16 +36,16 @@ Each function produces a new column in the output.
 | `alias`      | string     | Yes      | Output column name.                |
 
 Common window function expressions include:
-- `row_number()` -- sequential row number within the partition
-- `rank()` -- rank with gaps for ties
-- `dense_rank()` -- rank without gaps
-- `lag(column, N)` -- value from N rows before
-- `lead(column, N)` -- value from N rows after
-- `sum(column)` -- running or total sum
-- `avg(column)` -- running or total average
-- `min(column)`, `max(column)` -- running or total min/max
-- `first_value(column)`, `last_value(column)` -- first/last in the frame
-- `ntile(N)` -- divide into N roughly equal groups
+- `row_number()` — sequential row number within the partition
+- `rank()` — rank with gaps for ties
+- `dense_rank()` — rank without gaps
+- `lag(column, N)` — value from N rows before
+- `lead(column, N)` — value from N rows after
+- `sum(column)` — running or total sum
+- `avg(column)` — running or total average
+- `min(column)`, `max(column)` — running or total min/max
+- `first_value(column)`, `last_value(column)` — first/last in the frame
+- `ntile(N)` — divide into N roughly equal groups
 
 ---
 
@@ -61,8 +61,8 @@ The frame defines which rows within the partition are included in the calculatio
 
 ### Frame Types
 
-- **`rows`** -- the frame is defined by a physical number of rows before and after the current row, regardless of values.
-- **`range`** -- the frame is defined by a logical range of values relative to the current row's sort key.
+- **`rows`** — the frame is defined by a physical number of rows before and after the current row, regardless of values.
+- **`range`** — the frame is defined by a logical range of values relative to the current row's sort key.
 
 ### Boundary Values
 
@@ -175,7 +175,7 @@ transformation:
           alias: max_7d
 ```
 
-> **Tip:** For a moving average over the last 7 rows, use `type: rows` with `start: "6 preceding"` -- this includes the current row plus the 6 rows before it.
+> **Tip:** For a moving average over the last 7 rows, use `type: rows` with `start: "6 preceding"` — this includes the current row plus the 6 rows before it.
 
 ### Top-N Per Group
 
@@ -200,4 +200,4 @@ transformation:
       filter: "rn <= 3"
 ```
 
-> **Tip:** The `rows` frame type is predictable -- it always covers a fixed number of rows. The `range` frame type groups rows with equal sort key values together, which can produce variable-sized frames. Choose based on whether you want physical row counts or logical value ranges.
+> **Tip:** The `rows` frame type is predictable — it always covers a fixed number of rows. The `range` frame type groups rows with equal sort key values together, which can produce variable-sized frames. Choose based on whether you want physical row counts or logical value ranges.

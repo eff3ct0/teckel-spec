@@ -31,7 +31,7 @@ output:
     path: "data/parquet/employees"  # Output directory
 ```
 
-This pipeline has no transformations. The `raw` input is read and written directly to the output. The output `name: raw` is not a new asset -- it references the existing `raw` input.
+This pipeline has no transformations. The `raw` input is read and written directly to the output. The output `name: raw` is not a new asset — it references the existing `raw` input.
 
 ---
 

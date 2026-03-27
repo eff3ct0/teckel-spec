@@ -115,11 +115,11 @@ columns:
 | `current_date()` | date | Current date at pipeline execution time. |
 | `current_timestamp()` | timestamp | Current timestamp at pipeline execution time. |
 | `year(expr)` | integer | Extract the year component. |
-| `month(expr)` | integer | Extract the month (1--12). |
-| `day(expr)` | integer | Extract the day of month (1--31). |
-| `hour(expr)` | integer | Extract the hour (0--23). |
-| `minute(expr)` | integer | Extract the minute (0--59). |
-| `second(expr)` | integer | Extract the second (0--59). |
+| `month(expr)` | integer | Extract the month (1–12). |
+| `day(expr)` | integer | Extract the day of month (1–31). |
+| `hour(expr)` | integer | Extract the hour (0–23). |
+| `minute(expr)` | integer | Extract the minute (0–59). |
+| `second(expr)` | integer | Extract the second (0–59). |
 | `date_add(date, days)` | date | Add a number of days to a date. |
 | `date_diff(end, start)` | integer | Number of days between two dates (`end - start`). |
 | `to_date(expr, format)` | date | Parse a string into a date using the given format. |

@@ -1,6 +1,6 @@
 # Pipeline Metadata
 
-The `pipeline` top-level key defines metadata about the pipeline as a whole. All fields are optional -- a minimal Teckel document works without any pipeline metadata.
+The `pipeline` top-level key defines metadata about the pipeline as a whole. All fields are optional — a minimal Teckel document works without any pipeline metadata.
 
 > **Formal reference:** [Section 18 — Metadata](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#18-metadata) in the Teckel Specification.
 
@@ -37,18 +37,18 @@ pipeline:
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `name` | string | No | -- | Human-readable pipeline name. |
-| `namespace` | string | No | -- | Globally unique namespace (e.g., `"com.company.finance"`). Combined with asset names to form URNs. |
-| `version` | string | No | -- | Semantic version of the pipeline (e.g., `"1.2.0"`). |
-| `description` | string | No | -- | Markdown-formatted description of the pipeline's purpose. |
-| `owner` | Owner | No | -- | Primary pipeline owner. |
+| `name` | string | No | — | Human-readable pipeline name. |
+| `namespace` | string | No | — | Globally unique namespace (e.g., `"com.company.finance"`). Combined with asset names to form URNs. |
+| `version` | string | No | — | Semantic version of the pipeline (e.g., `"1.2.0"`). |
+| `description` | string | No | — | Markdown-formatted description of the pipeline's purpose. |
+| `owner` | Owner | No | — | Primary pipeline owner. |
 | `tags` | List[string] | No | `[]` | Pipeline-level classification labels. |
 | `meta` | Map[string, any] | No | `{}` | Open key-value metadata for custom properties. |
-| `schedule` | string | No | -- | Expected execution schedule as a cron expression or ISO 8601 duration. |
-| `freshness` | string | No | -- | Expected end-to-end freshness as an ISO 8601 duration. |
+| `schedule` | string | No | — | Expected execution schedule as a cron expression or ISO 8601 duration. |
+| `freshness` | string | No | — | Expected end-to-end freshness as an ISO 8601 duration. |
 | `links` | List[Link] | No | `[]` | External documentation links. |
 | `contacts` | List[Contact] | No | `[]` | Stakeholder contacts. |
-| `catalog` | CatalogConfig | No | -- | Data catalog integration configuration. |
+| `catalog` | CatalogConfig | No | — | Data catalog integration configuration. |
 
 ## Owner
 
@@ -56,8 +56,8 @@ The `owner` field identifies the person or team responsible for the pipeline.
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `name` | string | **Yes** | -- | Person or team name. |
-| `email` | string | **Yes** | -- | Contact email. |
+| `name` | string | **Yes** | — | Person or team name. |
+| `email` | string | **Yes** | — | Contact email. |
 | `type` | string | No | `"technical"` | Owner role type. |
 
 ### Role Types
@@ -105,7 +105,7 @@ pipeline:
 
 ## Freshness
 
-Declares the expected maximum age of the pipeline's output data as an ISO 8601 duration. This is metadata only -- it does not enforce freshness at runtime. Use a `freshness` quality check to enforce freshness.
+Declares the expected maximum age of the pipeline's output data as an ISO 8601 duration. This is metadata only — it does not enforce freshness at runtime. Use a `freshness` quality check to enforce freshness.
 
 ```yaml
 pipeline:

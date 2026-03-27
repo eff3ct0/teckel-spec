@@ -38,7 +38,7 @@ Validates that required values are present (non-null) in a column.
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `column` | Column | **Yes** | -- | Column to check. |
+| `column` | Column | **Yes** | — | Column to check. |
 | `threshold` | double | No | `1.0` | Minimum fraction of non-null values (0.0 to 1.0). |
 
 A threshold of `1.0` means all values must be non-null. A threshold of `0.95` allows up to 5% nulls.
@@ -63,7 +63,7 @@ Validates that values are unique across the dataset. Supports composite keys.
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `columns` | NonEmptyList[Column] | **Yes** | -- | Columns forming the uniqueness key. |
+| `columns` | NonEmptyList[Column] | **Yes** | — | Columns forming the uniqueness key. |
 | `threshold` | double | No | `1.0` | Minimum fraction of unique values. |
 
 ---
@@ -99,8 +99,8 @@ Enforce numeric bounds. Use `strictMin` and `strictMax` for exclusive bounds.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `min` | number | -- | Minimum value (inclusive by default). |
-| `max` | number | -- | Maximum value (inclusive by default). |
+| `min` | number | — | Minimum value (inclusive by default). |
+| `max` | number | — | Maximum value (inclusive by default). |
 | `strictMin` | boolean | `false` | Use exclusive lower bound (`>` instead of `>=`). |
 | `strictMax` | boolean | `false` | Use exclusive upper bound (`<` instead of `<=`). |
 
@@ -138,12 +138,12 @@ Enforce string length bounds (inclusive).
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `column` | Column | **Yes** | -- | Column to validate. |
-| `acceptedValues` | List[string] | No | -- | Allowed values (enumeration). |
-| `range` | RangeSpec | No | -- | Numeric range constraint. |
-| `pattern` | string | No | -- | Regular expression pattern. |
-| `format` | string | No | -- | Built-in format name. |
-| `lengthBetween` | [integer, integer] | No | -- | `[min, max]` string length (inclusive). |
+| `column` | Column | **Yes** | — | Column to validate. |
+| `acceptedValues` | List[string] | No | — | Allowed values (enumeration). |
+| `range` | RangeSpec | No | — | Numeric range constraint. |
+| `pattern` | string | No | — | Regular expression pattern. |
+| `format` | string | No | — | Built-in format name. |
+| `lengthBetween` | [integer, integer] | No | — | `[min, max]` string length (inclusive). |
 | `threshold` | double | No | `1.0` | Minimum fraction of valid values. |
 
 ### Built-in Format Validators
@@ -234,16 +234,16 @@ Validates data recency by checking a timestamp column against the current time.
 
 Common durations:
 
-- `PT1H` -- 1 hour
-- `PT24H` -- 24 hours
-- `P1D` -- 1 day
-- `P7D` -- 7 days
+- `PT1H` — 1 hour
+- `PT24H` — 24 hours
+- `P1D` — 1 day
+- `P7D` — 7 days
 
 ---
 
 ## Referential
 
-Validates referential integrity -- that values in a column exist in another asset (foreign key relationship).
+Validates referential integrity — that values in a column exist in another asset (foreign key relationship).
 
 ```yaml
 - type: referential
@@ -256,9 +256,9 @@ Validates referential integrity -- that values in a column exist in another asse
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `column` | Column | **Yes** | -- | Column in the target asset. |
-| `reference.asset` | AssetRef | **Yes** | -- | The referenced asset. |
-| `reference.column` | Column | **Yes** | -- | Column in the referenced asset. |
+| `column` | Column | **Yes** | — | Column in the target asset. |
+| `reference.asset` | AssetRef | **Yes** | — | The referenced asset. |
+| `reference.column` | Column | **Yes** | — | Column in the referenced asset. |
 | `threshold` | double | No | `1.0` | Minimum fraction of values that must exist in the reference. |
 
 ---
@@ -275,8 +275,8 @@ Validates relationships between columns within the same dataset.
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `condition` | Condition | **Yes** | -- | Boolean expression referencing columns in the target asset. |
-| `description` | string | No | -- | Human-readable description. |
+| `condition` | Condition | **Yes** | — | Boolean expression referencing columns in the target asset. |
+| `description` | string | No | — | Human-readable description. |
 | `threshold` | double | No | `1.0` | Minimum fraction of rows satisfying the condition. |
 
 ---
@@ -293,8 +293,8 @@ Validates using an arbitrary boolean expression evaluated per row.
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `condition` | Condition | **Yes** | -- | Boolean expression evaluated per row. |
-| `description` | string | No | -- | Human-readable description. |
+| `condition` | Condition | **Yes** | — | Boolean expression evaluated per row. |
+| `description` | string | No | — | Human-readable description. |
 | `threshold` | double | No | `1.0` | Minimum fraction of rows passing. |
 
 ---

@@ -1,6 +1,6 @@
 # Tag Propagation
 
-Tags in Teckel propagate automatically through the pipeline DAG. This enables governance classification -- such as PII tagging -- to flow from source data through transformations to outputs without manual annotation at every step.
+Tags in Teckel propagate automatically through the pipeline DAG. This enables governance classification — such as PII tagging — to flow from source data through transformations to outputs without manual annotation at every step.
 
 ## How Tags Propagate
 

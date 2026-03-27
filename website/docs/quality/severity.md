@@ -82,9 +82,9 @@ The behavior based on observed completeness:
 
 | Observed Value | Result |
 |----------------|--------|
-| >= 0.99 | **pass** -- check passes |
-| < 0.99 and >= 0.90 | **warn** -- primary severity applies |
-| < 0.90 | **error** -- escalated severity applies, pipeline aborts |
+| >= 0.99 | **pass** — check passes |
+| < 0.99 and >= 0.90 | **warn** — primary severity applies |
+| < 0.90 | **error** — escalated severity applies, pipeline aborts |
 
 The `escalate` block defines a second, stricter threshold. When the observed value falls below the escalation threshold, the severity is promoted to the escalated level.
 
@@ -194,8 +194,8 @@ quality:
 
 The resulting behavior:
 
-1. `transaction_id` uniqueness -- errors immediately on any duplicate.
-2. `customer_email` completeness -- warns if below 95%, errors if below 70%.
-3. `amount` statistics -- silently records whether the mean is in range.
-4. `currency` validity -- warns on unexpected values (inherits suite default).
-5. `created_at` freshness -- warns if data is older than 12 hours, errors on any freshness failure via escalation.
+1. `transaction_id` uniqueness — errors immediately on any duplicate.
+2. `customer_email` completeness — warns if below 95%, errors if below 70%.
+3. `amount` statistics — silently records whether the mean is in range.
+4. `currency` validity — warns on unexpected values (inherits suite default).
+5. `created_at` freshness — warns if data is older than 12 hours, errors on any freshness failure via escalation.

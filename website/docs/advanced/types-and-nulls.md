@@ -22,7 +22,7 @@ Teckel supports the following data types. Type names are **case-insensitive**: `
 | `boolean` | Boolean | `true`, `false` |
 | `date` | Calendar date (no time component) | `2025-01-15` |
 | `timestamp` | Date with time and timezone | `2025-01-15T10:30:00Z` |
-| `binary` | Arbitrary binary data | -- |
+| `binary` | Arbitrary binary data | — |
 
 #### Parameterized Types
 
@@ -287,16 +287,16 @@ Join conditions follow standard comparison rules: `NULL = NULL` evaluates to NUL
 | Expression | Input | Result |
 |-----------|-------|--------|
 | `x = NULL` | any `x` | `NULL` |
-| `NULL = NULL` | -- | `NULL` |
+| `NULL = NULL` | — | `NULL` |
 | `x IS NULL` | `x` is NULL | `true` |
 | `x IS NULL` | `x` is 42 | `false` |
 | `x IS NOT NULL` | `x` is NULL | `false` |
-| `coalesce(NULL, NULL, 3)` | -- | `3` |
-| `ifnull(NULL, 0)` | -- | `0` |
-| `nullif(5, 5)` | -- | `NULL` |
-| `nullif(5, 3)` | -- | `5` |
-| `NULL + 1` | -- | `NULL` |
-| `NULL > 0` | -- | `NULL` |
-| `count(column_with_nulls)` | -- | count of non-NULL values |
-| `count(*)` | -- | total row count |
-| `sum(column_with_all_nulls)` | -- | `NULL` |
+| `coalesce(NULL, NULL, 3)` | — | `3` |
+| `ifnull(NULL, 0)` | — | `0` |
+| `nullif(5, 5)` | — | `NULL` |
+| `nullif(5, 3)` | — | `5` |
+| `NULL + 1` | — | `NULL` |
+| `NULL > 0` | — | `NULL` |
+| `count(column_with_nulls)` | — | count of non-NULL values |
+| `count(*)` | — | total row count |
+| `sum(column_with_all_nulls)` | — | `NULL` |

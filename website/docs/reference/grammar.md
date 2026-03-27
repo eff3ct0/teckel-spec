@@ -25,7 +25,7 @@ This page collects all grammar productions from the Teckel specification in one 
 
 ## Asset References
 
-Asset references are the identifiers used to name inputs, transformations, and outputs. They must start with a letter and contain only ASCII letters, digits, underscores, and hyphens (1--128 characters).
+Asset references are the identifiers used to name inputs, transformations, and outputs. They must start with a letter and contain only ASCII letters, digits, underscores, and hyphens (1–128 characters).
 
 ```ebnf
 asset_ref = letter, { letter | digit | "_" | "-" } ;

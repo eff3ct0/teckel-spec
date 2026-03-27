@@ -123,7 +123,7 @@ A list of data destinations. Each entry references an existing input or transfor
 
 ### pipeline
 
-Metadata about the pipeline itself -- its human-readable name, a description, and an owner. This information is for documentation and governance; it does not affect execution.
+Metadata about the pipeline itself — its human-readable name, a description, and an owner. This information is for documentation and governance; it does not affect execution.
 
 ### config
 
@@ -139,7 +139,7 @@ Lifecycle hooks that run before (`pre`) or after (`post`) pipeline execution. Us
 
 ### quality
 
-Data quality check suites. Attach validation rules to your assets -- null checks, uniqueness constraints, range checks, and more.
+Data quality check suites. Attach validation rules to your assets — null checks, uniqueness constraints, range checks, and more.
 
 ### templates
 
@@ -151,7 +151,7 @@ Streaming counterparts of `input` and `output` for real-time pipelines (e.g., Ka
 
 ### exposures
 
-Declarations of downstream consumers -- dashboards, reports, ML models, or other systems that depend on this pipeline's output. This is metadata for lineage tracking, not executable logic.
+Declarations of downstream consumers — dashboards, reports, ML models, or other systems that depend on this pipeline's output. This is metadata for lineage tracking, not executable logic.
 
 ## Extension Keys
 
@@ -168,15 +168,15 @@ x-cost-center: "CC-1234"
 
 When a runtime executes a Teckel document, it processes the file in this order:
 
-1. **Variable substitution** -- `${...}` placeholders are replaced with values from config or environment.
-2. **Config merging** -- If multiple files are provided, they are merged.
-3. **YAML parsing** -- The resolved text is parsed as YAML 1.2.
-4. **Secret resolution** -- `{{secrets.*}}` placeholders are resolved.
-5. **Schema validation** -- The document structure is checked against the spec.
-6. **Semantic validation** -- Cross-references, types, and constraints are verified.
-7. **DAG construction** -- The dependency graph is built from asset references.
-8. **Pre-hooks** -- `hooks.pre` commands run.
-9. **Pipeline execution** -- The DAG is executed in topological order.
-10. **Post-hooks** -- `hooks.post` commands run.
+1. **Variable substitution** — `${...}` placeholders are replaced with values from config or environment.
+2. **Config merging** — If multiple files are provided, they are merged.
+3. **YAML parsing** — The resolved text is parsed as YAML 1.2.
+4. **Secret resolution** — `{{secrets.*}}` placeholders are resolved.
+5. **Schema validation** — The document structure is checked against the spec.
+6. **Semantic validation** — Cross-references, types, and constraints are verified.
+7. **DAG construction** — The dependency graph is built from asset references.
+8. **Pre-hooks** — `hooks.pre` commands run.
+9. **Pipeline execution** — The DAG is executed in topological order.
+10. **Post-hooks** — `hooks.post` commands run.
 
 > **Note:** Textual order within the YAML file has no effect on execution. A transformation listed first can depend on one listed last. The runtime resolves everything through the DAG.

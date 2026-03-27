@@ -17,7 +17,7 @@ Projects specific columns or expressions from a dataset. The output contains onl
 
 Each entry in `columns` can be a bare column name or an expression, optionally aliased with `as`.
 
-**Example -- basic projection with computed columns:**
+**Example — basic projection with computed columns:**
 
 ```yaml
 transformation:
@@ -46,9 +46,9 @@ Filters rows based on a boolean condition. Only rows where the condition evaluat
 | `from`   | AssetRef  | Yes      | Source asset.                        |
 | `filter` | Condition | Yes      | Boolean expression for row selection.|
 
-Rows where `filter` evaluates to `NULL` are excluded -- NULL is not truthy.
+Rows where `filter` evaluates to `NULL` are excluded — NULL is not truthy.
 
-**Example -- filtering active users by date:**
+**Example — filtering active users by date:**
 
 ```yaml
 transformation:
@@ -58,7 +58,7 @@ transformation:
       filter: "status = 'active' AND created_at >= '2025-01-01'"
 ```
 
-**Example -- numeric filter:**
+**Example — numeric filter:**
 
 ```yaml
 transformation:
@@ -78,14 +78,14 @@ Removes duplicate rows from a dataset.
 
 | Field     | Type          | Required | Default      | Description                              |
 |-----------|---------------|----------|--------------|------------------------------------------|
-| `from`    | AssetRef      | Yes      | --           | Source asset.                            |
+| `from`    | AssetRef      | Yes      | —            | Source asset.                            |
 | `columns` | List[Column]  | No       | all columns  | Subset of columns for deduplication.     |
 
-When `columns` is omitted, all columns are used. When specified, one arbitrary row per group is kept -- there is no guarantee which row is retained.
+When `columns` is omitted, all columns are used. When specified, one arbitrary row per group is kept — there is no guarantee which row is retained.
 
 > **Tip:** If you need deterministic deduplication, use `orderBy` followed by a `window` function with `row_number()` and then filter.
 
-**Example -- full row deduplication:**
+**Example — full row deduplication:**
 
 ```yaml
 transformation:
@@ -94,7 +94,7 @@ transformation:
       from: rawEvents
 ```
 
-**Example -- deduplicate by specific columns:**
+**Example — deduplicate by specific columns:**
 
 ```yaml
 transformation:
@@ -125,7 +125,7 @@ Setting `count: 0` produces an empty dataset with the same schema.
 
 > **Tip:** Without a preceding `orderBy`, the selected rows are non-deterministic. Combine with `orderBy` for predictable results.
 
-**Example -- top 100 rows after sorting:**
+**Example — top 100 rows after sorting:**
 
 ```yaml
 transformation:
@@ -152,12 +152,12 @@ Returns a random sample of rows from a dataset.
 
 | Field             | Type    | Required | Default  | Description                          |
 |-------------------|---------|----------|----------|--------------------------------------|
-| `from`            | AssetRef| Yes      | --       | Source asset.                        |
-| `fraction`        | double  | Yes      | --       | Sampling fraction in (0.0, 1.0].     |
+| `from`            | AssetRef| Yes      | —        | Source asset.                        |
+| `fraction`        | double  | Yes      | —        | Sampling fraction in (0.0, 1.0].     |
 | `withReplacement` | boolean | No       | `false`  | Whether to sample with replacement.  |
 | `seed`            | integer | No       | (random) | Random seed for reproducibility.     |
 
-**Example -- 10% sample for development:**
+**Example — 10% sample for development:**
 
 ```yaml
 transformation:
@@ -168,7 +168,7 @@ transformation:
       seed: 42
 ```
 
-**Example -- sample with replacement:**
+**Example — sample with replacement:**
 
 ```yaml
 transformation:

@@ -1,6 +1,6 @@
 # Exposures
 
-Exposures declare **downstream consumers** of the pipeline's outputs -- dashboards, notebooks, ML models, applications, or other pipelines. They complete the lineage graph by connecting data production to data consumption.
+Exposures declare **downstream consumers** of the pipeline's outputs — dashboards, notebooks, ML models, applications, or other pipelines. They complete the lineage graph by connecting data production to data consumption.
 
 Exposures are metadata-only. They do not affect pipeline execution.
 
@@ -26,13 +26,13 @@ exposures:
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `name` | string | **Yes** | -- | Exposure identifier. |
-| `type` | string | **Yes** | -- | Consumer type (see below). |
-| `description` | string | No | -- | What this consumer does with the data. |
-| `url` | string | No | -- | Link to the consumer (dashboard URL, notebook link, etc.). |
-| `maturity` | string | No | -- | Maturity level: `"high"`, `"medium"`, or `"low"`. |
-| `owner` | Owner | No | -- | Consumer owner or team. |
-| `depends_on` | NonEmptyList[AssetRef] | **Yes** | -- | Assets consumed. Must reference asset names defined in the pipeline. |
+| `name` | string | **Yes** | — | Exposure identifier. |
+| `type` | string | **Yes** | — | Consumer type (see below). |
+| `description` | string | No | — | What this consumer does with the data. |
+| `url` | string | No | — | Link to the consumer (dashboard URL, notebook link, etc.). |
+| `maturity` | string | No | — | Maturity level: `"high"`, `"medium"`, or `"low"`. |
+| `owner` | Owner | No | — | Consumer owner or team. |
+| `depends_on` | NonEmptyList[AssetRef] | **Yes** | — | Assets consumed. Must reference asset names defined in the pipeline. |
 | `tags` | List[string] | No | `[]` | Classification labels. |
 | `meta` | Map[string, any] | No | `{}` | Custom metadata. |
 
@@ -66,8 +66,8 @@ When `daily_revenue` or `monthly_summary` changes schema or breaks, the implemen
 
 Exposures enable **downstream impact analysis**. Given any asset in the pipeline, the implementation can answer:
 
-- **What consumes this asset?** -- Follow the `depends_on` references backward from exposures.
-- **What breaks if this asset changes?** -- Identify all exposures (and their owners) that depend on the affected asset.
+- **What consumes this asset?** — Follow the `depends_on` references backward from exposures.
+- **What breaks if this asset changes?** — Identify all exposures (and their owners) that depend on the affected asset.
 
 This complements the upstream lineage that is implicit in the DAG. Together, they provide full bidirectional traceability from source data to end consumers.
 

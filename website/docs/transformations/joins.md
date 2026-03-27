@@ -56,7 +56,7 @@ on:
 
 The equality operator is `=` (single equals), consistent with ANSI SQL. The `==` form is accepted as an alias.
 
-Multiple conditions in `on` are combined with AND -- all must be true for a row to match.
+Multiple conditions in `on` are combined with AND — all must be true for a row to match.
 
 ---
 
@@ -128,7 +128,7 @@ transformation:
 
 ### Cross Join
 
-Cartesian product -- every row from the left paired with every row from the right. The `on` list must be empty:
+Cartesian product — every row from the left paired with every row from the right. The `on` list must be empty:
 
 ```yaml
 transformation:

@@ -34,7 +34,7 @@ input:
 
 Every Teckel implementation must support these three formats.
 
-**CSV** -- Comma-separated values. The most common format for flat files. Use the `options` map to control delimiters, headers, encoding, and schema inference.
+**CSV** — Comma-separated values. The most common format for flat files. Use the `options` map to control delimiters, headers, encoding, and schema inference.
 
 ```yaml
 input:
@@ -47,7 +47,7 @@ input:
       inferSchema: true
 ```
 
-**JSON** -- JSON or JSON Lines (newline-delimited JSON). Works with both single JSON documents and files where each line is a separate JSON object.
+**JSON** — JSON or JSON Lines (newline-delimited JSON). Works with both single JSON documents and files where each line is a separate JSON object.
 
 ```yaml
 input:
@@ -56,7 +56,7 @@ input:
     path: "data/events.jsonl"
 ```
 
-**Parquet** -- Apache Parquet columnar format. Parquet files carry their own schema, so you rarely need options.
+**Parquet** — Apache Parquet columnar format. Parquet files carry their own schema, so you rarely need options.
 
 ```yaml
 input:
@@ -69,7 +69,7 @@ input:
 
 These formats are supported by extended implementations.
 
-**Delta** -- Delta Lake format, with support for ACID transactions and time travel.
+**Delta** — Delta Lake format, with support for ACID transactions and time travel.
 
 ```yaml
 input:
@@ -78,7 +78,7 @@ input:
     path: "s3://lake/bronze/accounts"
 ```
 
-**JDBC** -- Read directly from a relational database via JDBC.
+**JDBC** — Read directly from a relational database via JDBC.
 
 ```yaml
 input:
@@ -176,4 +176,4 @@ Each input becomes an independent node in the pipeline DAG. Transformations can 
 
 - Reading an input that produces zero rows is valid. The resulting dataset has the schema but no data.
 - If the path does not exist or is unreadable, the pipeline fails with error `E-IO-001`.
-- Option values must be primitives: strings, booleans, integers, or doubles. YAML native types are respected -- `true` is boolean, `"true"` is the string literal, `42` is an integer.
+- Option values must be primitives: strings, booleans, integers, or doubles. YAML native types are respected — `true` is boolean, `"true"` is the string literal, `42` is an integer.

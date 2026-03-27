@@ -21,12 +21,12 @@ quality:
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `suite` | string | **Yes** | -- | Suite name, used in reporting and check results. |
-| `description` | string | No | -- | Human-readable description of what this suite validates. |
-| `target` | AssetRef | **Yes** | -- | The asset to validate. Must reference an asset defined in the pipeline. |
-| `filter` | Condition | No | -- | Optional row filter. When provided, checks apply only to matching rows. |
+| `suite` | string | **Yes** | — | Suite name, used in reporting and check results. |
+| `description` | string | No | — | Human-readable description of what this suite validates. |
+| `target` | AssetRef | **Yes** | — | The asset to validate. Must reference an asset defined in the pipeline. |
+| `filter` | Condition | No | — | Optional row filter. When provided, checks apply only to matching rows. |
 | `severity` | string | No | `"error"` | Default severity for all checks in this suite. One of `"error"`, `"warn"`, or `"info"`. |
-| `checks` | NonEmptyList[Check] | **Yes** | -- | The quality checks to apply. At least one check is required. |
+| `checks` | NonEmptyList[Check] | **Yes** | — | The quality checks to apply. At least one check is required. |
 
 ## Scoping to Assets
 
@@ -79,7 +79,7 @@ The three severity levels control pipeline behavior on check failure:
 
 ## Relationship to Assertions
 
-The `quality` section is separate from the inline `assertion` transformation (Section 8.28 of the spec). The assertion transformation is a single-asset quality gate embedded directly in the DAG. The `quality` section is the recommended approach for comprehensive validation -- it supports multiple quality dimensions, thresholds, severity levels, statistical checks, freshness validation, and cross-asset referential integrity.
+The `quality` section is separate from the inline `assertion` transformation (Section 8.28 of the spec). The assertion transformation is a single-asset quality gate embedded directly in the DAG. The `quality` section is the recommended approach for comprehensive validation — it supports multiple quality dimensions, thresholds, severity levels, statistical checks, freshness validation, and cross-asset referential integrity.
 
 Implementations should support both mechanisms.
 

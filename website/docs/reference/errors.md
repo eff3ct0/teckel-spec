@@ -116,8 +116,8 @@ This page lists all error codes defined by the Teckel specification. Implementat
 | `E-QUALITY-001` | Assertion or quality check failed (error severity) |
 | `E-QUALITY-002` | Unknown quality check type |
 | `E-QUALITY-003` | Invalid threshold value (must be between 0.0 and 1.0) |
-| `E-QUALITY-004` | Freshness check failed -- data exceeds maxAge |
-| `E-QUALITY-005` | Referential integrity check failed -- values not found in reference asset |
+| `E-QUALITY-004` | Freshness check failed — data exceeds maxAge |
+| `E-QUALITY-005` | Referential integrity check failed — values not found in reference asset |
 
 ## Metadata Errors
 

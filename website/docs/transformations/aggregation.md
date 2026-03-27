@@ -18,7 +18,7 @@ Groups rows by one or more columns and applies aggregate functions.
 
 The output dataset contains the `by` columns plus the `agg` result columns. Only aggregate expressions and columns listed in `by` are valid in the `agg` list.
 
-**Example -- sales summary by region and product:**
+**Example — sales summary by region and product:**
 
 ```yaml
 transformation:
@@ -57,16 +57,16 @@ Sorts rows by one or more columns. The operation key is `orderBy` (not `order`).
 
 Each entry in `columns` can be either:
 
-1. **A bare column name** -- defaults to ascending direction, nulls last.
+1. **A bare column name** — defaults to ascending direction, nulls last.
 2. **An object** with explicit direction and null placement.
 
 | Field       | Type                    | Required | Default   | Description          |
 |-------------|-------------------------|----------|-----------|----------------------|
-| `column`    | Column                  | Yes      | --        | Column to sort by.   |
+| `column`    | Column                  | Yes      | —         | Column to sort by.   |
 | `direction` | `"asc"` or `"desc"`     | No       | `"asc"`   | Sort direction.      |
 | `nulls`     | `"first"` or `"last"`   | No       | `"last"`  | Null placement.      |
 
-**Example -- simple sort (all ascending, nulls last):**
+**Example — simple sort (all ascending, nulls last):**
 
 ```yaml
 transformation:
@@ -78,7 +78,7 @@ transformation:
         - name
 ```
 
-**Example -- mixed directions with explicit null handling:**
+**Example — mixed directions with explicit null handling:**
 
 ```yaml
 transformation:
@@ -116,14 +116,14 @@ Hierarchical aggregation that produces subtotals. Rollup creates groups for prog
 | `agg`  | NonEmptyList[Expression]  | Yes      | Aggregate expressions.    |
 
 For `by: [A, B, C]`, rollup produces aggregation groups for:
-- `(A, B, C)` -- most specific
-- `(A, B)` -- subtotal across all C values
-- `(A)` -- subtotal across all B and C values
-- `()` -- grand total
+- `(A, B, C)` — most specific
+- `(A, B)` — subtotal across all C values
+- `(A)` — subtotal across all B and C values
+- `()` — grand total
 
 Non-grouped columns in subtotal rows are `NULL`.
 
-**Example -- sales rollup by region, country, and city:**
+**Example — sales rollup by region, country, and city:**
 
 ```yaml
 transformation:
@@ -158,12 +158,12 @@ Multi-dimensional aggregation that produces subtotals for all possible combinati
 | `agg`  | NonEmptyList[Expression]  | Yes      | Aggregate expressions.    |
 
 For `by: [A, B]`, cube produces aggregation groups for:
-- `(A, B)` -- both dimensions
-- `(A)` -- subtotal across all B
-- `(B)` -- subtotal across all A
-- `()` -- grand total
+- `(A, B)` — both dimensions
+- `(A)` — subtotal across all B
+- `(B)` — subtotal across all A
+- `()` — grand total
 
-**Example -- sales cube by region and product category:**
+**Example — sales cube by region and product category:**
 
 ```yaml
 transformation:

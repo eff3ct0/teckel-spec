@@ -58,12 +58,12 @@ input:
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `name` | string | **Yes** | -- | Column name. Must match a column in the dataset. |
-| `description` | string | No | -- | Human-readable column description. |
+| `name` | string | **Yes** | — | Column name. Must match a column in the dataset. |
+| `description` | string | No | — | Human-readable column description. |
 | `tags` | List[string] | No | `[]` | Column-level classification labels. |
 | `constraints` | List[string] | No | `[]` | Declared constraints (metadata only). |
 | `meta` | Map[string, any] | No | `{}` | Open key-value metadata. |
-| `glossaryTerm` | string | No | -- | Reference to a business glossary term. |
+| `glossaryTerm` | string | No | — | Reference to a business glossary term. |
 
 ### The `glossaryTerm` Field
 
@@ -81,7 +81,7 @@ columns:
 
 ## Column Constraints
 
-Column constraints are **declarative metadata** -- they document expected properties but do NOT enforce them at runtime. To enforce constraints, use the `quality` section or the `assertion` transformation.
+Column constraints are **declarative metadata** — they document expected properties but do NOT enforce them at runtime. To enforce constraints, use the `quality` section or the `assertion` transformation.
 
 | Constraint | Description |
 |------------|-------------|
@@ -109,7 +109,7 @@ columns:
 
 The `primary_key` constraint implies both `not_null` and `unique`. You do not need to list them separately.
 
-The `foreign_key` constraint takes a reference in the form `asset_name.column_name`. This is metadata only -- use a `referential` quality check to enforce the relationship.
+The `foreign_key` constraint takes a reference in the form `asset_name.column_name`. This is metadata only — use a `referential` quality check to enforce the relationship.
 
 ## Output Metadata
 
@@ -149,7 +149,7 @@ output:
 
 ### Freshness
 
-The `freshness` field on outputs declares the expected maximum age of the data as an ISO 8601 duration. This is metadata only -- it documents the SLA but does not enforce it. Use a `freshness` quality check to enforce freshness.
+The `freshness` field on outputs declares the expected maximum age of the data as an ISO 8601 duration. This is metadata only — it documents the SLA but does not enforce it. Use a `freshness` quality check to enforce freshness.
 
 ```yaml
 output:

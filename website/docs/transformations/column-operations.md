@@ -22,7 +22,7 @@ Adds one or more computed columns to a dataset.
 | `name`       | string     | Yes      | Name of the new column.                |
 | `expression` | Expression | Yes      | Expression to compute the column value.|
 
-**Example -- derived columns:**
+**Example — derived columns:**
 
 ```yaml
 transformation:
@@ -57,7 +57,7 @@ Removes columns from a dataset.
 | `from`    | AssetRef               | Yes      | Source asset.         |
 | `columns` | NonEmptyList[Column]   | Yes      | Columns to remove.    |
 
-**Example -- remove sensitive fields before output:**
+**Example — remove sensitive fields before output:**
 
 ```yaml
 transformation:
@@ -72,7 +72,7 @@ transformation:
 
 **Constraints:**
 - If a named column does not exist, the runtime raises `E-COL-001`.
-- Dropping all columns is an error (`E-SCHEMA-002`) -- at least one column must remain.
+- Dropping all columns is an error (`E-SCHEMA-002`) — at least one column must remain.
 
 ---
 
@@ -87,7 +87,7 @@ Renames columns using a mapping of old names to new names.
 | `from`     | AssetRef              | Yes      | Source asset.                                        |
 | `mappings` | Map[Column, string]   | Yes      | Old name to new name mapping. At least one entry.    |
 
-**Example -- standardize column names:**
+**Example — standardize column names:**
 
 ```yaml
 transformation:
@@ -127,7 +127,7 @@ Changes the data type of one or more columns.
 | `name`       | Column | Yes      | Column to cast.                         |
 | `targetType` | string | Yes      | Target data type (see Data Types section).|
 
-**Example -- cast string columns to proper types:**
+**Example — cast string columns to proper types:**
 
 ```yaml
 transformation:

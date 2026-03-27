@@ -13,7 +13,7 @@ Variables allow Teckel documents to be parameterized with external values, makin
 Variables use the `${VAR}` syntax. An optional default value can be provided after a colon.
 
 ```
-${VAR_NAME}              # required variable -- error if unresolved
+${VAR_NAME}              # required variable — error if unresolved
 ${VAR_NAME:default}      # variable with a default value
 ```
 
@@ -31,10 +31,10 @@ escaped_dollar  = "$$" ;
 
 When the runtime encounters a `${VAR}` reference, it resolves it using this priority order:
 
-1. **Explicit variables map** -- values passed directly by the runtime (for example, command-line arguments like `-DVAR=value`).
-2. **Environment variables** -- from the operating system environment.
-3. **Default value** -- the value after `:` in `${VAR:default}`.
-4. **Error** -- if none of the above resolve the variable, the implementation raises `E-VAR-001`.
+1. **Explicit variables map** — values passed directly by the runtime (for example, command-line arguments like `-DVAR=value`).
+2. **Environment variables** — from the operating system environment.
+3. **Default value** — the value after `:` in `${VAR:default}`.
+4. **Error** — if none of the above resolve the variable, the implementation raises `E-VAR-001`.
 
 ### Examples
 
@@ -95,7 +95,7 @@ Variable substitution is a **single-pass** text replacement performed left to ri
 
 ```yaml
 # If ENV_NAME resolves to "${OTHER_VAR}", the result is literally "${OTHER_VAR}"
-# -- it is NOT expanded again
+# — it is NOT expanded again
 path: "${ENV_NAME}"
 ```
 
@@ -107,7 +107,7 @@ Variable substitution is applied to the **raw YAML text** before YAML parsing. V
 
 ## Secrets
 
-Secrets provide a secure mechanism for referencing sensitive values -- passwords, API tokens, connection strings -- that must not appear in plain text in the pipeline definition.
+Secrets provide a secure mechanism for referencing sensitive values — passwords, API tokens, connection strings — that must not appear in plain text in the pipeline definition.
 
 ### Syntax
 

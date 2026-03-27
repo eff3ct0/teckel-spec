@@ -1,6 +1,6 @@
 # Output Sinks
 
-An output defines where a pipeline writes its results. Unlike inputs and transformations, outputs do not create new assets -- they are **sinks** that reference an existing asset and persist its dataset to external storage.
+An output defines where a pipeline writes its results. Unlike inputs and transformations, outputs do not create new assets — they are **sinks** that reference an existing asset and persist its dataset to external storage.
 
 ## Anatomy of an Output
 
@@ -16,16 +16,16 @@ The `name` field is the key concept: it must match the name of an existing input
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `name` | AssetRef | Yes | -- | Must match the name of an input or transformation asset. |
-| `format` | string | Yes | -- | Output data format (same values as input formats). |
-| `path` | string | Yes | -- | Destination path or URI. |
+| `name` | AssetRef | Yes | — | Must match the name of an input or transformation asset. |
+| `format` | string | Yes | — | Output data format (same values as input formats). |
+| `path` | string | Yes | — | Destination path or URI. |
 | `mode` | string | No | `"error"` | Write mode (see below). |
 | `options` | Map | No | `{}` | Format-specific key-value options. |
-| `description` | string | No | -- | Human-readable description. |
+| `description` | string | No | — | Human-readable description. |
 | `tags` | List[string] | No | `[]` | Classification labels. |
 | `meta` | Map | No | `{}` | Open key-value metadata. |
-| `freshness` | string | No | -- | Expected update frequency (ISO 8601 duration). |
-| `maturity` | string | No | -- | Data maturity level. |
+| `freshness` | string | No | — | Expected update frequency (ISO 8601 duration). |
+| `maturity` | string | No | — | Data maturity level. |
 
 ## Outputs Reference Existing Assets
 
@@ -94,7 +94,7 @@ output:
       header: true
 ```
 
-> **Note:** If you omit `mode`, it defaults to `"error"`. This is the safest default -- it prevents accidental overwrites.
+> **Note:** If you omit `mode`, it defaults to `"error"`. This is the safest default — it prevents accidental overwrites.
 
 ## Metadata Fields
 
@@ -146,7 +146,7 @@ output:
 
 ## A Complete Example
 
-Putting it all together -- a pipeline that reads two sources, transforms them, and writes two outputs:
+Putting it all together — a pipeline that reads two sources, transforms them, and writes two outputs:
 
 ```yaml
 version: "2.0"
@@ -192,6 +192,6 @@ output:
 
 ## Semantics
 
-- Writing an empty dataset (zero rows) is valid. The behavior depends on the format -- Parquet writes an empty file with schema, CSV with `header: true` writes a header-only file.
+- Writing an empty dataset (zero rows) is valid. The behavior depends on the format — Parquet writes an empty file with schema, CSV with `header: true` writes a header-only file.
 - If an output references a name that does not exist as an input or transformation, the pipeline fails with error `E-REF-001`.
 - Outputs are atomic: if the pipeline fails, partial results are not written.

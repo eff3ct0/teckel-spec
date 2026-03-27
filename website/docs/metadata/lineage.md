@@ -1,6 +1,6 @@
 # Lineage
 
-Teckel pipelines define a directed acyclic graph (DAG) of assets. Lineage -- the record of how data flows from sources through transformations to outputs -- is implicit in this DAG structure. Every `from`, `left`, `right`, `sources`, `views`, `current`, and `incoming` field is a lineage edge.
+Teckel pipelines define a directed acyclic graph (DAG) of assets. Lineage — the record of how data flows from sources through transformations to outputs — is implicit in this DAG structure. Every `from`, `left`, `right`, `sources`, `views`, `current`, and `incoming` field is a lineage edge.
 
 ## Implicit Lineage from the DAG
 
@@ -93,7 +93,7 @@ Without a namespace, URNs are not generated. Asset names remain local to the pip
 
 Teckel defines **dataset-level lineage** explicitly through the DAG structure. Every edge in the graph (each `from`, `join`, `union`, etc.) is a dataset-level lineage relationship.
 
-**Column-level lineage** -- which output columns derive from which input columns -- is NOT declared in the YAML. It is **inferred** by the runtime from the transformation semantics. For example, a `select` with explicit column references allows the runtime to determine that `output.total_revenue` derives from `input.amount`.
+**Column-level lineage** — which output columns derive from which input columns — is NOT declared in the YAML. It is **inferred** by the runtime from the transformation semantics. For example, a `select` with explicit column references allows the runtime to determine that `output.total_revenue` derives from `input.amount`.
 
 ## OpenLineage Compatibility
 

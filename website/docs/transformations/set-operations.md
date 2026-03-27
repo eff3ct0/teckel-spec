@@ -2,7 +2,7 @@
 
 Set operations combine or compare entire datasets. Teckel provides three set operations: Union, Intersect, and Except.
 
-All three require **schema compatibility**: source datasets must have the same number of columns, matched positionally (by order, not by name). The output uses column names from the first source. Column types must be compatible -- the runtime applies implicit type widening where possible (e.g., `int` + `long` becomes `long`) and raises `E-SCHEMA-001` for incompatible types.
+All three require **schema compatibility**: source datasets must have the same number of columns, matched positionally (by order, not by name). The output uses column names from the first source. Column types must be compatible — the runtime applies implicit type widening where possible (e.g., `int` + `long` becomes `long`) and raises `E-SCHEMA-001` for incompatible types.
 
 ---
 
@@ -14,10 +14,10 @@ Combines rows from multiple datasets into one.
 
 | Field     | Type                    | Required | Default | Description                                          |
 |-----------|-------------------------|----------|---------|------------------------------------------------------|
-| `sources` | NonEmptyList[AssetRef]  | Yes      | --      | Assets to combine. Must contain at least 2 elements. |
+| `sources` | NonEmptyList[AssetRef]  | Yes      | —       | Assets to combine. Must contain at least 2 elements. |
 | `all`     | boolean                 | No       | `true`  | `true` = keep duplicates. `false` = remove duplicates.|
 
-**Example -- combine events from multiple sources:**
+**Example — combine events from multiple sources:**
 
 ```yaml
 transformation:
@@ -27,7 +27,7 @@ transformation:
       all: true
 ```
 
-**Example -- union with deduplication:**
+**Example — union with deduplication:**
 
 ```yaml
 transformation:
@@ -49,10 +49,10 @@ Returns rows that are present in **all** source datasets.
 
 | Field     | Type                    | Required | Default | Description                                           |
 |-----------|-------------------------|----------|---------|-------------------------------------------------------|
-| `sources` | NonEmptyList[AssetRef]  | Yes      | --      | Assets to intersect. Must contain at least 2 elements.|
+| `sources` | NonEmptyList[AssetRef]  | Yes      | —       | Assets to intersect. Must contain at least 2 elements.|
 | `all`     | boolean                 | No       | `false` | `true` = INTERSECT ALL. `false` = INTERSECT DISTINCT. |
 
-**Example -- find common products across two catalogs:**
+**Example — find common products across two catalogs:**
 
 ```yaml
 transformation:
@@ -62,7 +62,7 @@ transformation:
       all: false
 ```
 
-**Example -- intersect all (preserving duplicate counts):**
+**Example — intersect all (preserving duplicate counts):**
 
 ```yaml
 transformation:
@@ -84,13 +84,13 @@ Returns rows from the first source that are **not** in the second. This operatio
 
 | Field   | Type     | Required | Default | Description                                       |
 |---------|----------|----------|---------|---------------------------------------------------|
-| `left`  | AssetRef | Yes      | --      | Source dataset.                                   |
-| `right` | AssetRef | Yes      | --      | Dataset to subtract.                              |
+| `left`  | AssetRef | Yes      | —       | Source dataset.                                   |
+| `right` | AssetRef | Yes      | —       | Dataset to subtract.                              |
 | `all`   | boolean  | No       | `false` | `true` = EXCEPT ALL. `false` = EXCEPT DISTINCT.   |
 
 Unlike union and intersect, except uses `left` and `right` fields instead of `sources` because the operation is directional.
 
-**Example -- find customers who have not placed orders:**
+**Example — find customers who have not placed orders:**
 
 ```yaml
 transformation:
@@ -101,7 +101,7 @@ transformation:
       all: false
 ```
 
-**Example -- except all (preserving duplicate counts):**
+**Example — except all (preserving duplicate counts):**
 
 ```yaml
 transformation:
@@ -112,4 +112,4 @@ transformation:
       all: true
 ```
 
-> **Tip:** Schema compatibility applies here too -- `left` and `right` must have the same number of columns with compatible types.
+> **Tip:** Schema compatibility applies here too — `left` and `right` must have the same number of columns with compatible types.

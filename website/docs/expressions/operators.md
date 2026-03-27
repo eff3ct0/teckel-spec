@@ -8,15 +8,15 @@ Operators are listed from highest precedence (evaluated first) to lowest precede
 
 | Precedence | Operator | Associativity | Description |
 |------------|----------|---------------|-------------|
-| 1 | `()`, function calls | -- | Grouping, function application |
+| 1 | `()`, function calls | — | Grouping, function application |
 | 2 | unary `-` | Right | Numeric negation |
 | 3 | `*`, `/`, `%` | Left | Multiplication, division, modulo |
 | 4 | `+`, `-` | Left | Addition, subtraction |
-| 5 | `=`, `!=`, `<>`, `<`, `>`, `<=`, `>=`, `IS`, `IN`, `BETWEEN`, `LIKE` | -- | Comparison and special operators |
+| 5 | `=`, `!=`, `<>`, `<`, `>`, `<=`, `>=`, `IS`, `IN`, `BETWEEN`, `LIKE` | — | Comparison and special operators |
 | 6 | `NOT` | Right | Logical negation |
 | 7 | `AND` | Left | Logical conjunction |
 | 8 | `OR` | Left | Logical disjunction |
-| 9 | `as` | -- | Aliasing (lowest) |
+| 9 | `as` | — | Aliasing (lowest) |
 
 Parentheses override default precedence. When in doubt, use them for clarity.
 

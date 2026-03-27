@@ -18,8 +18,8 @@ The Core level covers the fundamental pipeline model: document structure, inputs
 
 | Sections | Coverage |
 |----------|----------|
-| 1--7 | Document structure, input, output |
-| 8.1--8.10 | Basic transformations: select, where, group, orderBy, join, union, intersect, except, distinct, limit |
+| 1–7 | Document structure, input, output |
+| 8.1–8.10 | Basic transformations: select, where, group, orderBy, join, union, intersect, except, distinct, limit |
 | 9 | Expression language (grammar, precedence, core aggregates and comparison operators) |
 | 10 | Data types (simple types only) |
 | 11 | Null semantics |
@@ -39,7 +39,7 @@ The Extended level adds all transformations, full function support, parameterize
 
 | Sections | Coverage |
 |----------|----------|
-| 8.11--8.31 | All transformations: addColumns, dropColumns, renameColumns, castColumns, window, pivot, unpivot, flatten, sample, conditional, split, sql, rollup, cube, scd2, enrich, schemaEnforce, assertion, repartition, coalesce, custom |
+| 8.11–8.31 | All transformations: addColumns, dropColumns, renameColumns, castColumns, window, pivot, unpivot, flatten, sample, conditional, split, sql, rollup, cube, scd2, enrich, schemaEnforce, assertion, repartition, coalesce, custom |
 | 9.6 | All core functions (aggregate, string, numeric, date/time, window, conditional) |
 | 10 | All data types including parameterized (decimal, array, map, struct) |
 | 13 | Secrets |
@@ -66,9 +66,9 @@ The Streaming level adds continuous processing capabilities on top of the Extend
 
 An implementation claiming conformance must:
 
-1. **State the conformance level** -- Core, Extended, or Streaming.
+1. **State the conformance level** — Core, Extended, or Streaming.
 2. **List any optional features that are not supported.** For example, a Core implementation might note that it does not support the `delta` format.
-3. **Document any implementation-specific extensions** -- additional formats, functions, or transformations beyond what the specification requires.
+3. **Document any implementation-specific extensions** — additional formats, functions, or transformations beyond what the specification requires.
 4. **Pass the conformance test suite** for the claimed level (when the test suite is available).
 
 ### Example Declaration

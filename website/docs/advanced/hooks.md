@@ -20,8 +20,8 @@ hooks:
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `name` | string | Yes | -- | Hook identifier (used in log messages) |
-| `command` | string | Yes | -- | Shell command to execute |
+| `name` | string | Yes | — | Hook identifier (used in log messages) |
+| `command` | string | Yes | — | Shell command to execute |
 
 ---
 
