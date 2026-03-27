@@ -1,0 +1,687 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eff3ct0/teckel-spec/spec/v2.0/teckel-schema.json",
+  "title": "Teckel Pipeline Specification v2.0",
+  "description": "JSON Schema for validating Teckel v2.0 YAML pipeline documents.",
+  "type": "object",
+  "required": ["version", "input", "output"],
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": {
+      "description": "Extension fields (ignored by conforming implementations)."
+    }
+  },
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "2.0",
+      "description": "Teckel specification version."
+    },
+    "config": { "$ref": "#/$defs/Config" },
+    "secrets": { "$ref": "#/$defs/Secrets" },
+    "hooks": { "$ref": "#/$defs/Hooks" },
+    "templates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Template" }
+    },
+    "input": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Input" }
+    },
+    "streamingInput": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/StreamingInput" }
+    },
+    "transformation": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Transformation" }
+    },
+    "output": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Output" }
+    },
+    "streamingOutput": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/StreamingOutput" }
+    }
+  },
+
+  "$defs": {
+    "AssetRef": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,127}$",
+      "description": "Unique asset identifier."
+    },
+    "Expression": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Teckel expression (SQL-like)."
+    },
+    "Condition": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A boolean expression."
+    },
+    "Primitive": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "integer" },
+        { "type": "boolean" }
+      ]
+    },
+
+    "Input": {
+      "type": "object",
+      "required": ["name", "format", "path"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/AssetRef" },
+        "format": { "type": "string", "minLength": 1 },
+        "path": { "type": "string" },
+        "options": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/Primitive" }
+        }
+      }
+    },
+
+    "Output": {
+      "type": "object",
+      "required": ["name", "format", "path"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/AssetRef" },
+        "format": { "type": "string", "minLength": 1 },
+        "path": { "type": "string" },
+        "mode": {
+          "type": "string",
+          "enum": ["error", "overwrite", "append", "ignore"],
+          "default": "error"
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/Primitive" }
+        }
+      }
+    },
+
+    "StreamingInput": {
+      "type": "object",
+      "required": ["name", "format"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/AssetRef" },
+        "format": { "type": "string", "minLength": 1 },
+        "path": { "type": "string" },
+        "options": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/Primitive" }
+        },
+        "trigger": { "type": "string" }
+      }
+    },
+
+    "StreamingOutput": {
+      "type": "object",
+      "required": ["name", "format"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/AssetRef" },
+        "format": { "type": "string", "minLength": 1 },
+        "path": { "type": "string" },
+        "options": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/Primitive" }
+        },
+        "outputMode": {
+          "type": "string",
+          "enum": ["append", "update", "complete"]
+        },
+        "checkpointLocation": { "type": "string" },
+        "trigger": { "type": "string" }
+      }
+    },
+
+    "Transformation": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "$ref": "#/$defs/AssetRef" }
+      },
+      "oneOf": [
+        { "required": ["select"], "properties": { "name": true, "select": { "$ref": "#/$defs/SelectOp" } }, "additionalProperties": false },
+        { "required": ["where"], "properties": { "name": true, "where": { "$ref": "#/$defs/WhereOp" } }, "additionalProperties": false },
+        { "required": ["group"], "properties": { "name": true, "group": { "$ref": "#/$defs/GroupOp" } }, "additionalProperties": false },
+        { "required": ["orderBy"], "properties": { "name": true, "orderBy": { "$ref": "#/$defs/OrderByOp" } }, "additionalProperties": false },
+        { "required": ["join"], "properties": { "name": true, "join": { "$ref": "#/$defs/JoinOp" } }, "additionalProperties": false },
+        { "required": ["union"], "properties": { "name": true, "union": { "$ref": "#/$defs/UnionOp" } }, "additionalProperties": false },
+        { "required": ["intersect"], "properties": { "name": true, "intersect": { "$ref": "#/$defs/IntersectOp" } }, "additionalProperties": false },
+        { "required": ["except"], "properties": { "name": true, "except": { "$ref": "#/$defs/ExceptOp" } }, "additionalProperties": false },
+        { "required": ["distinct"], "properties": { "name": true, "distinct": { "$ref": "#/$defs/DistinctOp" } }, "additionalProperties": false },
+        { "required": ["limit"], "properties": { "name": true, "limit": { "$ref": "#/$defs/LimitOp" } }, "additionalProperties": false },
+        { "required": ["addColumns"], "properties": { "name": true, "addColumns": { "$ref": "#/$defs/AddColumnsOp" } }, "additionalProperties": false },
+        { "required": ["dropColumns"], "properties": { "name": true, "dropColumns": { "$ref": "#/$defs/DropColumnsOp" } }, "additionalProperties": false },
+        { "required": ["renameColumns"], "properties": { "name": true, "renameColumns": { "$ref": "#/$defs/RenameColumnsOp" } }, "additionalProperties": false },
+        { "required": ["castColumns"], "properties": { "name": true, "castColumns": { "$ref": "#/$defs/CastColumnsOp" } }, "additionalProperties": false },
+        { "required": ["window"], "properties": { "name": true, "window": { "$ref": "#/$defs/WindowOp" } }, "additionalProperties": false },
+        { "required": ["pivot"], "properties": { "name": true, "pivot": { "$ref": "#/$defs/PivotOp" } }, "additionalProperties": false },
+        { "required": ["unpivot"], "properties": { "name": true, "unpivot": { "$ref": "#/$defs/UnpivotOp" } }, "additionalProperties": false },
+        { "required": ["flatten"], "properties": { "name": true, "flatten": { "$ref": "#/$defs/FlattenOp" } }, "additionalProperties": false },
+        { "required": ["sample"], "properties": { "name": true, "sample": { "$ref": "#/$defs/SampleOp" } }, "additionalProperties": false },
+        { "required": ["conditional"], "properties": { "name": true, "conditional": { "$ref": "#/$defs/ConditionalOp" } }, "additionalProperties": false },
+        { "required": ["split"], "properties": { "name": true, "split": { "$ref": "#/$defs/SplitOp" } }, "additionalProperties": false },
+        { "required": ["sql"], "properties": { "name": true, "sql": { "$ref": "#/$defs/SqlOp" } }, "additionalProperties": false },
+        { "required": ["rollup"], "properties": { "name": true, "rollup": { "$ref": "#/$defs/RollupOp" } }, "additionalProperties": false },
+        { "required": ["cube"], "properties": { "name": true, "cube": { "$ref": "#/$defs/CubeOp" } }, "additionalProperties": false },
+        { "required": ["scd2"], "properties": { "name": true, "scd2": { "$ref": "#/$defs/SCD2Op" } }, "additionalProperties": false },
+        { "required": ["enrich"], "properties": { "name": true, "enrich": { "$ref": "#/$defs/EnrichOp" } }, "additionalProperties": false },
+        { "required": ["schemaEnforce"], "properties": { "name": true, "schemaEnforce": { "$ref": "#/$defs/SchemaEnforceOp" } }, "additionalProperties": false },
+        { "required": ["assertion"], "properties": { "name": true, "assertion": { "$ref": "#/$defs/AssertionOp" } }, "additionalProperties": false },
+        { "required": ["repartition"], "properties": { "name": true, "repartition": { "$ref": "#/$defs/RepartitionOp" } }, "additionalProperties": false },
+        { "required": ["coalesce"], "properties": { "name": true, "coalesce": { "$ref": "#/$defs/CoalesceOp" } }, "additionalProperties": false },
+        { "required": ["custom"], "properties": { "name": true, "custom": { "$ref": "#/$defs/CustomOp" } }, "additionalProperties": false }
+      ]
+    },
+
+    "SelectOp": {
+      "type": "object",
+      "required": ["from", "columns"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "columns": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/Expression" } }
+      }
+    },
+    "WhereOp": {
+      "type": "object",
+      "required": ["from", "filter"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "filter": { "$ref": "#/$defs/Condition" }
+      }
+    },
+    "GroupOp": {
+      "type": "object",
+      "required": ["from", "by", "agg"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "by": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "agg": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/Expression" } }
+      }
+    },
+    "SortColumn": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "required": ["column"],
+          "additionalProperties": false,
+          "properties": {
+            "column": { "type": "string" },
+            "direction": { "type": "string", "enum": ["asc", "desc"], "default": "asc" },
+            "nulls": { "type": "string", "enum": ["first", "last"], "default": "last" }
+          }
+        }
+      ]
+    },
+    "OrderByOp": {
+      "type": "object",
+      "required": ["from", "columns"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "columns": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/SortColumn" } }
+      }
+    },
+    "JoinTarget": {
+      "type": "object",
+      "required": ["name", "type", "on"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/AssetRef" },
+        "type": { "type": "string", "enum": ["inner", "left", "right", "outer", "cross", "left_semi", "left_anti"] },
+        "on": { "type": "array", "items": { "$ref": "#/$defs/Condition" } }
+      }
+    },
+    "JoinOp": {
+      "type": "object",
+      "required": ["left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "left": { "$ref": "#/$defs/AssetRef" },
+        "right": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/JoinTarget" } }
+      }
+    },
+    "UnionOp": {
+      "type": "object",
+      "required": ["sources"],
+      "additionalProperties": false,
+      "properties": {
+        "sources": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/AssetRef" } },
+        "all": { "type": "boolean", "default": true }
+      }
+    },
+    "IntersectOp": {
+      "type": "object",
+      "required": ["sources"],
+      "additionalProperties": false,
+      "properties": {
+        "sources": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/AssetRef" } },
+        "all": { "type": "boolean", "default": false }
+      }
+    },
+    "ExceptOp": {
+      "type": "object",
+      "required": ["left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "left": { "$ref": "#/$defs/AssetRef" },
+        "right": { "$ref": "#/$defs/AssetRef" },
+        "all": { "type": "boolean", "default": false }
+      }
+    },
+    "DistinctOp": {
+      "type": "object",
+      "required": ["from"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "columns": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "LimitOp": {
+      "type": "object",
+      "required": ["from", "count"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "ColumnDef": {
+      "type": "object",
+      "required": ["name", "expression"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "expression": { "$ref": "#/$defs/Expression" }
+      }
+    },
+    "AddColumnsOp": {
+      "type": "object",
+      "required": ["from", "columns"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "columns": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ColumnDef" } }
+      }
+    },
+    "DropColumnsOp": {
+      "type": "object",
+      "required": ["from", "columns"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "columns": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    },
+    "RenameColumnsOp": {
+      "type": "object",
+      "required": ["from", "mappings"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "mappings": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "CastDef": {
+      "type": "object",
+      "required": ["name", "targetType"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "targetType": { "type": "string" }
+      }
+    },
+    "CastColumnsOp": {
+      "type": "object",
+      "required": ["from", "columns"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "columns": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/CastDef" } }
+      }
+    },
+    "WindowFuncDef": {
+      "type": "object",
+      "required": ["expression", "alias"],
+      "additionalProperties": false,
+      "properties": {
+        "expression": { "$ref": "#/$defs/Expression" },
+        "alias": { "type": "string" }
+      }
+    },
+    "FrameSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "enum": ["rows", "range"], "default": "range" },
+        "start": { "type": "string", "default": "unbounded preceding" },
+        "end": { "type": "string", "default": "current row" }
+      }
+    },
+    "WindowOp": {
+      "type": "object",
+      "required": ["from", "partitionBy", "functions"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "partitionBy": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "orderBy": { "type": "array", "items": { "$ref": "#/$defs/SortColumn" } },
+        "frame": { "$ref": "#/$defs/FrameSpec" },
+        "functions": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/WindowFuncDef" } }
+      }
+    },
+    "PivotOp": {
+      "type": "object",
+      "required": ["from", "groupBy", "pivotColumn", "agg"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "groupBy": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "pivotColumn": { "type": "string" },
+        "values": { "type": "array", "items": { "type": "string" } },
+        "agg": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/Expression" } }
+      }
+    },
+    "UnpivotOp": {
+      "type": "object",
+      "required": ["from", "ids", "values", "variableColumn", "valueColumn"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "ids": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "values": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "variableColumn": { "type": "string" },
+        "valueColumn": { "type": "string" }
+      }
+    },
+    "FlattenOp": {
+      "type": "object",
+      "required": ["from"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "separator": { "type": "string", "default": "_" },
+        "explodeArrays": { "type": "boolean", "default": false }
+      }
+    },
+    "SampleOp": {
+      "type": "object",
+      "required": ["from", "fraction"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "fraction": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "withReplacement": { "type": "boolean", "default": false },
+        "seed": { "type": "integer" }
+      }
+    },
+    "Branch": {
+      "type": "object",
+      "required": ["condition", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "condition": { "$ref": "#/$defs/Condition" },
+        "value": { "$ref": "#/$defs/Expression" }
+      }
+    },
+    "ConditionalOp": {
+      "type": "object",
+      "required": ["from", "outputColumn", "branches"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "outputColumn": { "type": "string" },
+        "branches": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/Branch" } },
+        "otherwise": { "$ref": "#/$defs/Expression" }
+      }
+    },
+    "SplitOp": {
+      "type": "object",
+      "required": ["from", "condition", "pass", "fail"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "condition": { "$ref": "#/$defs/Condition" },
+        "pass": { "$ref": "#/$defs/AssetRef" },
+        "fail": { "$ref": "#/$defs/AssetRef" }
+      }
+    },
+    "SqlOp": {
+      "type": "object",
+      "required": ["query", "views"],
+      "additionalProperties": false,
+      "properties": {
+        "query": { "type": "string", "minLength": 1 },
+        "views": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/AssetRef" } }
+      }
+    },
+    "RollupOp": {
+      "type": "object",
+      "required": ["from", "by", "agg"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "by": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "agg": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/Expression" } }
+      }
+    },
+    "CubeOp": {
+      "type": "object",
+      "required": ["from", "by", "agg"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "by": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "agg": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/Expression" } }
+      }
+    },
+    "SCD2Op": {
+      "type": "object",
+      "required": ["current", "incoming", "keyColumns", "trackColumns", "startDateColumn", "endDateColumn", "currentFlagColumn"],
+      "additionalProperties": false,
+      "properties": {
+        "current": { "$ref": "#/$defs/AssetRef" },
+        "incoming": { "$ref": "#/$defs/AssetRef" },
+        "keyColumns": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "trackColumns": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "startDateColumn": { "type": "string" },
+        "endDateColumn": { "type": "string" },
+        "currentFlagColumn": { "type": "string" }
+      }
+    },
+    "EnrichOp": {
+      "type": "object",
+      "required": ["from", "url", "keyColumn", "responseColumn"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "url": { "type": "string" },
+        "method": { "type": "string", "default": "GET" },
+        "keyColumn": { "type": "string" },
+        "responseColumn": { "type": "string" },
+        "headers": { "type": "object", "additionalProperties": { "type": "string" } },
+        "onError": { "type": "string", "enum": ["null", "fail", "skip"], "default": "null" },
+        "timeout": { "type": "integer", "minimum": 1, "default": 30000 },
+        "maxRetries": { "type": "integer", "minimum": 0, "default": 3 }
+      }
+    },
+    "SchemaColumn": {
+      "type": "object",
+      "required": ["name", "dataType"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "dataType": { "type": "string" },
+        "nullable": { "type": "boolean", "default": true },
+        "default": { "$ref": "#/$defs/Expression" }
+      }
+    },
+    "SchemaEnforceOp": {
+      "type": "object",
+      "required": ["from", "columns"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "mode": { "type": "string", "enum": ["strict", "evolve"], "default": "strict" },
+        "columns": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/SchemaColumn" } }
+      }
+    },
+    "QualityCheck": {
+      "type": "object",
+      "required": ["rule"],
+      "additionalProperties": false,
+      "properties": {
+        "column": { "type": "string" },
+        "rule": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "AssertionOp": {
+      "type": "object",
+      "required": ["from", "checks"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "checks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/QualityCheck" } },
+        "onFailure": { "type": "string", "enum": ["fail", "warn", "drop"], "default": "fail" }
+      }
+    },
+    "RepartitionOp": {
+      "type": "object",
+      "required": ["from", "numPartitions"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "numPartitions": { "type": "integer", "minimum": 1 },
+        "columns": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "CoalesceOp": {
+      "type": "object",
+      "required": ["from", "numPartitions"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "numPartitions": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "CustomOp": {
+      "type": "object",
+      "required": ["from", "component"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/AssetRef" },
+        "component": { "type": "string" },
+        "options": { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+
+    "Config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backend": { "type": "string" },
+        "cache": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "autoCacheThreshold": { "type": "integer", "minimum": 1 },
+            "defaultStorageLevel": { "type": "string" }
+          }
+        },
+        "notifications": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "onSuccess": { "type": "array", "items": { "$ref": "#/$defs/NotificationTarget" } },
+            "onFailure": { "type": "array", "items": { "$ref": "#/$defs/NotificationTarget" } }
+          }
+        },
+        "components": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "readers": { "type": "array" },
+            "transformers": { "type": "array" },
+            "writers": { "type": "array" }
+          }
+        }
+      }
+    },
+    "NotificationTarget": {
+      "type": "object",
+      "required": ["channel"],
+      "additionalProperties": false,
+      "properties": {
+        "channel": { "type": "string", "enum": ["log", "webhook", "file"] },
+        "url": { "type": "string" },
+        "path": { "type": "string" }
+      }
+    },
+    "Secrets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "keys": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["key"],
+            "additionalProperties": false,
+            "properties": {
+              "scope": { "type": "string" },
+              "key": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "Hook": {
+      "type": "object",
+      "required": ["name", "command"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "command": { "type": "string" }
+      }
+    },
+    "Hooks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "preExecution": { "type": "array", "items": { "$ref": "#/$defs/Hook" } },
+        "postExecution": { "type": "array", "items": { "$ref": "#/$defs/Hook" } }
+      }
+    },
+    "Template": {
+      "type": "object",
+      "required": ["name", "parameters"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "parameters": { "type": "object", "additionalProperties": { "$ref": "#/$defs/Primitive" } }
+      }
+    }
+  }
+}

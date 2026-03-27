@@ -74,6 +74,11 @@ const config: Config = {
           label: 'Documentation',
         },
         {
+          to: '/playground',
+          label: 'Playground',
+          position: 'left',
+        },
+        {
           href: 'https://github.com/eff3ct0/teckel-spec',
           label: 'GitHub',
           position: 'right',
