@@ -42,6 +42,17 @@ const config: Config = {
         docs: {
           routeBasePath: '/docs',
           sidebarPath: './sidebars.ts',
+          lastVersion: '2.0',
+          versions: {
+            current: {
+              label: 'Next',
+              path: 'next',
+            },
+            '2.0': {
+              label: '2.0',
+              path: '',
+            },
+          },
           editUrl:
             'https://github.com/eff3ct0/teckel-spec/edit/main/website/',
         },
@@ -77,6 +88,10 @@ const config: Config = {
           to: '/playground',
           label: 'Playground',
           position: 'left',
+        },
+        {
+          type: 'docsVersionDropdown',
+          position: 'right',
         },
         {
           href: 'https://github.com/eff3ct0/teckel-spec',
