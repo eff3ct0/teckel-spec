@@ -1,1310 +1,2616 @@
-# Teckel Specification v2.0
+# Teckel Specification
 
+**Version:** 2.0
 **Status:** Draft
 **Date:** 2026-03-27
 **Authors:** Rafael Fernández (eff3ct0)
 
 ---
 
-## Table of Contents
+## Abstract
 
-1. [Introduction](#1-introduction)
-2. [Document Structure](#2-document-structure)
-3. [Naming and References](#3-naming-and-references)
-4. [Input](#4-input)
-5. [Output](#5-output)
-6. [Transformations](#6-transformations)
-   - 6.1 [Select](#61-select)
-   - 6.2 [Where](#62-where)
-   - 6.3 [Group By](#63-group-by)
-   - 6.4 [Order By](#64-order-by)
-   - 6.5 [Join](#65-join)
-   - 6.6 [Union](#66-union)
-   - 6.7 [Intersect](#67-intersect)
-   - 6.8 [Except](#68-except)
-   - 6.9 [Distinct](#69-distinct)
-   - 6.10 [Limit](#610-limit)
-   - 6.11 [Add Columns](#611-add-columns)
-   - 6.12 [Drop Columns](#612-drop-columns)
-   - 6.13 [Rename Columns](#613-rename-columns)
-   - 6.14 [Cast Columns](#614-cast-columns)
-   - 6.15 [Window](#615-window)
-   - 6.16 [Pivot](#616-pivot)
-   - 6.17 [Unpivot](#617-unpivot)
-   - 6.18 [Flatten](#618-flatten)
-   - 6.19 [Sample](#619-sample)
-   - 6.20 [Conditional](#620-conditional)
-   - 6.21 [Split](#621-split)
-   - 6.22 [SQL](#622-sql)
-   - 6.23 [Rollup](#623-rollup)
-   - 6.24 [Cube](#624-cube)
-   - 6.25 [SCD Type 2](#625-scd-type-2)
-   - 6.26 [Enrich](#626-enrich)
-   - 6.27 [Schema Enforce](#627-schema-enforce)
-   - 6.28 [Assertion](#628-assertion)
-   - 6.29 [Repartition](#629-repartition)
-   - 6.30 [Coalesce](#630-coalesce)
-   - 6.31 [Custom](#631-custom)
-7. [Expression Language](#7-expression-language)
-8. [Data Types](#8-data-types)
-9. [Variable Substitution](#9-variable-substitution)
-10. [Secrets](#10-secrets)
-11. [Configuration](#11-configuration)
-12. [Streaming](#12-streaming)
-13. [Hooks](#13-hooks)
-14. [Templates](#14-templates)
-15. [Config Merging](#15-config-merging)
-16. [Validation Rules](#16-validation-rules)
-17. [Conformance](#17-conformance)
+Teckel is a declarative YAML-based language for defining data transformation pipelines. A Teckel document describes a directed acyclic graph (DAG) of data assets — inputs, transformations, and outputs — that a conforming runtime executes to move and transform data between systems.
+
+This document is the formal specification of the Teckel format. It defines the syntax, semantics, expression language, and runtime behavior that any conforming implementation MUST support, independent of programming language or execution engine.
 
 ---
 
-## 1. Introduction
+## Status of This Document
 
-Teckel is a declarative language for describing data transformation pipelines. A Teckel document is a YAML file that defines:
+This is a **Draft** specification. It is subject to change. Feedback is welcome via the [teckel-spec](https://github.com/eff3ct0/teckel-spec) repository.
 
-- **Inputs**: data sources to read from.
-- **Transformations**: operations to apply on the data.
-- **Outputs**: destinations to write the results.
+---
 
-The pipeline forms a **directed acyclic graph** (DAG) where each node is an **asset** — a named reference to either an input, a transformation result, or an output. Assets reference other assets by name, and the runtime resolves these references to build the execution plan.
+## Table of Contents
 
-This specification is **language-agnostic**. It defines the format, semantics, and expression language independently of any runtime or execution engine. Implementations MAY target Apache Spark, Apache DataFusion, DuckDB, Polars, pandas, or any other data processing framework.
+1. [Notation and Conventions](#1-notation-and-conventions)
+2. [Terminology](#2-terminology)
+3. [Document Model](#3-document-model)
+4. [Document Structure](#4-document-structure)
+5. [Naming and Asset References](#5-naming-and-asset-references)
+6. [Input](#6-input)
+7. [Output](#7-output)
+8. [Transformations](#8-transformations)
+   - 8.1 [Select](#81-select)
+   - 8.2 [Where (Filter)](#82-where-filter)
+   - 8.3 [Group By](#83-group-by)
+   - 8.4 [Order By](#84-order-by)
+   - 8.5 [Join](#85-join)
+   - 8.6 [Union](#86-union)
+   - 8.7 [Intersect](#87-intersect)
+   - 8.8 [Except](#88-except)
+   - 8.9 [Distinct](#89-distinct)
+   - 8.10 [Limit](#810-limit)
+   - 8.11 [Add Columns](#811-add-columns)
+   - 8.12 [Drop Columns](#812-drop-columns)
+   - 8.13 [Rename Columns](#813-rename-columns)
+   - 8.14 [Cast Columns](#814-cast-columns)
+   - 8.15 [Window](#815-window)
+   - 8.16 [Pivot](#816-pivot)
+   - 8.17 [Unpivot](#817-unpivot)
+   - 8.18 [Flatten](#818-flatten)
+   - 8.19 [Sample](#819-sample)
+   - 8.20 [Conditional](#820-conditional)
+   - 8.21 [Split](#821-split)
+   - 8.22 [SQL](#822-sql)
+   - 8.23 [Rollup](#823-rollup)
+   - 8.24 [Cube](#824-cube)
+   - 8.25 [SCD Type 2](#825-scd-type-2)
+   - 8.26 [Enrich](#826-enrich)
+   - 8.27 [Schema Enforce](#827-schema-enforce)
+   - 8.28 [Assertion](#828-assertion)
+   - 8.29 [Repartition](#829-repartition)
+   - 8.30 [Coalesce](#830-coalesce)
+   - 8.31 [Custom](#831-custom)
+9. [Expression Language](#9-expression-language)
+10. [Data Types](#10-data-types)
+11. [Null Semantics](#11-null-semantics)
+12. [Variable Substitution](#12-variable-substitution)
+13. [Secrets](#13-secrets)
+14. [Configuration](#14-configuration)
+15. [Streaming](#15-streaming)
+16. [Hooks](#16-hooks)
+17. [Templates](#17-templates)
+18. [Config Merging](#18-config-merging)
+19. [Path Resolution](#19-path-resolution)
+20. [Validation Rules](#20-validation-rules)
+21. [Execution Model](#21-execution-model)
+22. [Error Catalog](#22-error-catalog)
+23. [Security Considerations](#23-security-considerations)
+24. [Conformance](#24-conformance)
+- [Appendix A: EBNF Grammar Summary](#appendix-a-ebnf-grammar-summary)
+- [Appendix B: JSON Schema](#appendix-b-json-schema)
+- [Appendix C: Complete Examples](#appendix-c-complete-examples)
+- [Appendix D: Changelog](#appendix-d-changelog)
 
-### 1.1 Terminology
+---
+
+## 1. Notation and Conventions
+
+### 1.1 Requirement Levels (RFC 2119)
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt).
+
+### 1.2 EBNF Notation
+
+This specification uses Extended Backus-Naur Form (EBNF) as defined in ISO/IEC 14977 for formal grammar definitions. The following conventions apply:
+
+```
+=           definition
+;           termination
+|           alternation
+,           concatenation
+[...]       optional (0 or 1)
+{...}       repetition (0 or more)
+(...)       grouping
+"..."       terminal string (case-sensitive)
+'...'       terminal string (case-sensitive)
+(* ... *)   comment
+? ... ?     special sequence (described in prose)
+-           exception
+```
+
+### 1.3 Type Notation
+
+Field definitions use the following type annotations:
+
+| Notation | Meaning |
+|----------|---------|
+| `string` | A YAML scalar string. |
+| `integer` | A YAML scalar integer. |
+| `double` | A YAML scalar floating-point number. |
+| `boolean` | A YAML scalar boolean (`true` or `false`). |
+| `primitive` | One of: `string`, `integer`, `double`, or `boolean`. |
+| `List[T]` | A YAML sequence of zero or more elements of type `T`. |
+| `NonEmptyList[T]` | A YAML sequence of **one or more** elements of type `T`. |
+| `Map[K, V]` | A YAML mapping from keys of type `K` to values of type `V`. |
+| `T?` | An optional field; MAY be omitted. |
+| `Expression` | A string conforming to the expression grammar ([Section 9](#9-expression-language)). |
+| `Condition` | An `Expression` that evaluates to a boolean value. |
+| `AssetRef` | A string conforming to the asset reference grammar ([Section 5](#5-naming-and-asset-references)). |
+
+### 1.4 Presentation Convention
+
+Each construct in this specification is presented with:
+
+1. **Description** — prose explaining the construct's purpose and semantics.
+2. **Schema** — a YAML skeleton showing the structure.
+3. **Fixed-fields table** — field name, type, required/optional, default, and description.
+4. **Valid example** — a conforming usage.
+5. **Invalid example** — a non-conforming usage with explanation (marked with `# INVALID`).
+6. **Semantics** — additional behavioral rules.
+
+---
+
+## 2. Terminology
 
 | Term | Definition |
 |------|-----------|
-| **Asset** | A named node in the pipeline DAG. Every input, transformation, and output is an asset. |
-| **AssetRef** | A string identifier that uniquely names an asset within a document. |
-| **Expression** | A SQL-like string that evaluates to a value, column reference, or boolean condition. |
-| **Condition** | An expression that evaluates to a boolean value. |
-| **Column** | A string identifying a column by name, optionally qualified with a table prefix (`table.column`). |
-
-### 1.2 Notation
-
-- **REQUIRED** fields MUST be present. Omitting them is a validation error.
-- **OPTIONAL** fields MAY be omitted. When omitted, the documented default applies.
-- `NonEmptyList[T]` denotes a YAML list with at least one element.
+| **Asset** | A named node in the pipeline DAG. Every input, transformation, and output produces an asset. |
+| **AssetRef** | A unique string identifier for an asset within a document. See [Section 5](#5-naming-and-asset-references). |
+| **Pipeline** | The complete DAG described by a Teckel document, from inputs through transformations to outputs. |
+| **Source asset** | An input asset or transformation asset that another asset depends on. |
+| **Sink** | An output asset that writes data to an external destination. Sinks are terminal nodes in the DAG. |
+| **Expression** | A string in the Teckel expression language that evaluates to a value. See [Section 9](#9-expression-language). |
+| **Condition** | An expression that evaluates to a boolean. |
+| **Column** | A string naming a column in a dataset, optionally qualified as `asset.column`. |
+| **Dataset** | The tabular data (rows and columns) associated with an asset at runtime. |
+| **Runtime** | The engine executing the pipeline (e.g., Apache Spark, DuckDB, Polars). |
+| **Conforming implementation** | A runtime that satisfies the requirements in [Section 24](#24-conformance). |
 
 ---
 
-## 2. Document Structure
+## 3. Document Model
 
-A Teckel document is a YAML file with the following top-level keys:
+### 3.1 Pipeline as DAG
+
+A Teckel document describes a **directed acyclic graph** (DAG) where:
+
+- **Nodes** are assets (inputs, transformations, outputs).
+- **Edges** represent data dependencies: an edge from asset A to asset B means B consumes the dataset produced by A.
+
+Inputs are **source nodes** (no incoming edges). Outputs are **sink nodes** (no outgoing edges within the pipeline). Transformations are **intermediate nodes**.
+
+### 3.2 Asset Identity
+
+Every asset is uniquely identified by its `name` field (its AssetRef). The namespace is **flat and global** within a document — input names, transformation names, and output names all share the same namespace.
+
+**Outputs are sinks, not assets in the reference namespace.** An output's `name` field is a **reference to** an existing input or transformation asset — it does NOT create a new asset. Other transformations MUST NOT reference an output by name.
+
+> **Rationale:** This eliminates the ambiguity of whether outputs participate in the DAG as referenceable nodes. They are consumers only.
+
+### 3.3 Execution Semantics
+
+The DAG is resolved via **topological sort**. Assets with no unresolved dependencies MAY execute in any order, including in parallel. The textual order of entries in the YAML document has **no semantic significance** — only data dependencies determine execution order.
+
+> **Note:** A conforming implementation MAY fuse, reorder, or optimize asset execution as long as the observable output is equivalent to executing each asset independently in topological order.
+
+---
+
+## 4. Document Structure
+
+A Teckel document is a YAML 1.2 file with the following top-level keys:
 
 ```yaml
-version: "2.0"                    # OPTIONAL — spec version
-
-config:                            # OPTIONAL — pipeline configuration
-  ...
-
-secrets:                           # OPTIONAL — secret key mappings
-  ...
-
-hooks:                             # OPTIONAL — lifecycle hooks
-  ...
-
-templates:                         # OPTIONAL — reusable templates
-  ...
-
-input:                             # REQUIRED — at least one input
-  - ...
-
-streamingInput:                    # OPTIONAL — streaming sources
-  - ...
-
-transformation:                    # OPTIONAL — transformation steps
-  - ...
-
-output:                            # REQUIRED — at least one output
-  - ...
-
-streamingOutput:                   # OPTIONAL — streaming sinks
-  - ...
+version: "2.0"                    # REQUIRED — spec version
+config: { ... }                   # OPTIONAL — pipeline configuration
+secrets: { ... }                  # OPTIONAL — secret key mappings
+hooks: { ... }                    # OPTIONAL — lifecycle hooks
+templates: [ ... ]                # OPTIONAL — reusable templates
+input: [ ... ]                    # REQUIRED — at least one input
+streamingInput: [ ... ]           # OPTIONAL — streaming sources
+transformation: [ ... ]           # OPTIONAL — transformation steps
+output: [ ... ]                   # REQUIRED — at least one output
+streamingOutput: [ ... ]          # OPTIONAL — streaming sinks
 ```
-
-### 2.1 Processing Order
-
-1. Variable substitution is applied to the raw YAML text.
-2. Secret placeholders are resolved.
-3. The YAML is parsed into the document model.
-4. Config merging is applied (if multiple files).
-5. Asset references are validated (no cycles, all refs resolve).
-6. The DAG is built and executed in topological order.
-
----
-
-## 3. Naming and References
-
-Every asset has a **name** (its `AssetRef`). Names MUST:
-
-- Be unique within the document across all sections (`input`, `transformation`, `output`).
-- Contain only alphanumeric characters, underscores, and hyphens: `[a-zA-Z][a-zA-Z0-9_-]*`.
-- Be case-sensitive.
-
-Transformations reference upstream assets via a `from` field (or `left`/`right` for joins, `sources` for unions). The referenced name MUST resolve to an asset defined earlier in the pipeline (input or prior transformation).
-
-Outputs reference the asset to write via their `name` field, which MUST match the `name` of an input or transformation asset.
-
----
-
-## 4. Input
-
-An input defines a data source to read.
-
-```yaml
-input:
-  - name: <AssetRef>              # REQUIRED — unique asset name
-    format: <string>              # REQUIRED — data format
-    path: <string>                # REQUIRED — source path or URI
-    options:                      # OPTIONAL — format-specific options
-      <key>: <value>
-```
-
-### 4.1 Fields
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `name` | string | Yes | Unique asset identifier. |
-| `format` | string | Yes | Data format identifier. See [4.2](#42-formats). |
-| `path` | string | Yes | File path, URI, or connection string. |
-| `options` | map[string, primitive] | No | Key-value pairs for format-specific settings. |
+| `version` | string | **Yes** | The Teckel spec version this document conforms to. MUST be `"2.0"` for this spec. |
+| `config` | object | No | Pipeline-wide configuration. See [Section 14](#14-configuration). |
+| `secrets` | object | No | Secret key declarations. See [Section 13](#13-secrets). |
+| `hooks` | object | No | Lifecycle hooks. See [Section 16](#16-hooks). |
+| `templates` | List[object] | No | Reusable templates. See [Section 17](#17-templates). |
+| `input` | NonEmptyList[Input] | **Yes** | Data source definitions. |
+| `streamingInput` | List[StreamingInput] | No | Streaming source definitions. See [Section 15](#15-streaming). |
+| `transformation` | List[Transformation] | No | Transformation definitions. |
+| `output` | NonEmptyList[Output] | **Yes** | Data destination definitions. |
+| `streamingOutput` | List[StreamingOutput] | No | Streaming sink definitions. See [Section 15](#15-streaming). |
 
-### 4.2 Formats
+**Unknown top-level keys:** A conforming implementation MUST reject documents containing top-level keys not listed above, except for keys prefixed with `x-` (extension keys). Extension keys MUST be ignored by implementations that do not recognize them.
 
-Implementations MUST support at least these formats:
+### 4.1 Processing Pipeline
+
+A conforming implementation MUST process a Teckel document in this order:
+
+1. **Variable substitution** — Replace `${...}` placeholders in the raw YAML text ([Section 12](#12-variable-substitution)).
+2. **Config merging** — If multiple files are provided, merge them ([Section 18](#18-config-merging)).
+3. **YAML parsing** — Parse the resolved text as YAML 1.2.
+4. **Secret resolution** — Resolve `{{secrets.*}}` placeholders ([Section 13](#13-secrets)).
+5. **Schema validation** — Validate the document structure against this specification.
+6. **Semantic validation** — Apply the rules in [Section 20](#20-validation-rules).
+7. **DAG construction** — Build the asset dependency graph.
+8. **Hook execution** — Run pre-execution hooks ([Section 16](#16-hooks)).
+9. **Pipeline execution** — Execute the DAG ([Section 21](#21-execution-model)).
+10. **Hook execution** — Run post-execution hooks.
+
+---
+
+## 5. Naming and Asset References
+
+### 5.1 AssetRef Grammar
+
+```ebnf
+asset_ref = letter, { letter | digit | "_" | "-" } ;
+letter    = "A" | "B" | ... | "Z" | "a" | "b" | ... | "z" ;
+digit     = "0" | "1" | ... | "9" ;
+```
+
+**Constraints:**
+
+- An AssetRef MUST start with a letter.
+- An AssetRef MUST contain only ASCII letters, digits, underscores, and hyphens.
+- An AssetRef MUST be between 1 and 128 characters long.
+- AssetRef comparison is **case-sensitive**: `Table1` and `table1` are different assets.
+- Leading and trailing whitespace is **stripped** before validation.
+
+### 5.2 Uniqueness
+
+Asset names MUST be unique across the `input` and `transformation` sections of a document. Output names reference existing assets and do not create new names.
+
+The names produced by a `split` transformation's `pass` and `fail` fields also enter the namespace and MUST be unique.
+
+**Valid:**
+```yaml
+input:
+  - name: orders          # OK: unique
+transformation:
+  - name: filtered        # OK: unique
+output:
+  - name: filtered        # OK: references the transformation above
+```
+
+**Invalid:**
+```yaml
+# INVALID: duplicate name across input and transformation
+input:
+  - name: data
+transformation:
+  - name: data            # ERROR [E-NAME-001]: duplicate AssetRef "data"
+```
+
+### 5.3 Qualified Column References
+
+Columns MAY be qualified with an asset name using dot notation:
+
+```ebnf
+column_ref       = unqualified_ref | qualified_ref ;
+unqualified_ref  = identifier ;
+qualified_ref    = asset_ref, ".", identifier ;
+identifier       = letter, { letter | digit | "_" } ;
+```
+
+Qualified references are REQUIRED in join conditions and RECOMMENDED whenever column name ambiguity is possible.
+
+---
+
+## 6. Input
+
+An input defines a data source to read.
+
+### 6.1 Schema
+
+```yaml
+input:
+  - name: <AssetRef>
+    format: <string>
+    path: <string>
+    options:
+      <key>: <primitive>
+```
+
+### 6.2 Fixed Fields
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | AssetRef | **Yes** | — | Unique asset identifier. |
+| `format` | string | **Yes** | — | Data format identifier. See [6.3](#63-formats). |
+| `path` | string | **Yes** | — | File path, URI, or connection string. See [Section 19](#19-path-resolution). |
+| `options` | Map[string, primitive] | No | `{}` | Format-specific key-value options. |
+
+### 6.3 Formats
+
+A conforming **Core** implementation MUST support:
 
 | Format | Description |
 |--------|-------------|
-| `csv` | Comma-separated values. Common options: `header`, `sep`, `encoding`, `inferSchema`. |
-| `json` | JSON or JSON Lines. |
+| `csv` | Comma-separated values. |
+| `json` | JSON or JSON Lines (newline-delimited JSON). |
 | `parquet` | Apache Parquet columnar format. |
 
-Implementations MAY support additional formats:
+A conforming **Extended** implementation SHOULD additionally support:
 
 | Format | Description |
 |--------|-------------|
 | `delta` | Delta Lake format. |
-| `orc` | Apache ORC format. |
-| `avro` | Apache Avro format. |
-| `jdbc` | Database connection. Options: `url`, `dbtable`, `user`, `password`, `driver`. |
+| `orc` | Apache ORC columnar format. |
+| `avro` | Apache Avro serialization format. |
+| `jdbc` | RDBMS connection via JDBC or equivalent driver. |
 
-### 4.3 Options
+Implementations MAY support additional formats. Unknown format values MUST produce error `E-FMT-001`.
 
-Option values are **primitives**: strings, booleans, integers, or doubles. Implementations MUST handle type coercion from YAML's native types.
+### 6.4 Common CSV Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `header` | boolean | `false` | First row contains column names. |
+| `sep` | string | `","` | Field delimiter character. |
+| `encoding` | string | `"UTF-8"` | Character encoding. |
+| `inferSchema` | boolean | `false` | Infer column types from data. |
+| `quote` | string | `"\""` | Quote character. |
+| `escape` | string | `"\\"` | Escape character within quotes. |
+| `nullValue` | string | `""` | String representation of null. |
+
+Implementations MAY support additional options. Unknown options SHOULD be passed to the underlying reader; if the reader does not recognize them, behavior is implementation-defined.
+
+### 6.5 Valid Example
 
 ```yaml
-options:
-  header: true          # boolean
-  sep: "|"              # string
-  maxPartitionBytes: 128000000  # integer
+input:
+  - name: employees
+    format: csv
+    path: "data/csv/employees.csv"
+    options:
+      header: true
+      sep: "|"
+      encoding: "UTF-8"
+
+  - name: departments
+    format: parquet
+    path: "s3://bucket/departments/"
 ```
+
+### 6.6 Invalid Examples
+
+```yaml
+# INVALID: missing required field "format"
+input:
+  - name: orders
+    path: "data/orders.csv"
+    # ERROR [E-REQ-001]: missing required field "format" in input "orders"
+```
+
+```yaml
+# INVALID: name starts with a digit
+input:
+  - name: 1table
+    format: csv
+    path: "data/t.csv"
+    # ERROR [E-NAME-002]: invalid AssetRef "1table" — must start with a letter
+```
+
+### 6.7 Semantics
+
+- Reading an input that produces zero rows is valid. The resulting dataset has the schema but no data.
+- If the path does not exist or is unreadable, the implementation MUST raise error `E-IO-001`.
+- Option values are **primitives** (string, boolean, integer, double). YAML native types MUST be respected: `true` is boolean, `"true"` is string, `42` is integer, `3.14` is double.
 
 ---
 
-## 5. Output
+## 7. Output
 
-An output defines a data destination to write to.
+An output defines a data destination to write to. An output is a **sink** — it references an existing asset and writes its dataset to external storage.
+
+### 7.1 Schema
 
 ```yaml
 output:
-  - name: <AssetRef>              # REQUIRED — references an existing asset
-    format: <string>              # REQUIRED — output format
-    path: <string>                # REQUIRED — destination path or URI
-    mode: <string>                # OPTIONAL — write mode (default: "error")
-    options:                      # OPTIONAL — format-specific options
-      <key>: <value>
+  - name: <AssetRef>
+    format: <string>
+    path: <string>
+    mode: <string>
+    options:
+      <key>: <primitive>
 ```
 
-### 5.1 Fields
+### 7.2 Fixed Fields
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | MUST match the name of an input or transformation asset. |
-| `format` | string | Yes | Output data format. Same values as input formats. |
-| `path` | string | Yes | Destination path or URI. |
-| `mode` | string | No | Write mode. Default: `"error"`. |
-| `options` | map[string, primitive] | No | Format-specific options. |
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | AssetRef | **Yes** | — | MUST match the name of an input or transformation asset. |
+| `format` | string | **Yes** | — | Output data format. Same values as input formats. |
+| `path` | string | **Yes** | — | Destination path or URI. See [Section 19](#19-path-resolution). |
+| `mode` | string | No | `"error"` | Write mode. See [7.3](#73-write-modes). |
+| `options` | Map[string, primitive] | No | `{}` | Format-specific key-value options. |
 
-### 5.2 Write Modes
+### 7.3 Write Modes
 
 | Mode | Description |
 |------|-------------|
-| `error` | Fail if the destination already exists. |
-| `overwrite` | Replace existing data. |
-| `append` | Add to existing data. |
-| `ignore` | Do nothing if the destination already exists. |
+| `error` | Fail with `E-IO-002` if the destination already exists. This is the default. |
+| `overwrite` | Replace existing data at the destination. |
+| `append` | Add data to the existing destination. |
+| `ignore` | Do nothing if the destination already exists. The write is silently skipped. |
+
+### 7.4 Valid Example
+
+```yaml
+output:
+  - name: enrichedSales
+    format: parquet
+    mode: overwrite
+    path: "data/output/enriched_sales"
+
+  - name: rawBackup
+    format: csv
+    path: "data/backup/raw.csv"
+    mode: append
+    options:
+      header: true
+      sep: ","
+```
+
+### 7.5 Invalid Examples
+
+```yaml
+# INVALID: output references a non-existent asset
+output:
+  - name: doesNotExist
+    format: parquet
+    path: "data/out"
+    # ERROR [E-REF-001]: output "doesNotExist" references undefined asset
+```
+
+```yaml
+# INVALID: unknown write mode
+output:
+  - name: myTable
+    format: parquet
+    mode: upsert
+    path: "data/out"
+    # ERROR [E-MODE-001]: unknown write mode "upsert", expected: error|overwrite|append|ignore
+```
+
+### 7.6 Semantics
+
+- Multiple outputs MAY reference the same asset. Each output writes independently.
+- Writing an empty dataset (zero rows) is valid. The behavior depends on the format (e.g., Parquet writes an empty file with schema; CSV with `header: true` writes a header-only file).
+- Outputs are NOT referenceable by transformations. They are terminal nodes in the DAG.
 
 ---
 
-## 6. Transformations
+## 8. Transformations
 
-Transformations define operations on assets. Each transformation is an asset with a unique name and exactly one operation.
+Transformations define operations on datasets. Each transformation is an asset with a unique name and exactly **one** operation key.
+
+### 8.0 General Rules
 
 ```yaml
 transformation:
   - name: <AssetRef>
-    <operation>:
+    <operation_key>:
       ...
 ```
 
-The `<operation>` key determines the type. Only **one** operation key is allowed per transformation entry.
+- Each entry MUST have exactly one operation key. If zero or more than one are present, the implementation MUST raise `E-OP-001`.
+- Unknown operation keys MUST raise `E-OP-002`.
+- Unless otherwise stated, all transformations consume one upstream asset via a `from` field and produce one output dataset.
 
 ---
 
-### 6.1 Select
+### 8.1 Select
 
-Projects specific columns from an asset.
+Projects specific columns or expressions from a dataset.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   select:
-    from: <AssetRef>                    # REQUIRED
-    columns:                            # REQUIRED — NonEmptyList
-      - <column_or_expression>
+    from: <AssetRef>
+    columns: <NonEmptyList[Expression]>
 ```
 
-Each entry in `columns` is a column name or an expression (see [Section 7](#7-expression-language)).
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `columns` | NonEmptyList[Expression] | **Yes** | — | Column names or expressions to include. |
 
-**Examples:**
+Each entry in `columns` is either a bare column name or an expression (possibly aliased with `as`).
+
+**Valid example:**
 ```yaml
-columns:
-  - id
-  - name
-  - "amount * 1.1"
-  - "UPPER(name) as upper_name"
+- name: projected
+  select:
+    from: employees
+    columns:
+      - id
+      - name
+      - "salary * 1.1 as adjusted_salary"
+      - "upper(department) as dept"
 ```
+
+**Invalid example:**
+```yaml
+# INVALID: empty columns list
+- name: empty
+  select:
+    from: employees
+    columns: []
+    # ERROR [E-LIST-001]: "columns" must contain at least one element
+```
+
+**Semantics:**
+- The output dataset contains only the specified columns, in the order listed.
+- If a column name does not exist in the source, the implementation MUST raise `E-COL-001`.
+- Expressions MAY reference any column in the source asset.
 
 ---
 
-### 6.2 Where
+### 8.2 Where (Filter)
 
-Filters rows based on a condition.
+Filters rows based on a boolean condition.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   where:
-    from: <AssetRef>                    # REQUIRED
-    filter: <condition>                 # REQUIRED
+    from: <AssetRef>
+    filter: <Condition>
 ```
 
-The `filter` value is a boolean expression. See [Section 7](#7-expression-language).
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `filter` | Condition | **Yes** | — | Boolean expression. Rows where this evaluates to `true` are kept. |
 
-**Examples:**
+**Valid example:**
 ```yaml
-filter: "col1 > 10"
-filter: "status = 'active' AND amount >= 100"
-filter: "event_date IS NOT NULL"
+- name: activeUsers
+  where:
+    from: users
+    filter: "status = 'active' AND created_at >= '2025-01-01'"
 ```
+
+**Invalid example:**
+```yaml
+# INVALID: filter is not a boolean expression
+- name: bad
+  where:
+    from: users
+    filter: "upper(name)"
+    # ERROR [E-EXPR-001]: filter must be a boolean expression
+```
+
+**Semantics:**
+- Rows where `filter` evaluates to `NULL` are **excluded** (NULL is not truthy).
+- Filtering an empty dataset produces an empty dataset.
 
 ---
 
-### 6.3 Group By
+### 8.3 Group By
 
-Groups rows and applies aggregate functions.
+Groups rows by one or more columns and applies aggregate functions.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   group:
-    from: <AssetRef>                    # REQUIRED
-    by:                                 # REQUIRED — NonEmptyList
-      - <column>
-    agg:                                # REQUIRED — NonEmptyList
-      - <aggregate_expression>
+    from: <AssetRef>
+    by: <NonEmptyList[Column]>
+    agg: <NonEmptyList[Expression]>
 ```
 
-Each entry in `agg` is an aggregate expression, optionally aliased with `as`.
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `by` | NonEmptyList[Column] | **Yes** | — | Grouping columns. |
+| `agg` | NonEmptyList[Expression] | **Yes** | — | Aggregate expressions (optionally aliased with `as`). |
 
-**Examples:**
+**Valid example:**
 ```yaml
-agg:
-  - "sum(amount)"
-  - "count(1)"
-  - "max(price) as max_price"
-  - "avg(salary) as avg_salary"
+- name: salesSummary
+  group:
+    from: sales
+    by:
+      - region
+      - product
+    agg:
+      - "sum(amount) as total"
+      - "count(1) as num_sales"
+      - "avg(price) as avg_price"
 ```
+
+**Invalid example:**
+```yaml
+# INVALID: non-aggregate, non-grouped column in agg
+- name: bad
+  group:
+    from: sales
+    by: [region]
+    agg:
+      - "product_name"
+    # ERROR [E-AGG-001]: "product_name" is not an aggregate expression
+    # and is not in the "by" list
+```
+
+**Semantics:**
+- The output dataset contains the `by` columns plus the `agg` result columns.
+- Grouping an empty dataset produces an empty dataset (zero groups).
+- `NULL` values in grouping columns form their own group (all NULLs are grouped together).
+- Aggregate functions over an empty group: `count` returns `0`, `sum` returns `NULL`, `avg` returns `NULL`, `min`/`max` return `NULL`.
 
 ---
 
-### 6.4 Order By
+### 8.4 Order By
 
 Sorts rows by one or more columns.
 
 ```yaml
-- name: result
-  order:
-    from: <AssetRef>                    # REQUIRED
-    by:                                 # REQUIRED — NonEmptyList
-      - <column>
-    order: <Asc|Desc>                   # OPTIONAL — default: "Asc"
+- name: <AssetRef>
+  orderBy:
+    from: <AssetRef>
+    columns: <NonEmptyList[SortColumn]>
 ```
 
-| Value | Description |
-|-------|-------------|
-| `Asc` | Ascending order (default). |
-| `Desc` | Descending order. |
+> **Note:** The operation key is `orderBy` (not `order`) to avoid the name collision present in earlier drafts.
 
-The `order` applies uniformly to all columns in `by`. For mixed ordering, implementations SHOULD support expression syntax like `col1 ASC, col2 DESC` within a single `by` entry or via SQL expressions.
+Each entry in `columns` is either:
+- A bare column name (defaults to `asc`, `nulls last`).
+- An object with explicit direction and null placement.
+
+**Sort column object:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `column` | Column | **Yes** | — | Column to sort by. |
+| `direction` | `"asc"` \| `"desc"` | No | `"asc"` | Sort direction. |
+| `nulls` | `"first"` \| `"last"` | No | `"last"` | Null placement. |
+
+**Valid examples:**
+```yaml
+# Simple: all ascending, nulls last
+- name: sorted
+  orderBy:
+    from: employees
+    columns:
+      - salary
+      - name
+
+# Explicit: mixed directions and null handling
+- name: ranked
+  orderBy:
+    from: employees
+    columns:
+      - column: salary
+        direction: desc
+        nulls: first
+      - column: name
+        direction: asc
+```
+
+**Invalid example:**
+```yaml
+# INVALID: unknown direction
+- name: bad
+  orderBy:
+    from: data
+    columns:
+      - column: id
+        direction: ascending
+        # ERROR [E-ENUM-001]: invalid direction "ascending", expected: asc|desc
+```
+
+**Semantics:**
+- Sorting is **stable**: rows with equal sort keys preserve their relative order from the input.
+- Sorting an empty dataset produces an empty dataset.
+- Default null ordering: `nulls last` for `asc`, `nulls last` for `desc`. This MAY be overridden per-column.
 
 ---
 
-### 6.5 Join
+### 8.5 Join
 
-Joins an asset with one or more other assets.
+Joins a dataset with one or more other datasets.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   join:
-    left: <AssetRef>                    # REQUIRED — left side asset
-    right:                              # REQUIRED — NonEmptyList of join targets
-      - name: <AssetRef>               # REQUIRED — right side asset
-        type: <join_type>               # REQUIRED — join type
-        on:                             # REQUIRED — join conditions
-          - <condition>
+    left: <AssetRef>
+    right: <NonEmptyList[JoinTarget]>
 ```
 
-### 6.5.1 Join Types
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `left` | AssetRef | **Yes** | — | Left-side asset. |
+| `right` | NonEmptyList[JoinTarget] | **Yes** | — | One or more join targets. |
+
+**JoinTarget object:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | AssetRef | **Yes** | — | Right-side asset. |
+| `type` | string | **Yes** | — | Join type. See [8.5.1](#851-join-types). |
+| `on` | List[Condition] | **Yes** | — | Join conditions. MUST be `[]` for `cross` joins. |
+
+#### 8.5.1 Join Types
 
 | Type | Description |
 |------|-------------|
-| `inner` | Only matching rows from both sides. |
-| `left` | All rows from left, matching from right (nulls for non-matches). |
-| `right` | All rows from right, matching from left (nulls for non-matches). |
-| `outer` | All rows from both sides (nulls for non-matches). |
-| `cross` | Cartesian product. `on` MUST be an empty list `[]`. |
-| `left_semi` | Rows from left that have at least one match in right. Only left columns are returned. |
-| `left_anti` | Rows from left that have no match in right. Only left columns are returned. |
+| `inner` | Only rows with matches in both sides. |
+| `left` | All left rows; right columns are NULL for non-matches. |
+| `right` | All right rows; left columns are NULL for non-matches. |
+| `outer` | All rows from both sides; NULLs for non-matches. |
+| `cross` | Cartesian product. `on` MUST be `[]`. |
+| `left_semi` | Left rows that have at least one match in right. Only left columns returned. |
+| `left_anti` | Left rows with no match in right. Only left columns returned. |
 
-### 6.5.2 Join Conditions
+#### 8.5.2 Join Conditions
 
-Each condition is an expression comparing columns from the left and right assets, using comparison operators (`==`, `!=`, `<`, `>`, `<=`, `>=`).
+Each condition is a boolean expression comparing columns from the left and right assets. Column references MUST be qualified with the asset name.
 
 ```yaml
 on:
-  - "employees.dept_id == departments.dept_id"
-  - "orders.amount >= thresholds.min_amount"
+  - "employees.dept_id = departments.dept_id"
+  - "employees.start_date >= departments.valid_from"
 ```
 
-Column references in join conditions SHOULD be qualified with the asset name to avoid ambiguity.
+> **Note:** The equality operator in Teckel expressions is `=` (single equals), consistent with ANSI SQL. The `==` form is accepted as an alias but `=` is the canonical form.
 
-### 6.5.3 Multi-way Joins
+#### 8.5.3 Multi-way Joins
 
-Multiple joins are applied sequentially. Each entry in `right` joins against the accumulated result of previous joins.
+Multiple entries in `right` are applied **sequentially left to right**. Each join takes the accumulated result of previous joins as its left side.
 
 ```yaml
-join:
-  left: table1
-  right:
-    - name: table2
-      type: inner
-      on:
-        - "table1.id == table2.t1_id"
-    - name: table3
-      type: left
-      on:
-        - "table1.id == table3.t1_id"
+- name: enriched
+  join:
+    left: orders
+    right:
+      - name: customers
+        type: inner
+        on:
+          - "orders.customer_id = customers.id"
+      - name: products
+        type: left
+        on:
+          - "orders.product_id = products.id"
+```
+
+This is equivalent to: `(orders JOIN customers) LEFT JOIN products`.
+
+#### 8.5.4 Duplicate Column Handling
+
+When a join produces columns with the same name from both sides, the implementation MUST preserve both columns, qualified with their source asset name (`left_asset.column`, `right_asset.column`). Implementations SHOULD provide a way to disambiguate via the `select` transformation.
+
+**Valid example:**
+```yaml
+- name: joined
+  join:
+    left: employees
+    right:
+      - name: departments
+        type: inner
+        on:
+          - "employees.dept_id = departments.id"
+```
+
+**Invalid example:**
+```yaml
+# INVALID: unqualified column in join condition
+- name: bad
+  join:
+    left: a
+    right:
+      - name: b
+        type: inner
+        on:
+          - "id = id"
+        # ERROR [E-JOIN-001]: ambiguous column "id" in join condition —
+        # use qualified references (e.g., "a.id = b.id")
 ```
 
 ---
 
-### 6.6 Union
+### 8.6 Union
 
-Combines rows from multiple assets with compatible schemas.
+Combines rows from multiple datasets.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   union:
-    sources:                            # REQUIRED — NonEmptyList (min 2)
-      - <AssetRef>
-      - <AssetRef>
-    all: <boolean>                      # OPTIONAL — default: true
+    sources: <NonEmptyList[AssetRef]>   # minimum 2 elements
+    all: <boolean>
 ```
 
-| Field | Description |
-|-------|-------------|
-| `all: true` | Keep all rows including duplicates (UNION ALL). |
-| `all: false` | Remove duplicate rows (UNION DISTINCT). |
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `sources` | NonEmptyList[AssetRef] | **Yes** | — | Assets to combine. MUST contain at least 2 elements. |
+| `all` | boolean | No | `true` | `true` = keep duplicates (UNION ALL). `false` = remove duplicates (UNION DISTINCT). |
 
-All referenced assets MUST have compatible schemas (same number of columns, compatible types).
+**Schema compatibility:** All source assets MUST have the same number of columns. Columns are matched **positionally** (by order, not by name). The output uses column names from the **first** source. Column types MUST be compatible — the implementation MUST apply implicit type widening where possible (e.g., `int` + `long` → `long`) and raise `E-SCHEMA-001` when types are incompatible.
+
+**Valid example:**
+```yaml
+- name: allEvents
+  union:
+    sources: [webEvents, mobileEvents, apiEvents]
+    all: true
+```
 
 ---
 
-### 6.7 Intersect
+### 8.7 Intersect
 
-Returns rows present in all referenced assets.
+Returns rows present in all source datasets.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   intersect:
-    sources:                            # REQUIRED — NonEmptyList (min 2)
-      - <AssetRef>
-      - <AssetRef>
-    all: <boolean>                      # OPTIONAL — default: false
+    sources: <NonEmptyList[AssetRef]>   # minimum 2 elements
+    all: <boolean>
 ```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `sources` | NonEmptyList[AssetRef] | **Yes** | — | MUST contain at least 2 elements. |
+| `all` | boolean | No | `false` | `true` = INTERSECT ALL. `false` = INTERSECT DISTINCT. |
+
+Schema compatibility rules are the same as [Union](#86-union).
 
 ---
 
-### 6.8 Except
+### 8.8 Except
 
-Returns rows from the left asset that are not in the right asset.
+Returns rows from the first source that are not in the second.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   except:
-    left: <AssetRef>                    # REQUIRED
-    right: <AssetRef>                   # REQUIRED
-    all: <boolean>                      # OPTIONAL — default: false
+    left: <AssetRef>
+    right: <AssetRef>
+    all: <boolean>
 ```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `left` | AssetRef | **Yes** | — | Source dataset. |
+| `right` | AssetRef | **Yes** | — | Dataset to subtract. |
+| `all` | boolean | No | `false` | `true` = EXCEPT ALL. `false` = EXCEPT DISTINCT. |
+
+> **Rationale:** Except uses `left`/`right` instead of `sources` because the operation is not commutative — `A EXCEPT B ≠ B EXCEPT A`.
+
+Schema compatibility rules are the same as [Union](#86-union).
 
 ---
 
-### 6.9 Distinct
+### 8.9 Distinct
 
 Removes duplicate rows.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   distinct:
-    from: <AssetRef>                    # REQUIRED
-    columns:                            # OPTIONAL — subset of columns to consider
-      - <column>
+    from: <AssetRef>
+    columns: <List[Column]>
 ```
 
-If `columns` is omitted, all columns are used for deduplication.
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `columns` | List[Column] | No | all columns | Subset of columns for deduplication. |
+
+**Semantics:**
+- If `columns` is omitted, all columns are used for deduplication.
+- When `columns` is specified, one **arbitrary** row is kept per group. The implementation MUST NOT guarantee which row is retained. If deterministic selection is needed, use `orderBy` followed by a window function with `row_number()`.
+- NULL values are considered equal for deduplication purposes.
 
 ---
 
-### 6.10 Limit
+### 8.10 Limit
 
 Returns at most N rows.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   limit:
-    from: <AssetRef>                    # REQUIRED
-    count: <integer>                    # REQUIRED — must be > 0
+    from: <AssetRef>
+    count: <integer>
 ```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `count` | integer | **Yes** | — | Maximum rows. MUST be ≥ 0. |
+
+**Semantics:**
+- `count: 0` produces an empty dataset with the same schema.
+- Without a preceding `orderBy`, the selected rows are **non-deterministic**.
 
 ---
 
-### 6.11 Add Columns
+### 8.11 Add Columns
 
-Adds one or more computed columns to an asset.
+Adds one or more computed columns.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   addColumns:
-    from: <AssetRef>                    # REQUIRED
-    columns:                            # REQUIRED — NonEmptyList
-      - name: <column_name>            # REQUIRED
-        expression: <expression>        # REQUIRED
+    from: <AssetRef>
+    columns: <NonEmptyList[ColumnDef]>
 ```
 
-**Examples:**
+**ColumnDef object:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | string | **Yes** | — | Name of the new column. |
+| `expression` | Expression | **Yes** | — | Expression to compute the column value. |
+
+**Valid example:**
 ```yaml
-columns:
-  - name: full_name
-    expression: "concat(first_name, ' ', last_name)"
-  - name: processed_at
-    expression: "current_timestamp()"
-  - name: tax
-    expression: "amount * 0.21"
+- name: withDerived
+  addColumns:
+    from: orders
+    columns:
+      - name: total
+        expression: "quantity * unit_price"
+      - name: processed_at
+        expression: "current_timestamp()"
+      - name: category
+        expression: "case when amount > 1000 then 'high' else 'low' end"
 ```
+
+**Semantics:**
+- If a column with the same name already exists, it is **replaced** (overwritten).
+- Expressions MAY reference existing columns and previously added columns in the same `addColumns` list (evaluated in order).
 
 ---
 
-### 6.12 Drop Columns
+### 8.12 Drop Columns
 
-Removes columns from an asset.
+Removes columns from a dataset.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   dropColumns:
-    from: <AssetRef>                    # REQUIRED
-    columns:                            # REQUIRED — NonEmptyList
-      - <column_name>
+    from: <AssetRef>
+    columns: <NonEmptyList[Column]>
 ```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `columns` | NonEmptyList[Column] | **Yes** | — | Columns to remove. |
+
+**Semantics:**
+- If a named column does not exist, the implementation MUST raise `E-COL-001`.
+- Dropping all columns is an error (`E-SCHEMA-002`).
 
 ---
 
-### 6.13 Rename Columns
+### 8.13 Rename Columns
 
 Renames columns using a mapping.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   renameColumns:
-    from: <AssetRef>                    # REQUIRED
-    mappings:                           # REQUIRED — at least one entry
-      <old_name>: <new_name>
+    from: <AssetRef>
+    mappings: <Map[Column, string]>
 ```
 
-**Example:**
-```yaml
-mappings:
-  col1: first_column
-  col2: second_column
-```
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `mappings` | Map[Column, string] | **Yes** | — | Old name → new name mapping. MUST have at least one entry. |
+
+**Semantics:**
+- If an old name does not exist, the implementation MUST raise `E-COL-001`.
+- If a new name collides with an existing (unrenamed) column, the implementation MUST raise `E-NAME-003`.
 
 ---
 
-### 6.14 Cast Columns
+### 8.14 Cast Columns
 
 Changes the data type of columns.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   castColumns:
-    from: <AssetRef>                    # REQUIRED
-    columns:                            # REQUIRED — NonEmptyList
-      - name: <column_name>            # REQUIRED
-        targetType: <data_type>         # REQUIRED
+    from: <AssetRef>
+    columns: <NonEmptyList[CastDef]>
 ```
 
-See [Section 8](#8-data-types) for supported data types.
+**CastDef object:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | Column | **Yes** | — | Column to cast. |
+| `targetType` | string | **Yes** | — | Target data type. See [Section 10](#10-data-types). |
+
+**Semantics:**
+- If a value cannot be cast (e.g., `"abc"` to `integer`), the value becomes `NULL`. The implementation MUST NOT fail the pipeline for individual cast failures. To enforce strict casting, use an `assertion` transformation.
+- Type names are **case-insensitive**: `Integer`, `INTEGER`, and `integer` are equivalent.
 
 ---
 
-### 6.15 Window
+### 8.15 Window
 
-Applies window functions with partitioning and ordering.
+Applies window functions over partitions of the dataset.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   window:
-    from: <AssetRef>                    # REQUIRED
-    partitionBy:                        # REQUIRED — NonEmptyList
-      - <column>
-    orderBy:                            # OPTIONAL
-      - <column>
-    functions:                          # REQUIRED — NonEmptyList
-      - expression: <expression>        # REQUIRED — window function
-        alias: <column_name>            # REQUIRED — output column name
+    from: <AssetRef>
+    partitionBy: <NonEmptyList[Column]>
+    orderBy: <List[SortColumn]>
+    frame: <FrameSpec>
+    functions: <NonEmptyList[WindowFuncDef]>
 ```
 
-**Examples:**
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `partitionBy` | NonEmptyList[Column] | **Yes** | — | Partition columns. |
+| `orderBy` | List[SortColumn] | No | `[]` | Sort within each partition. Same format as [8.4](#84-order-by). |
+| `frame` | FrameSpec | No | see below | Window frame specification. |
+| `functions` | NonEmptyList[WindowFuncDef] | **Yes** | — | Window functions to apply. |
+
+**WindowFuncDef object:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `expression` | Expression | **Yes** | — | Window function expression. |
+| `alias` | string | **Yes** | — | Output column name. |
+
+**FrameSpec object:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `"rows"` \| `"range"` | No | `"range"` | Frame type. |
+| `start` | string | No | `"unbounded preceding"` | Frame start boundary. |
+| `end` | string | No | `"current row"` | Frame end boundary. |
+
+Frame boundary values:
+- `"unbounded preceding"` — from the beginning of the partition.
+- `"N preceding"` — N rows/values before current.
+- `"current row"` — the current row.
+- `"N following"` — N rows/values after current.
+- `"unbounded following"` — to the end of the partition.
+
+**Default frame:** When `orderBy` is specified: `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. When `orderBy` is omitted: the entire partition (`RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`).
+
+**Valid example:**
 ```yaml
-functions:
-  - expression: "row_number()"
-    alias: row_num
-  - expression: "rank()"
-    alias: salary_rank
-  - expression: "sum(salary)"
-    alias: running_total
-  - expression: "lag(value, 1)"
-    alias: prev_value
+- name: withRanking
+  window:
+    from: employees
+    partitionBy: [department]
+    orderBy:
+      - column: salary
+        direction: desc
+    frame:
+      type: rows
+      start: "unbounded preceding"
+      end: "current row"
+    functions:
+      - expression: "row_number()"
+        alias: rank
+      - expression: "sum(salary)"
+        alias: running_total
+      - expression: "lag(salary, 1)"
+        alias: prev_salary
 ```
 
 ---
 
-### 6.16 Pivot
+### 8.16 Pivot
 
-Rotates rows into columns.
+Rotates rows into columns (long → wide).
 
 ```yaml
-- name: result
+- name: <AssetRef>
   pivot:
-    from: <AssetRef>                    # REQUIRED
-    groupBy:                            # REQUIRED — NonEmptyList
-      - <column>
-    pivotColumn: <column>               # REQUIRED — column whose values become new columns
-    values:                             # OPTIONAL — specific values to pivot on
-      - <value>
-    agg:                                # REQUIRED — NonEmptyList
-      - <aggregate_expression>
+    from: <AssetRef>
+    groupBy: <NonEmptyList[Column]>
+    pivotColumn: <Column>
+    values: <List[string]>
+    agg: <NonEmptyList[Expression]>
 ```
 
-If `values` is omitted, all distinct values of `pivotColumn` are used.
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `groupBy` | NonEmptyList[Column] | **Yes** | — | Columns to group by. |
+| `pivotColumn` | Column | **Yes** | — | Column whose distinct values become new columns. |
+| `values` | List[string] | No | all distinct | Specific values to pivot on. If omitted, all distinct values are used. |
+| `agg` | NonEmptyList[Expression] | **Yes** | — | Aggregate expressions applied per pivot value. |
+
+**Valid example:**
+```yaml
+- name: salesPivot
+  pivot:
+    from: sales
+    groupBy: [region]
+    pivotColumn: product
+    values: ["A", "B", "C"]
+    agg:
+      - "sum(amount)"
+```
 
 ---
 
-### 6.17 Unpivot
+### 8.17 Unpivot
 
-Rotates columns into rows (inverse of pivot).
+Rotates columns into rows (wide → long).
 
 ```yaml
-- name: result
+- name: <AssetRef>
   unpivot:
-    from: <AssetRef>                    # REQUIRED
-    ids:                                # REQUIRED — NonEmptyList — columns to keep
-      - <column>
-    values:                             # REQUIRED — NonEmptyList — columns to unpivot
-      - <column>
-    variableColumn: <string>            # REQUIRED — name for the new key column
-    valueColumn: <string>               # REQUIRED — name for the new value column
+    from: <AssetRef>
+    ids: <NonEmptyList[Column]>
+    values: <NonEmptyList[Column]>
+    variableColumn: <string>
+    valueColumn: <string>
 ```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `ids` | NonEmptyList[Column] | **Yes** | — | Columns to keep as identifiers. |
+| `values` | NonEmptyList[Column] | **Yes** | — | Columns to unpivot into rows. |
+| `variableColumn` | string | **Yes** | — | Name for the new column holding the original column names. |
+| `valueColumn` | string | **Yes** | — | Name for the new column holding the values. |
 
 ---
 
-### 6.18 Flatten
+### 8.18 Flatten
 
-Flattens nested structures (e.g., JSON objects, structs) into a flat schema.
+Flattens nested structures into a flat schema.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   flatten:
-    from: <AssetRef>                    # REQUIRED
-    separator: <string>                 # OPTIONAL — default: "_"
-    explodeArrays: <boolean>            # OPTIONAL — default: false
+    from: <AssetRef>
+    separator: <string>
+    explodeArrays: <boolean>
 ```
 
-| Field | Description |
-|-------|-------------|
-| `separator` | Character(s) to join parent and child field names. |
-| `explodeArrays` | If `true`, array fields are exploded into multiple rows. |
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `separator` | string | No | `"_"` | Separator between parent and child field names. |
+| `explodeArrays` | boolean | No | `false` | If `true`, array fields produce multiple rows (one per element). |
+
+**Semantics:**
+- Nested struct `address.city` becomes `address_city` (with default separator).
+- If `explodeArrays` is `true`, a row with an array of N elements produces N rows. If the array is empty, the row is dropped. If the array is NULL, the row is dropped.
+- Flattening is recursive — nested structs within nested structs are flattened completely.
 
 ---
 
-### 6.19 Sample
+### 8.19 Sample
 
 Returns a random sample of rows.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   sample:
-    from: <AssetRef>                    # REQUIRED
-    fraction: <double>                  # REQUIRED — value in (0.0, 1.0]
-    withReplacement: <boolean>          # OPTIONAL — default: false
-    seed: <integer>                     # OPTIONAL — random seed for reproducibility
+    from: <AssetRef>
+    fraction: <double>
+    withReplacement: <boolean>
+    seed: <integer>
 ```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `fraction` | double | **Yes** | — | Sampling fraction in `(0.0, 1.0]`. |
+| `withReplacement` | boolean | No | `false` | Sample with replacement. |
+| `seed` | integer | No | (random) | Random seed for reproducibility. |
 
 ---
 
-### 6.20 Conditional
+### 8.20 Conditional
 
-Adds a column with values determined by conditional logic (equivalent to SQL `CASE WHEN`).
+Adds a column with values determined by conditional logic (SQL `CASE WHEN`).
 
 ```yaml
-- name: result
+- name: <AssetRef>
   conditional:
-    from: <AssetRef>                    # REQUIRED
-    outputColumn: <column_name>         # REQUIRED
-    branches:                           # REQUIRED — NonEmptyList
-      - condition: <condition>          # REQUIRED
-        value: <expression>             # REQUIRED
-    otherwise: <expression>             # OPTIONAL — default value if no branch matches
+    from: <AssetRef>
+    outputColumn: <string>
+    branches: <NonEmptyList[Branch]>
+    otherwise: <Expression>
 ```
 
-**Example:**
+**Branch object:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `condition` | Condition | **Yes** | — | Boolean condition. |
+| `value` | Expression | **Yes** | — | Value if condition is true. |
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `outputColumn` | string | **Yes** | — | Name for the new column. |
+| `branches` | NonEmptyList[Branch] | **Yes** | — | Conditions evaluated in order. |
+| `otherwise` | Expression | No | `NULL` | Default value if no branch matches. |
+
+**Semantics:**
+- Branches are evaluated **in order**. The first matching condition determines the value.
+- If no branch matches and `otherwise` is omitted, the value is `NULL`.
+
+**Valid example:**
 ```yaml
-conditional:
-  from: orders
-  outputColumn: size_category
-  branches:
-    - condition: "amount > 1000"
-      value: "'large'"
-    - condition: "amount > 100"
-      value: "'medium'"
-  otherwise: "'small'"
+- name: categorized
+  conditional:
+    from: orders
+    outputColumn: size
+    branches:
+      - condition: "amount > 1000"
+        value: "'large'"
+      - condition: "amount > 100"
+        value: "'medium'"
+    otherwise: "'small'"
 ```
-
-Branches are evaluated in order. The first matching condition determines the value.
 
 ---
 
-### 6.21 Split
+### 8.21 Split
 
-Splits an asset into two named outputs based on a condition.
+Splits a dataset into two named assets based on a condition.
 
 ```yaml
-- name: splitResult
+- name: <AssetRef>
   split:
-    from: <AssetRef>                    # REQUIRED
-    condition: <condition>              # REQUIRED
-    pass: <AssetRef>                    # REQUIRED — name for rows matching condition
-    fail: <AssetRef>                    # REQUIRED — name for rows not matching
+    from: <AssetRef>
+    condition: <Condition>
+    pass: <AssetRef>
+    fail: <AssetRef>
 ```
 
-This transformation produces **two** named assets (`pass` and `fail`), both available for downstream references.
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `condition` | Condition | **Yes** | — | Boolean condition. |
+| `pass` | AssetRef | **Yes** | — | Name for the asset containing rows where condition is `true`. |
+| `fail` | AssetRef | **Yes** | — | Name for the asset containing rows where condition is `false` or `NULL`. |
+
+**Semantics:**
+- The `name` of the split transformation itself is **not** a referenceable asset. Only `pass` and `fail` are referenceable.
+- `pass` and `fail` names MUST follow AssetRef rules and MUST be unique in the document namespace.
+- Rows where `condition` evaluates to `NULL` go to `fail`.
+
+**Valid example:**
+```yaml
+- name: splitByStatus
+  split:
+    from: apiResults
+    condition: "status_code = 200"
+    pass: successRecords
+    fail: failedRecords
+
+# downstream can reference both:
+- name: successSummary
+  group:
+    from: successRecords
+    by: [endpoint]
+    agg: ["count(1) as calls"]
+```
 
 ---
 
-### 6.22 SQL
+### 8.22 SQL
 
-Executes a raw SQL query. The upstream asset is registered as a temporary view.
+Executes a raw SQL query.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   sql:
-    from: <AssetRef>                    # REQUIRED — registered as a temp view
-    query: <string>                     # REQUIRED — SQL query
+    query: <string>
+    views: <NonEmptyList[AssetRef]>
 ```
 
-The `from` asset and any other assets referenced in the query MUST be registered as temporary views by the runtime. The SQL dialect is implementation-dependent.
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `query` | string | **Yes** | — | SQL query string. |
+| `views` | NonEmptyList[AssetRef] | **Yes** | — | Assets to register as temporary views before executing the query. |
 
-**Example:**
+> **Note:** The `from` field from the earlier draft is replaced by `views` to make explicit which assets are available to the SQL query. This removes the ambiguity about which assets get registered.
+
+**Valid example:**
 ```yaml
-sql:
-  from: customers
-  query: >
-    SELECT c.*, o.order_id, o.amount
-    FROM customers c
-    LEFT JOIN orders o ON c.id = o.customer_id
-    WHERE o.amount > 100
+- name: customerOrders
+  sql:
+    views: [customers, orders]
+    query: >
+      SELECT c.name, o.order_id, o.amount
+      FROM customers c
+      LEFT JOIN orders o ON c.id = o.customer_id
+      WHERE o.amount > 100
 ```
+
+**Semantics:**
+- All assets listed in `views` MUST be registered as temporary views with their asset name as the view name.
+- The SQL dialect is **implementation-defined**. Implementations MUST document which SQL dialect they support.
+- The query MUST return a tabular result (rows and columns).
 
 ---
 
-### 6.23 Rollup
+### 8.23 Rollup
 
-Hierarchical aggregation that produces subtotals for each combination of grouping columns, progressing from the most detailed level to the grand total.
+Hierarchical aggregation producing subtotals.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   rollup:
-    from: <AssetRef>                    # REQUIRED
-    by:                                 # REQUIRED — NonEmptyList
-      - <column>
-    agg:                                # REQUIRED — NonEmptyList
-      - <aggregate_expression>
+    from: <AssetRef>
+    by: <NonEmptyList[Column]>
+    agg: <NonEmptyList[Expression]>
 ```
 
-For `by: [A, B]`, produces aggregations for: `(A, B)`, `(A)`, and `()` (grand total).
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `by` | NonEmptyList[Column] | **Yes** | — | Grouping columns (order matters). |
+| `agg` | NonEmptyList[Expression] | **Yes** | — | Aggregate expressions. |
+
+**Semantics:**
+- For `by: [A, B, C]`, produces aggregation groups for: `(A, B, C)`, `(A, B)`, `(A)`, and `()` (grand total).
+- Non-grouped columns in subtotal rows are `NULL`.
 
 ---
 
-### 6.24 Cube
+### 8.24 Cube
 
-Multi-dimensional aggregation that produces subtotals for **all combinations** of grouping columns.
+Multi-dimensional aggregation producing all combination subtotals.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   cube:
-    from: <AssetRef>                    # REQUIRED
-    by:                                 # REQUIRED — NonEmptyList
-      - <column>
-    agg:                                # REQUIRED — NonEmptyList
-      - <aggregate_expression>
+    from: <AssetRef>
+    by: <NonEmptyList[Column]>
+    agg: <NonEmptyList[Expression]>
 ```
 
-For `by: [A, B]`, produces aggregations for: `(A, B)`, `(A)`, `(B)`, and `()` (grand total).
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `by` | NonEmptyList[Column] | **Yes** | — | Grouping columns. |
+| `agg` | NonEmptyList[Expression] | **Yes** | — | Aggregate expressions. |
+
+**Semantics:**
+- For `by: [A, B]`, produces aggregation groups for: `(A, B)`, `(A)`, `(B)`, and `()` (grand total).
 
 ---
 
-### 6.25 SCD Type 2
+### 8.25 SCD Type 2
 
-Slowly Changing Dimension Type 2. Tracks historical changes by maintaining validity date ranges and a current flag.
+Slowly Changing Dimension Type 2 — tracks historical changes to dimension records.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   scd2:
-    from: <AssetRef>                    # REQUIRED
-    keyColumns:                         # REQUIRED — NonEmptyList — business key
-      - <column>
-    trackColumns:                       # REQUIRED — NonEmptyList — columns to track changes
-      - <column>
-    startDateColumn: <string>           # REQUIRED — name for valid-from column
-    endDateColumn: <string>             # REQUIRED — name for valid-to column
-    currentFlagColumn: <string>         # REQUIRED — name for is-current column
+    current: <AssetRef>
+    incoming: <AssetRef>
+    keyColumns: <NonEmptyList[Column]>
+    trackColumns: <NonEmptyList[Column]>
+    startDateColumn: <string>
+    endDateColumn: <string>
+    currentFlagColumn: <string>
 ```
 
-The implementation MUST:
-- Compare incoming records with existing records by `keyColumns`.
-- When `trackColumns` values change, close the old record (set `endDateColumn`) and insert a new record with `currentFlagColumn = true`.
-- New records get `startDateColumn = now`, `endDateColumn = null`, `currentFlagColumn = true`.
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `current` | AssetRef | **Yes** | — | The existing dimension table (previous state). |
+| `incoming` | AssetRef | **Yes** | — | New/updated records to merge. |
+| `keyColumns` | NonEmptyList[Column] | **Yes** | — | Business key columns for matching records. |
+| `trackColumns` | NonEmptyList[Column] | **Yes** | — | Columns to track for changes. |
+| `startDateColumn` | string | **Yes** | — | Name for the valid-from timestamp column. |
+| `endDateColumn` | string | **Yes** | — | Name for the valid-to timestamp column. |
+| `currentFlagColumn` | string | **Yes** | — | Name for the is-current boolean column. |
+
+> **Note:** This transformation takes **two** inputs (`current` and `incoming`) rather than a single `from`, making the data flow explicit.
+
+**Semantics:**
+1. Match `incoming` records to `current` records by `keyColumns`.
+2. For matched records where any `trackColumns` value has changed:
+   - Close the existing record: set `endDateColumn` to the current timestamp, `currentFlagColumn` to `false`.
+   - Insert a new record from `incoming` with `startDateColumn` = current timestamp, `endDateColumn` = `NULL`, `currentFlagColumn` = `true`.
+3. For matched records with no changes: no modification.
+4. For new records (no match in `current`): insert with `startDateColumn` = current timestamp, `endDateColumn` = `NULL`, `currentFlagColumn` = `true`.
+5. The output is the full dimension table (all historical + current records).
+
+**Valid example:**
+```yaml
+- name: customerDim
+  scd2:
+    current: existingCustomers
+    incoming: newCustomerData
+    keyColumns: [customer_id]
+    trackColumns: [name, email, address]
+    startDateColumn: valid_from
+    endDateColumn: valid_to
+    currentFlagColumn: is_current
+```
 
 ---
 
-### 6.26 Enrich
+### 8.26 Enrich
 
 Enriches records by calling an external HTTP API.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   enrich:
-    from: <AssetRef>                    # REQUIRED
-    url: <string>                       # REQUIRED — API endpoint URL
-    method: <string>                    # OPTIONAL — HTTP method (default: "GET")
-    keyColumn: <column>                 # REQUIRED — column whose value is sent to the API
-    responseColumn: <string>            # REQUIRED — name for the response column
-    headers:                            # OPTIONAL — HTTP headers
-      <key>: <value>
+    from: <AssetRef>
+    url: <string>
+    method: <string>
+    keyColumn: <Column>
+    responseColumn: <string>
+    headers: <Map[string, string]>
+    onError: <string>
+    timeout: <integer>
+    maxRetries: <integer>
 ```
 
-The API is called once per distinct value of `keyColumn`. The response body is stored as a string in `responseColumn`.
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `url` | string | **Yes** | — | API endpoint URL. MAY contain `${keyColumn}` placeholder. |
+| `method` | string | No | `"GET"` | HTTP method. |
+| `keyColumn` | Column | **Yes** | — | Column whose value is sent to the API. |
+| `responseColumn` | string | **Yes** | — | Name for the column holding the API response. |
+| `headers` | Map[string, string] | No | `{}` | HTTP request headers. |
+| `onError` | string | No | `"null"` | Error handling: `"null"` (set response to NULL), `"fail"` (abort pipeline), `"skip"` (drop the row). |
+| `timeout` | integer | No | `30000` | Request timeout in milliseconds. |
+| `maxRetries` | integer | No | `3` | Maximum retry attempts for transient failures (5xx, timeout). |
+
+**Semantics:**
+- The API is called once per **distinct** value of `keyColumn`. Results are cached and reused for duplicate keys.
+- The response body is stored as a `string` in `responseColumn`.
+- HTTP 4xx responses are **not** retried. HTTP 5xx and timeouts are retried up to `maxRetries` times with exponential backoff.
 
 ---
 
-### 6.27 Schema Enforce
+### 8.27 Schema Enforce
 
-Validates and/or evolves the schema of an asset.
+Validates and/or evolves the schema of a dataset.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   schemaEnforce:
-    from: <AssetRef>                    # REQUIRED
-    mode: <strict|evolve>               # OPTIONAL — default: "strict"
-    columns:                            # REQUIRED — NonEmptyList
-      - name: <column_name>            # REQUIRED
-        dataType: <data_type>           # REQUIRED
-        nullable: <boolean>             # OPTIONAL — default: true
-        default: <expression>           # OPTIONAL — default value expression
+    from: <AssetRef>
+    mode: <string>
+    columns: <NonEmptyList[SchemaColumn]>
 ```
 
-| Mode | Description |
-|------|-------------|
-| `strict` | The asset MUST contain exactly these columns with these types. Extra columns are an error. |
-| `evolve` | Missing columns are added with default values. Extra columns are preserved. |
+**SchemaColumn object:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | Column | **Yes** | — | Column name. |
+| `dataType` | string | **Yes** | — | Expected data type. See [Section 10](#10-data-types). |
+| `nullable` | boolean | No | `true` | Whether NULL values are allowed. |
+| `default` | Expression | No | — | Default value expression for missing columns (evolve mode only). |
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `mode` | string | No | `"strict"` | Enforcement mode. |
+| `columns` | NonEmptyList[SchemaColumn] | **Yes** | — | Expected schema. |
+
+**Modes:**
+
+| Mode | Extra columns | Missing columns | Type mismatch |
+|------|---------------|-----------------|---------------|
+| `strict` | Error `E-SCHEMA-003` | Error `E-SCHEMA-004` | Attempt cast; NULL on failure |
+| `evolve` | Preserved | Added with `default` (or NULL if no default) | Attempt cast; NULL on failure |
 
 ---
 
-### 6.28 Assertion
+### 8.28 Assertion
 
-Validates data quality rules. Does not modify the data.
+Validates data quality rules without modifying the dataset.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   assertion:
-    from: <AssetRef>                    # REQUIRED
-    checks:                             # REQUIRED — NonEmptyList
-      - column: <column>               # OPTIONAL — column to check
-        rule: <string>                  # REQUIRED — validation rule
-        description: <string>           # OPTIONAL — human-readable description
-    onFailure: <fail|warn|drop>         # OPTIONAL — default: "fail"
+    from: <AssetRef>
+    checks: <NonEmptyList[Check]>
+    onFailure: <string>
 ```
 
-### 6.28.1 Built-in Rules
+**Check object:**
 
-| Rule | Description |
-|------|-------------|
-| `not_null` | Column must not contain null values. |
-| `unique` | Column must contain unique values. |
-| Any expression | Evaluated as a boolean condition per row. |
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `column` | Column | No | — | Column to check. Required for column-level rules. |
+| `rule` | string | **Yes** | — | Validation rule. See [8.28.1](#8281-built-in-rules). |
+| `description` | string | No | — | Human-readable description of the check. |
 
-### 6.28.2 Failure Modes
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `checks` | NonEmptyList[Check] | **Yes** | — | Quality checks. |
+| `onFailure` | string | No | `"fail"` | Failure handling mode. |
+
+#### 8.28.1 Built-in Rules
+
+| Rule | Requires `column` | Description |
+|------|-------------------|-------------|
+| `not_null` | Yes | Column MUST NOT contain NULL values. |
+| `unique` | Yes | Column MUST contain unique values. |
+| Any Condition | No | Evaluated as a boolean per row. Rows returning `false` or `NULL` fail. |
+
+#### 8.28.2 Failure Modes
 
 | Mode | Description |
 |------|-------------|
-| `fail` | Abort the pipeline with an error. |
-| `warn` | Log a warning and continue. |
-| `drop` | Remove rows that fail the check. |
+| `fail` | Abort the pipeline with error `E-QUALITY-001`. Log failing rows. |
+| `warn` | Log a warning with failing row count. Continue pipeline. Output is unchanged. |
+| `drop` | Remove rows that fail any check. Log dropped row count. |
 
 ---
 
-### 6.29 Repartition
+### 8.29 Repartition
 
-Changes the number of partitions, optionally by specific columns.
+Changes the number of partitions (with shuffle).
 
 ```yaml
-- name: result
+- name: <AssetRef>
   repartition:
-    from: <AssetRef>                    # REQUIRED
-    numPartitions: <integer>            # REQUIRED — must be > 0
-    columns:                            # OPTIONAL — partition by these columns
-      - <column>
+    from: <AssetRef>
+    numPartitions: <integer>
+    columns: <List[Column]>
 ```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `numPartitions` | integer | **Yes** | — | Target partition count. MUST be > 0. |
+| `columns` | List[Column] | No | `[]` | Columns to hash-partition by. If empty, round-robin partitioning. |
 
 ---
 
-### 6.30 Coalesce
+### 8.30 Coalesce
 
 Reduces the number of partitions without a full shuffle.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   coalesce:
-    from: <AssetRef>                    # REQUIRED
-    numPartitions: <integer>            # REQUIRED — must be > 0
+    from: <AssetRef>
+    numPartitions: <integer>
 ```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `numPartitions` | integer | **Yes** | — | Target partition count. MUST be > 0 and ≤ current partition count. |
 
 ---
 
-### 6.31 Custom
+### 8.31 Custom
 
-Invokes a user-registered component by name.
+Invokes a user-registered component.
 
 ```yaml
-- name: result
+- name: <AssetRef>
   custom:
-    from: <AssetRef>                    # REQUIRED
-    component: <string>                 # REQUIRED — registered component name
-    options:                            # OPTIONAL
-      <key>: <value>
+    from: <AssetRef>
+    component: <string>
+    options: <Map[string, string]>
 ```
 
-Custom components are registered via the implementation's plugin/registry API. The specification does not prescribe the registration mechanism.
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `from` | AssetRef | **Yes** | — | Source asset. |
+| `component` | string | **Yes** | — | Registered component identifier. |
+| `options` | Map[string, string] | No | `{}` | Component-specific options. |
+
+**Interface contract:** A custom component MUST:
+1. Accept a single tabular dataset as input.
+2. Accept a string-to-string options map.
+3. Return a single tabular dataset as output.
+
+The registration mechanism is implementation-defined. The component identifier MUST be registered before the pipeline executes; otherwise, the implementation MUST raise `E-COMP-001`.
 
 ---
 
-## 7. Expression Language
+## 9. Expression Language
 
-Expressions are SQL-like strings used in filters, column definitions, aggregations, and conditions throughout a Teckel document.
+Teckel uses a SQL-like expression language for filters, column definitions, aggregations, conditions, and computed values.
 
-### 7.1 Column References
+### 9.1 EBNF Grammar
+
+```ebnf
+(* Top-level expression *)
+expression     = or_expr, [ "as", identifier ] ;
+
+(* Logical operators — lowest precedence *)
+or_expr        = and_expr, { "OR", and_expr } ;
+and_expr       = not_expr, { "AND", not_expr } ;
+not_expr       = [ "NOT" ], comparison ;
+
+(* Comparison *)
+comparison     = addition, [ comp_op, addition ]
+               | addition, "IS", [ "NOT" ], "NULL"
+               | addition, [ "NOT" ], "IN", "(", expression_list, ")"
+               | addition, [ "NOT" ], "BETWEEN", addition, "AND", addition
+               | addition, [ "NOT" ], "LIKE", string_literal ;
+
+comp_op        = "=" | "!=" | "<>" | "<" | ">" | "<=" | ">=" ;
+
+(* Arithmetic *)
+addition       = multiplication, { ( "+" | "-" ), multiplication } ;
+multiplication = unary, { ( "*" | "/" | "%" ), unary } ;
+unary          = [ "-" ], primary ;
+
+(* Primary expressions *)
+primary        = literal
+               | column_ref
+               | function_call
+               | case_expr
+               | cast_expr
+               | "(", expression, ")" ;
+
+(* Literals *)
+literal        = string_literal | integer_literal | double_literal
+               | boolean_literal | null_literal ;
+
+string_literal  = "'", { any_char - "'" | "''" }, "'" ;
+integer_literal = [ "-" ], digit, { digit } ;
+double_literal  = [ "-" ], digit, { digit }, ".", digit, { digit } ;
+boolean_literal = "true" | "false" ;
+null_literal    = "NULL" | "null" ;
+
+(* Column reference *)
+column_ref     = identifier, [ ".", identifier ] ;
+
+(* Function call *)
+function_call  = identifier, "(", [ function_args ], ")" ;
+function_args  = [ "DISTINCT" ], expression_list ;
+expression_list = expression, { ",", expression } ;
+
+(* CASE expression *)
+case_expr      = "CASE", { "WHEN", expression, "THEN", expression },
+                 [ "ELSE", expression ], "END" ;
+
+(* CAST expression *)
+cast_expr      = "CAST", "(", expression, "AS", type_name, ")" ;
+
+(* Identifiers *)
+identifier     = letter, { letter | digit | "_" }
+               | "`", { any_char - "`" }, "`" ;
+
+(* Type name for CAST *)
+type_name      = simple_type | parameterized_type ;
+simple_type    = "string" | "integer" | "int" | "long" | "float"
+               | "double" | "boolean" | "date" | "timestamp" | "binary" ;
+parameterized_type = "decimal", "(", integer_literal, ",", integer_literal, ")"
+                   | "array", "<", type_name, ">"
+                   | "map", "<", type_name, ",", type_name, ">"
+                   | "struct", "<", struct_fields, ">" ;
+struct_fields  = struct_field, { ",", struct_field } ;
+struct_field   = identifier, ":", type_name ;
+```
+
+### 9.2 Operator Precedence
+
+From **highest** to **lowest** precedence:
+
+| Precedence | Operator | Associativity | Description |
+|------------|----------|---------------|-------------|
+| 1 | `()`, function calls | — | Grouping, function application |
+| 2 | unary `-` | Right | Negation |
+| 3 | `*`, `/`, `%` | Left | Multiplication, division, modulo |
+| 4 | `+`, `-` | Left | Addition, subtraction |
+| 5 | `=`, `!=`, `<>`, `<`, `>`, `<=`, `>=`, `IS`, `IN`, `BETWEEN`, `LIKE` | — | Comparison |
+| 6 | `NOT` | Right | Logical negation |
+| 7 | `AND` | Left | Logical conjunction |
+| 8 | `OR` | Left | Logical disjunction |
+| 9 | `as` | — | Aliasing (lowest) |
+
+**Example:** `NOT a AND b OR c` parses as `((NOT a) AND b) OR c`.
+
+### 9.3 Canonical Equality Operator
+
+The canonical equality operator is `=` (single equals), consistent with ANSI SQL. The form `==` is accepted as an alias and MUST be treated identically to `=`. Implementations SHOULD prefer `=` in generated output.
+
+### 9.4 String Literals
+
+String literals are delimited by single quotes. A literal single quote within a string is escaped by doubling: `''`.
 
 ```
-column_name                    -- unqualified
-asset_name.column_name         -- qualified with asset name
+'hello'          → hello
+'it''s'          → it's
+''               → (empty string)
 ```
 
-Qualified references are REQUIRED in join conditions and RECOMMENDED whenever ambiguity is possible.
+Special characters (newlines, tabs, etc.) have no escape sequences in the expression language. If needed, use function calls (e.g., `char(10)` for newline). This is because Teckel expressions are embedded in YAML strings, which provide their own escaping mechanisms.
 
-### 7.2 Literals
+### 9.5 Backtick-Quoted Identifiers
 
-| Type | Syntax | Examples |
-|------|--------|---------|
-| String | Single quotes | `'hello'`, `'it''s'` |
-| Integer | Digits | `42`, `-1`, `0` |
-| Double | Digits with decimal | `3.14`, `-0.5` |
-| Boolean | Keywords | `true`, `false` |
-| Null | Keyword | `null` |
-
-### 7.3 Operators
-
-#### Comparison Operators
-
-| Operator | Description |
-|----------|-------------|
-| `=` or `==` | Equal. |
-| `!=` or `<>` | Not equal. |
-| `<` | Less than. |
-| `>` | Greater than. |
-| `<=` | Less than or equal. |
-| `>=` | Greater than or equal. |
-
-#### Logical Operators
-
-| Operator | Description |
-|----------|-------------|
-| `AND` | Logical AND. |
-| `OR` | Logical OR. |
-| `NOT` | Logical negation. |
-
-#### Arithmetic Operators
-
-| Operator | Description |
-|----------|-------------|
-| `+` | Addition. |
-| `-` | Subtraction. |
-| `*` | Multiplication. |
-| `/` | Division. |
-| `%` | Modulo. |
-
-#### Special Operators
-
-| Operator | Description |
-|----------|-------------|
-| `IS NULL` | Tests for null. |
-| `IS NOT NULL` | Tests for non-null. |
-| `IN (...)` | Membership test. |
-| `BETWEEN ... AND ...` | Range test (inclusive). |
-| `LIKE` | Pattern matching (`%` any chars, `_` single char). |
-
-### 7.4 Functions
-
-Implementations MUST support these core functions:
-
-#### Aggregate Functions
-
-| Function | Description |
-|----------|-------------|
-| `count(expr)` | Number of rows / non-null values. |
-| `sum(expr)` | Sum of values. |
-| `avg(expr)` | Average of values. |
-| `min(expr)` | Minimum value. |
-| `max(expr)` | Maximum value. |
-| `count(1)` | Total row count. |
-
-#### String Functions
-
-| Function | Description |
-|----------|-------------|
-| `concat(expr, ...)` | Concatenate strings. |
-| `upper(expr)` | Convert to uppercase. |
-| `lower(expr)` | Convert to lowercase. |
-| `trim(expr)` | Remove leading/trailing whitespace. |
-| `length(expr)` | String length. |
-| `substring(expr, start, len)` | Extract substring. |
-
-#### Date/Time Functions
-
-| Function | Description |
-|----------|-------------|
-| `current_date()` | Current date. |
-| `current_timestamp()` | Current timestamp. |
-| `year(expr)` | Extract year. |
-| `month(expr)` | Extract month. |
-| `day(expr)` | Extract day. |
-
-#### Window Functions
-
-| Function | Description |
-|----------|-------------|
-| `row_number()` | Sequential row number within partition. |
-| `rank()` | Rank with gaps for ties. |
-| `dense_rank()` | Rank without gaps. |
-| `lag(expr, offset)` | Value from a preceding row. |
-| `lead(expr, offset)` | Value from a following row. |
-
-#### Other Functions
-
-| Function | Description |
-|----------|-------------|
-| `coalesce(expr, ...)` | First non-null value. |
-| `cast(expr AS type)` | Type conversion. |
-| `abs(expr)` | Absolute value. |
-| `round(expr, scale)` | Round to scale decimal places. |
-
-Implementations MAY support additional functions beyond this core set.
-
-### 7.5 Aliasing
-
-Expressions can be aliased using `as`:
+Identifiers containing special characters (spaces, dots, hyphens, reserved words) MUST be quoted with backticks:
 
 ```
-sum(amount) as total_amount
-UPPER(name) as upper_name
+`my column`
+`order`           (* "order" is a reserved word *)
+`table.name`      (* literal dot in column name, not a qualified reference *)
+```
+
+### 9.6 Core Functions
+
+A conforming implementation MUST support these functions:
+
+#### 9.6.1 Aggregate Functions
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `count(expr)` | integer | Count of non-NULL values. |
+| `count(*)` | integer | Total row count. |
+| `count(DISTINCT expr)` | integer | Count of distinct non-NULL values. |
+| `sum(expr)` | same as input | Sum. NULL if all inputs are NULL. |
+| `avg(expr)` | double | Average. NULL if all inputs are NULL. |
+| `min(expr)` | same as input | Minimum. NULL if all inputs are NULL. |
+| `max(expr)` | same as input | Maximum. NULL if all inputs are NULL. |
+
+#### 9.6.2 String Functions
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `concat(expr, ...)` | string | Concatenate. NULL if any argument is NULL. |
+| `upper(expr)` | string | Convert to uppercase. |
+| `lower(expr)` | string | Convert to lowercase. |
+| `trim(expr)` | string | Remove leading/trailing whitespace. |
+| `ltrim(expr)` | string | Remove leading whitespace. |
+| `rtrim(expr)` | string | Remove trailing whitespace. |
+| `length(expr)` | integer | String length in characters. |
+| `substring(expr, start, len)` | string | Extract substring. 1-indexed. |
+| `replace(expr, search, replacement)` | string | Replace all occurrences. |
+| `coalesce(expr, ...)` | same as first non-NULL | First non-NULL argument. |
+
+#### 9.6.3 Numeric Functions
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `abs(expr)` | same as input | Absolute value. |
+| `round(expr, scale)` | same as input | Round to `scale` decimal places. |
+| `floor(expr)` | same as input | Round down to nearest integer. |
+| `ceil(expr)` | same as input | Round up to nearest integer. |
+| `power(base, exp)` | double | Exponentiation. |
+| `sqrt(expr)` | double | Square root. |
+| `mod(expr, divisor)` | same as input | Modulo (same as `%`). |
+
+#### 9.6.4 Date/Time Functions
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `current_date()` | date | Current date. |
+| `current_timestamp()` | timestamp | Current timestamp. |
+| `year(expr)` | integer | Extract year. |
+| `month(expr)` | integer | Extract month (1-12). |
+| `day(expr)` | integer | Extract day of month (1-31). |
+| `hour(expr)` | integer | Extract hour (0-23). |
+| `minute(expr)` | integer | Extract minute (0-59). |
+| `second(expr)` | integer | Extract second (0-59). |
+| `date_add(date, days)` | date | Add days to a date. |
+| `date_diff(end, start)` | integer | Days between two dates. |
+| `to_date(expr, format)` | date | Parse string to date. |
+| `to_timestamp(expr, format)` | timestamp | Parse string to timestamp. |
+
+#### 9.6.5 Window Functions
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `row_number()` | integer | Sequential row number within partition (1-based). |
+| `rank()` | integer | Rank with gaps for ties. |
+| `dense_rank()` | integer | Rank without gaps. |
+| `lag(expr, offset)` | same as input | Value from `offset` rows before. NULL if out of range. |
+| `lead(expr, offset)` | same as input | Value from `offset` rows after. NULL if out of range. |
+| `first_value(expr)` | same as input | First value in the window frame. |
+| `last_value(expr)` | same as input | Last value in the window frame. |
+| `ntile(n)` | integer | Distribute rows into `n` buckets. |
+
+#### 9.6.6 Conditional Functions
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `coalesce(expr, ...)` | varies | First non-NULL argument. |
+| `nullif(expr1, expr2)` | same as expr1 | NULL if expr1 = expr2, else expr1. |
+| `ifnull(expr, default)` | varies | `default` if expr is NULL, else expr. Alias for `coalesce(expr, default)`. |
+
+Implementations MAY support additional functions beyond this core set. Additional functions SHOULD be documented by the implementation.
+
+### 9.7 Nested Function Calls
+
+Function calls MAY be nested to arbitrary depth:
+
+```
+upper(trim(concat(first_name, ' ', last_name)))
+```
+
+### 9.8 CASE Expression
+
+The `CASE` expression MAY be used inline within any expression context:
+
+```
+CASE WHEN amount > 1000 THEN 'high' WHEN amount > 100 THEN 'medium' ELSE 'low' END
 ```
 
 ---
 
-## 8. Data Types
+## 10. Data Types
 
-The following abstract data types are used in `castColumns`, `schemaEnforce`, and type expressions:
+### 10.1 Type System
 
-| Type | Description |
-|------|-------------|
-| `string` | Variable-length text. |
-| `integer` or `int` | 32-bit signed integer. |
-| `long` | 64-bit signed integer. |
-| `float` | 32-bit floating point. |
-| `double` | 64-bit floating point. |
-| `boolean` | `true` or `false`. |
-| `date` | Calendar date (no time). |
-| `timestamp` | Date with time. |
-| `decimal(precision, scale)` | Fixed-point decimal. |
-| `binary` | Binary data. |
-| `array<T>` | Array of type T. |
-| `map<K, V>` | Key-value map. |
-| `struct<fields...>` | Nested structure. |
+| Type | Description | Example Values |
+|------|-------------|----------------|
+| `string` | Variable-length UTF-8 text. | `'hello'`, `''` |
+| `integer` or `int` | 32-bit signed integer. | `42`, `-1`, `0` |
+| `long` | 64-bit signed integer. | `2147483648` |
+| `float` | 32-bit IEEE 754 floating point. | `3.14` |
+| `double` | 64-bit IEEE 754 floating point. | `3.141592653589793` |
+| `boolean` | Boolean. | `true`, `false` |
+| `date` | Calendar date (no time component). | `2025-01-15` |
+| `timestamp` | Date with time and timezone. | `2025-01-15T10:30:00Z` |
+| `decimal(p, s)` | Fixed-point decimal with precision `p` and scale `s`. | `decimal(10, 2)` |
+| `binary` | Arbitrary binary data. | — |
+| `array<T>` | Ordered collection of elements of type `T`. | `array<string>` |
+| `map<K, V>` | Key-value pairs with key type `K` and value type `V`. | `map<string, integer>` |
+| `struct<fields>` | Named fields with types, using `name: type` syntax. | `struct<name: string, age: int>` |
 
-Type names are case-insensitive.
+Type names are **case-insensitive**: `String`, `STRING`, and `string` are equivalent.
+
+### 10.2 Implicit Type Widening
+
+When operations involve mixed types, the following widening rules apply automatically:
+
+| From | To | Context |
+|------|----|---------|
+| `integer` | `long` | Arithmetic with `long` operand. |
+| `integer`, `long` | `double` | Arithmetic with `double` operand. |
+| `float` | `double` | Arithmetic with `double` operand. |
+| `integer`, `long` | `decimal` | Arithmetic with `decimal` operand. |
+| `date` | `timestamp` | Comparison with `timestamp` operand. |
+
+Widening MUST NOT lose information. If a widening cannot be performed safely, the implementation MUST raise `E-TYPE-001`.
 
 ---
 
-## 9. Variable Substitution
+## 11. Null Semantics
+
+Teckel follows **SQL three-valued logic** (true, false, NULL) for null handling.
+
+### 11.1 General Rules
+
+| Operation | Result with NULL |
+|-----------|-----------------|
+| `NULL = NULL` | `NULL` (not `true`) |
+| `NULL != NULL` | `NULL` (not `true`) |
+| `NULL AND true` | `NULL` |
+| `NULL AND false` | `false` |
+| `NULL OR true` | `true` |
+| `NULL OR false` | `NULL` |
+| `NOT NULL` | `NULL` |
+| `x + NULL` | `NULL` (any arithmetic with NULL) |
+| `concat('a', NULL)` | `NULL` |
+
+### 11.2 IS NULL / IS NOT NULL
+
+The only operators that return `true`/`false` (never NULL) for null testing:
+
+```
+x IS NULL         → true if x is NULL, false otherwise
+x IS NOT NULL     → true if x is not NULL, false otherwise
+```
+
+### 11.3 Aggregation
+
+| Function | All NULLs | Mix of NULL and values |
+|----------|-----------|----------------------|
+| `count(expr)` | `0` | Count of non-NULL values. |
+| `count(*)` | Row count | Row count. |
+| `sum(expr)` | `NULL` | Sum of non-NULL values. |
+| `avg(expr)` | `NULL` | Average of non-NULL values. |
+| `min(expr)` | `NULL` | Minimum of non-NULL values. |
+| `max(expr)` | `NULL` | Maximum of non-NULL values. |
+
+### 11.4 Sorting
+
+Default null ordering:
+
+| Direction | Null Position |
+|-----------|---------------|
+| `asc` | Nulls **last**. |
+| `desc` | Nulls **last**. |
+
+This default MAY be overridden per-column in `orderBy` using the `nulls` field.
+
+### 11.5 Grouping
+
+NULL values in grouping columns form a single group (all NULLs are grouped together).
+
+### 11.6 Distinct
+
+For deduplication purposes, `NULL = NULL` evaluates to `true` (two NULL values are considered duplicates).
+
+### 11.7 Joins
+
+- In join conditions, `NULL = NULL` evaluates to `NULL` (falsy), so NULLs do NOT match.
+- In outer joins, non-matching rows have NULL-filled columns from the other side.
+
+---
+
+## 12. Variable Substitution
 
 Variables allow parameterization of Teckel documents.
 
-### 9.1 Syntax
+### 12.1 Syntax (EBNF)
 
+```ebnf
+variable        = "${", var_name, [ ":", default_value ], "}" ;
+var_name        = identifier_char, { identifier_char } ;
+identifier_char = letter | digit | "_" | "." ;
+default_value   = { any_char - "}" } ;
+escaped_dollar  = "$$" ;
 ```
-${VARIABLE_NAME}                 -- required variable
-${VARIABLE_NAME:default_value}   -- variable with default
-```
 
-### 9.2 Resolution Order
+### 12.2 Examples
 
-1. Explicit variables map (passed by the runtime).
-2. Environment variables.
-3. Default value (if specified).
-4. Error (if no default and variable is unresolved).
-
-### 9.3 Scope
-
-Variable substitution is applied to the **raw YAML text** before parsing. Variables can appear in any string value: paths, expressions, option values, etc.
-
-**Example:**
 ```yaml
-input:
-  - name: source
-    format: parquet
-    path: "${INPUT_PATH}/events"
-
-transformation:
-  - name: filtered
-    where:
-      from: source
-      filter: "${FILTER_CONDITION:1=1}"
+path: "${INPUT_PATH}/events"                    # required variable
+filter: "${FILTER_CONDITION:1=1}"               # variable with default
+path: "$${NOT_A_VARIABLE}"                      # escaped: renders as "${NOT_A_VARIABLE}"
 ```
+
+### 12.3 Resolution Order
+
+1. **Explicit variables map** — passed by the runtime (e.g., command-line arguments).
+2. **Environment variables** — from the OS environment.
+3. **Default value** — the value after `:` in `${VAR:default}`.
+4. **Error** — if none of the above resolve the variable, raise `E-VAR-001`.
+
+### 12.4 Escaping
+
+The sequence `$$` is an escape for a literal `$`. After substitution, `$${...}` becomes the literal text `${...}`.
+
+### 12.5 Nesting
+
+Variable nesting (e.g., `${A_${B}}`) is **NOT** supported. Substitution is a **single-pass** text replacement from left to right. If the resolved value of a variable contains `${...}`, it is treated as literal text and NOT expanded further.
+
+### 12.6 Scope
+
+Variable substitution is applied to the **raw YAML text** before parsing. Variables MAY appear in any string value: paths, expressions, option values, etc.
 
 ---
 
-## 10. Secrets
+## 13. Secrets
 
-Secrets provide a secure mechanism for referencing sensitive values.
+Secrets provide a secure mechanism for referencing sensitive values that MUST NOT appear in plain text.
 
-### 10.1 Syntax
+### 13.1 Syntax (EBNF)
 
+```ebnf
+secret_ref    = "{{", "secrets", ".", alias, "}}" ;
+alias         = letter, { letter | digit | "_" | "-" } ;
+escaped_brace = "{{{{" ;   (* literal "{{" *)
 ```
-{{secrets.alias_name}}
-```
 
-### 10.2 Declaration
+### 13.2 Declaration
 
 ```yaml
 secrets:
   keys:
     <alias>:
-      scope: <string>             # OPTIONAL — vault/scope name
-      key: <string>               # REQUIRED — key name in the vault
+      scope: <string>             # OPTIONAL — vault/scope/namespace
+      key: <string>               # REQUIRED — key name in the secret store
 ```
 
-### 10.3 Resolution
+### 13.3 Resolution
 
-The runtime resolves secrets via a **SecretsProvider** interface. The mechanism is implementation-dependent (e.g., environment variables, vault services, cloud secret managers).
+The runtime resolves secrets via a **SecretsProvider** interface. The mechanism is implementation-defined (e.g., environment variables, HashiCorp Vault, AWS Secrets Manager, Azure Key Vault).
 
-If a secret cannot be resolved, the pipeline MUST fail before execution.
+Fallback resolution order:
+1. The implementation's configured SecretsProvider.
+2. Environment variable `TECKEL_SECRET__<ALIAS>` (alias uppercased, hyphens replaced with underscores).
+
+If a secret cannot be resolved, the implementation MUST raise `E-SECRET-001` **before** execution begins.
+
+### 13.4 Security
+
+- Resolved secret values MUST NOT be logged, printed, or included in error messages.
+- Implementations SHOULD clear secret values from memory after use.
+
+**Valid example:**
+```yaml
+secrets:
+  keys:
+    db_password:
+      scope: production
+      key: database-password
+
+input:
+  - name: dbTable
+    format: jdbc
+    path: ""
+    options:
+      url: "jdbc:postgresql://host:5432/mydb"
+      user: admin
+      password: "{{secrets.db_password}}"
+```
 
 ---
 
-## 11. Configuration
+## 14. Configuration
 
 The `config` section controls pipeline-wide settings.
 
 ```yaml
 config:
-  backend: <string>               # OPTIONAL — execution backend hint
-  cache:                          # OPTIONAL — caching configuration
-    autoCacheThreshold: <integer> # OPTIONAL — auto-cache if asset has N+ consumers
-    defaultStorageLevel: <string> # OPTIONAL — e.g., "MEMORY_AND_DISK"
-  notifications:                  # OPTIONAL
-    onSuccess:                    # OPTIONAL
-      - channel: <string>        # REQUIRED — "log", "webhook", "file"
-        url: <string>            # OPTIONAL — for webhook
-        path: <string>           # OPTIONAL — for file
-    onFailure:                    # OPTIONAL
-      - ...
-  components:                     # OPTIONAL — custom component registry
-    readers:
-      - ...
-    transformers:
-      - ...
-    writers:
-      - ...
+  backend: <string>
+  cache:
+    autoCacheThreshold: <integer>
+    defaultStorageLevel: <string>
+  notifications:
+    onSuccess: <List[NotificationTarget]>
+    onFailure: <List[NotificationTarget]>
+  components:
+    readers: <List[ComponentDef]>
+    transformers: <List[ComponentDef]>
+    writers: <List[ComponentDef]>
 ```
+
+### 14.1 Fields
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `backend` | string | No | impl-defined | Hint for the execution backend (e.g., `"spark"`, `"datafusion"`, `"duckdb"`). |
+| `cache` | CacheConfig | No | — | Caching configuration. |
+| `notifications` | NotificationConfig | No | — | Pipeline event notifications. |
+| `components` | ComponentsConfig | No | — | Custom component registration. |
+
+### 14.2 Cache Configuration
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `autoCacheThreshold` | integer | No | impl-defined | Auto-cache assets consumed by N or more downstream assets. |
+| `defaultStorageLevel` | string | No | impl-defined | Default storage level for caching (e.g., `"MEMORY_AND_DISK"`). |
+
+### 14.3 Notification Target
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `channel` | string | **Yes** | — | `"log"`, `"webhook"`, or `"file"`. |
+| `url` | string | Conditional | — | Required for `"webhook"`. |
+| `path` | string | Conditional | — | Required for `"file"`. |
 
 All config fields are OPTIONAL. Implementations define their own defaults.
 
 ---
 
-## 12. Streaming
+## 15. Streaming
 
-Streaming inputs and outputs extend the batch model for continuous processing.
+Streaming extends the batch model for continuous processing.
 
-### 12.1 Streaming Input
+### 15.1 Streaming Input
 
 ```yaml
 streamingInput:
-  - name: <AssetRef>              # REQUIRED
-    format: <string>              # REQUIRED — e.g., "kafka", "json"
-    path: <string>                # OPTIONAL — for file-based streams
-    options:                      # OPTIONAL
-      <key>: <value>
-    trigger: <string>             # OPTIONAL — trigger specification
+  - name: <AssetRef>
+    format: <string>
+    path: <string>
+    options: <Map[string, primitive]>
+    trigger: <string>
 ```
 
-### 12.2 Streaming Output
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | AssetRef | **Yes** | — | Unique asset name. |
+| `format` | string | **Yes** | — | Stream format (e.g., `"kafka"`, `"json"`, `"csv"`). |
+| `path` | string | No | — | For file-based streams, the monitored directory. |
+| `options` | Map[string, primitive] | No | `{}` | Source-specific options. |
+| `trigger` | string | No | impl-defined | Trigger specification. See [15.3](#153-triggers). |
+
+### 15.2 Streaming Output
 
 ```yaml
 streamingOutput:
-  - name: <AssetRef>              # REQUIRED
-    format: <string>              # REQUIRED
-    path: <string>                # OPTIONAL
-    options:                      # OPTIONAL
-      <key>: <value>
-    outputMode: <string>          # OPTIONAL — "append", "update", "complete"
-    checkpointLocation: <string>  # OPTIONAL — path for state checkpointing
-    trigger: <string>             # OPTIONAL
+  - name: <AssetRef>
+    format: <string>
+    path: <string>
+    options: <Map[string, primitive]>
+    outputMode: <string>
+    checkpointLocation: <string>
+    trigger: <string>
 ```
 
-### 12.3 Trigger Specification
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | AssetRef | **Yes** | — | MUST match an existing asset. |
+| `format` | string | **Yes** | — | Output format. |
+| `path` | string | No | — | Output path (for file-based sinks). |
+| `options` | Map[string, primitive] | No | `{}` | Sink-specific options. |
+| `outputMode` | string | No | `"append"` | `"append"`, `"update"`, or `"complete"`. |
+| `checkpointLocation` | string | No | — | Path for streaming state checkpointing. RECOMMENDED for production. |
+| `trigger` | string | No | impl-defined | Trigger specification. |
+
+### 15.3 Triggers
 
 | Trigger | Description |
 |---------|-------------|
-| `"processingTime:<interval>"` | Micro-batch at the given interval (e.g., `"processingTime:10 seconds"`). |
+| `"processingTime:<interval>"` | Micro-batch at the given interval. Example: `"processingTime:10 seconds"`. |
 | `"once"` | Process all available data once and stop. |
-| `"continuous:<interval>"` | Low-latency continuous processing. |
+| `"continuous:<interval>"` | Low-latency continuous processing. Example: `"continuous:1 second"`. |
+
+### 15.4 Batch and Streaming Interaction
+
+Streaming inputs and batch inputs MAY coexist in the same document. Transformations MAY reference both streaming and batch assets (e.g., a stream-static join). The implementation MUST ensure that batch assets are available as static lookups when referenced by streaming transformations.
 
 ---
 
-## 13. Hooks
+## 16. Hooks
 
-Hooks allow running external commands at pipeline lifecycle events.
+Hooks execute external commands at pipeline lifecycle events.
 
 ```yaml
 hooks:
-  preExecution:                   # OPTIONAL — run before the pipeline
-    - name: <string>              # REQUIRED — hook name
-      command: <string>           # REQUIRED — shell command
-  postExecution:                  # OPTIONAL — run after the pipeline
+  preExecution:
+    - name: <string>
+      command: <string>
+  postExecution:
     - name: <string>
       command: <string>
 ```
 
-Pre-execution hooks run sequentially in order. If any pre-execution hook fails (non-zero exit code), the pipeline MUST NOT start.
+### 16.1 Fields
 
-Post-execution hooks run after the pipeline completes (success or failure).
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | string | **Yes** | — | Hook identifier (for logging). |
+| `command` | string | **Yes** | — | Shell command to execute. |
+
+### 16.2 Execution Rules
+
+- **Pre-execution hooks** run sequentially in declared order **before** any pipeline asset is executed.
+- If any pre-execution hook exits with a non-zero code, the pipeline MUST NOT start. Error: `E-HOOK-001`.
+- **Post-execution hooks** run sequentially in declared order **after** the pipeline completes (whether success or failure).
+- If a post-execution hook fails, the implementation MUST log the failure but MUST NOT change the pipeline's overall status.
+
+### 16.3 Execution Environment
+
+- Working directory: the directory containing the Teckel YAML file.
+- Environment variables: the runtime's environment, plus:
+  - `TECKEL_PIPELINE_STATUS`: `"SUCCESS"` or `"FAILURE"` (available to post-execution hooks).
+  - `TECKEL_PIPELINE_FILE`: absolute path to the Teckel YAML file.
 
 ---
 
-## 14. Templates
+## 17. Templates
 
 Templates define reusable configuration fragments.
 
 ```yaml
 templates:
-  - name: <string>                # REQUIRED — template name
-    parameters:                   # REQUIRED
+  - name: <string>
+    parameters:
       <key>: <value>
 ```
 
-The template mechanism is advisory in v2.0. Implementations MAY support template expansion and parameterization. A future version of this spec will formalize template semantics.
+### 17.1 Status
+
+> **Advisory.** Template semantics are not fully specified in v2.0. Implementations MAY support template expansion but MUST NOT require it for Core or Extended conformance. A future version will formalize template instantiation, parameterization, and composition.
+
+Implementations that support templates SHOULD document their template expansion mechanism.
 
 ---
 
-## 15. Config Merging
+## 18. Config Merging
 
-Multiple Teckel documents can be merged into a single pipeline. This enables environment-specific overrides (e.g., `pipeline.yaml` + `pipeline.dev.yaml`).
+Multiple Teckel documents MAY be merged into a single pipeline. This enables environment-specific overrides.
 
-### 15.1 Merge Semantics
+### 18.1 Merge Semantics
 
-- Object fields are **deep-merged**: the overlay's fields override the base's, recursively.
-- Array fields are **replaced** entirely by the overlay.
-- Scalar values are **replaced** by the overlay.
+| Value Type | Merge Behavior |
+|------------|---------------|
+| Object (YAML mapping) | **Deep merge**: overlay fields override base fields recursively. |
+| Array (YAML sequence) | **Replaced** entirely by the overlay. |
+| Scalar | **Replaced** by the overlay. |
 
-### 15.2 Merge Order
+### 18.2 Merge Order
 
-When multiple files are provided, they are merged left to right. The rightmost file has the highest precedence.
+Files are merged left to right. The rightmost file has the **highest** precedence.
+
+```
+base.yaml + dev.yaml → merged
+```
+
+### 18.3 Example
+
+**base.yaml:**
+```yaml
+version: "2.0"
+input:
+  - name: source
+    format: parquet
+    path: "${INPUT_PATH}"
+output:
+  - name: source
+    format: parquet
+    mode: overwrite
+    path: "${OUTPUT_PATH}"
+```
+
+**dev.yaml:**
+```yaml
+input:
+  - name: source
+    format: csv
+    path: "data/local/input.csv"
+    options:
+      header: true
+output:
+  - name: source
+    path: "data/local/output"
+```
+
+**Merged result:** The `input` and `output` arrays from `dev.yaml` completely **replace** those in `base.yaml`. Object fields within them are not individually merged — the entire array is replaced.
 
 ---
 
-## 16. Validation Rules
+## 19. Path Resolution
 
-A conforming implementation MUST validate the following before execution:
+### 19.1 Absolute Paths and URIs
 
-1. **Reference integrity**: Every `AssetRef` used in `from`, `left`, `right`, `sources`, and output `name` MUST resolve to a defined asset.
-2. **No cycles**: The asset dependency graph MUST be a DAG.
-3. **Output references**: Outputs MUST NOT reference other outputs.
-4. **Name uniqueness**: No two assets across `input`, `transformation`, and `output` MAY share the same name. (Exception: `output.name` intentionally matches an upstream asset.)
-5. **Non-empty lists**: Fields annotated as `NonEmptyList` MUST contain at least one element.
-6. **Type constraints**: Integer fields MUST contain integers, boolean fields MUST contain booleans, etc.
+Paths that are absolute (start with `/`) or contain a URI scheme (e.g., `s3://`, `gs://`, `hdfs://`, `file://`) are used as-is.
 
----
+### 19.2 Relative Paths
 
-## 17. Conformance
+Relative paths are resolved relative to the **working directory** of the runtime process, NOT relative to the YAML file location.
 
-### 17.1 Conformance Levels
+> **Rationale:** This matches the behavior of most data processing frameworks and avoids ambiguity when multiple YAML files are merged.
 
-| Level | Requirements |
-|-------|-------------|
-| **Core** | Sections 2–5, transformations 6.1–6.10, expression basics (7.1–7.3), data types, variable substitution, and validation rules. |
-| **Extended** | Core + all remaining transformations (6.11–6.31), full expression language (7.4–7.5), secrets, configuration, hooks, and config merging. |
-| **Streaming** | Extended + Section 12 (streaming inputs and outputs). |
-
-An implementation MUST declare which conformance level it supports.
-
-### 17.2 Implementation Notes
-
-- Implementations MUST reject unknown top-level keys (to catch typos).
-- Implementations MUST reject unknown operation keys within transformations.
-- Implementations SHOULD provide clear error messages with line numbers when validation fails.
-- The SQL dialect for expressions is intentionally close to ANSI SQL. Implementations MAY support engine-specific extensions but MUST document deviations.
+Implementations MAY provide a configuration option to set a base path for relative path resolution.
 
 ---
 
-## Appendix A: Complete Example
+## 20. Validation Rules
+
+A conforming implementation MUST validate the following **before** execution. Each rule is stated formally, followed by the error code raised on violation.
+
+### V-001: Reference Integrity
+
+> **Rule:** For each AssetRef `R` used in a `from`, `left`, `right`, `sources`, `current`, `incoming`, `views`, or output `name` field, there MUST exist an asset with name `R` in the `input` section, the `transformation` section, or as a `pass`/`fail` name of a `split` transformation.
+
+**Error:** `E-REF-001` — undefined asset reference.
+
+**Valid:**
+```yaml
+input:
+  - name: data
+    format: csv
+    path: "a.csv"
+transformation:
+  - name: filtered
+    where:
+      from: data                  # OK: "data" exists as input
+      filter: "x > 0"
+```
+
+**Invalid:**
+```yaml
+transformation:
+  - name: filtered
+    where:
+      from: missing               # ERROR [E-REF-001]: "missing" is not defined
+      filter: "x > 0"
+```
+
+### V-002: No Cycles
+
+> **Rule:** The asset dependency graph MUST be a directed acyclic graph (DAG). There MUST NOT exist any asset `A` such that `A` transitively depends on itself.
+
+**Error:** `E-CYCLE-001` — circular dependency detected.
+
+### V-003: Output References
+
+> **Rule:** An output's `name` field MUST reference an asset defined in `input` or `transformation`. Outputs MUST NOT reference other outputs. Transformations MUST NOT reference outputs.
+
+**Error:** `E-REF-002` — invalid output reference.
+
+### V-004: Name Uniqueness
+
+> **Rule:** No two assets in `input` and `transformation` MAY have the same name. Split `pass`/`fail` names also participate in this uniqueness check.
+
+**Error:** `E-NAME-001` — duplicate AssetRef.
+
+### V-005: Non-Empty Lists
+
+> **Rule:** Fields typed as `NonEmptyList[T]` MUST contain at least one element.
+
+**Error:** `E-LIST-001` — empty list where non-empty required.
+
+### V-006: Single Operation Key
+
+> **Rule:** Each transformation entry MUST contain exactly one operation key.
+
+**Error:** `E-OP-001` — zero or multiple operation keys.
+
+### V-007: AssetRef Format
+
+> **Rule:** All AssetRef values MUST match the grammar in [Section 5.1](#51-assetref-grammar).
+
+**Error:** `E-NAME-002` — invalid AssetRef format.
+
+### V-008: Version Field
+
+> **Rule:** The `version` field MUST be present and MUST be `"2.0"`.
+
+**Error:** `E-VERSION-001` — missing or unsupported version.
+
+---
+
+## 21. Execution Model
+
+### 21.1 DAG Resolution
+
+The runtime resolves the asset DAG via **topological sort**. Assets with satisfied dependencies (all upstream assets computed) are eligible for execution.
+
+### 21.2 Parallelism
+
+Independent branches of the DAG (assets with no mutual dependencies) MAY be executed in parallel. The implementation MUST guarantee that the observable output is equivalent to a sequential topological-order execution.
+
+### 21.3 Materialization
+
+The implementation MAY use **lazy evaluation** (defer computation until a downstream consumer needs the data) or **eager evaluation** (compute each asset as soon as dependencies are ready). The choice is implementation-defined.
+
+### 21.4 Optimization
+
+The implementation MAY apply optimizations such as:
+- **Predicate pushdown** — pushing `where` filters closer to the input.
+- **Projection pushdown** — reading only needed columns from input.
+- **Fusion** — combining adjacent transformations into a single operation.
+- **Caching** — materializing intermediate results consumed by multiple downstream assets.
+
+Optimizations MUST NOT change the observable output of the pipeline.
+
+### 21.5 Error Handling
+
+If any asset fails during execution:
+1. The implementation MUST abort all in-progress and pending assets.
+2. The implementation MUST NOT write partial results to outputs (outputs are atomic).
+3. Post-execution hooks still run (with `TECKEL_PIPELINE_STATUS=FAILURE`).
+4. The implementation MUST report the error with the asset name and error code.
+
+---
+
+## 22. Error Catalog
+
+| Code | Category | Description |
+|------|----------|-------------|
+| `E-REQ-001` | Schema | Missing required field. |
+| `E-NAME-001` | Naming | Duplicate AssetRef. |
+| `E-NAME-002` | Naming | Invalid AssetRef format. |
+| `E-NAME-003` | Naming | Column name collision after rename. |
+| `E-REF-001` | Reference | Undefined asset reference. |
+| `E-REF-002` | Reference | Invalid output reference (output references output). |
+| `E-CYCLE-001` | Reference | Circular dependency detected. |
+| `E-FMT-001` | Format | Unknown data format. |
+| `E-MODE-001` | Format | Unknown write mode. |
+| `E-OP-001` | Transformation | Zero or multiple operation keys in transformation. |
+| `E-OP-002` | Transformation | Unknown operation key. |
+| `E-LIST-001` | Schema | Empty list where NonEmptyList required. |
+| `E-ENUM-001` | Schema | Invalid enum value. |
+| `E-COL-001` | Column | Column not found in dataset. |
+| `E-JOIN-001` | Join | Ambiguous column reference in join condition. |
+| `E-AGG-001` | Aggregation | Non-aggregate expression in group-by output. |
+| `E-EXPR-001` | Expression | Expression type mismatch (e.g., non-boolean filter). |
+| `E-SCHEMA-001` | Schema | Incompatible schemas in set operation. |
+| `E-SCHEMA-002` | Schema | Operation would produce empty schema. |
+| `E-SCHEMA-003` | Schema | Unexpected extra columns in strict mode. |
+| `E-SCHEMA-004` | Schema | Missing expected columns in strict mode. |
+| `E-TYPE-001` | Type | Incompatible types, cannot widen. |
+| `E-IO-001` | I/O | Input path not found or unreadable. |
+| `E-IO-002` | I/O | Output destination already exists (error mode). |
+| `E-VAR-001` | Substitution | Unresolved variable with no default. |
+| `E-SECRET-001` | Secrets | Unresolved secret reference. |
+| `E-HOOK-001` | Hooks | Pre-execution hook failed (non-zero exit). |
+| `E-COMP-001` | Custom | Unregistered custom component. |
+| `E-QUALITY-001` | Quality | Assertion check failed (fail mode). |
+| `E-VERSION-001` | Version | Missing or unsupported version field. |
+
+Implementations MUST use these error codes in diagnostic messages. Implementations MAY define additional codes prefixed with `E-X-` for implementation-specific errors.
+
+---
+
+## 23. Security Considerations
+
+### 23.1 Expression Injection
+
+The Teckel expression language and SQL pass-through (`sql` transformation) accept arbitrary string expressions. Implementations that construct backend queries from these expressions MUST sanitize inputs to prevent injection attacks (e.g., SQL injection in JDBC sources).
+
+### 23.2 Shell Command Injection
+
+Hooks execute shell commands. The `command` field MUST NOT be constructed from user-provided variable substitutions without proper escaping. Implementations SHOULD execute hooks via `sh -c` (or equivalent) with the command as a single string argument, not via shell interpolation of user inputs.
+
+### 23.3 Secret Exposure
+
+- Secret values MUST NOT appear in log output, error messages, or diagnostic dumps.
+- Implementations MUST NOT write secret values to temporary files.
+- When displaying the resolved YAML (e.g., debug mode), secret placeholders MUST be shown as `{{secrets.<alias>}}` or `***`, never as the resolved value.
+
+### 23.4 HTTP Enrichment
+
+The `enrich` transformation makes outbound HTTP requests. Implementations MUST:
+- Validate that the `url` uses `https://` in production configurations. HTTP (`http://`) SHOULD produce a warning.
+- Respect the `timeout` and `maxRetries` limits to prevent resource exhaustion.
+- Not follow redirects to different domains without explicit configuration.
+
+### 23.5 Path Traversal
+
+Input and output `path` values MUST be validated to prevent path traversal attacks (e.g., `../../etc/passwd`). Implementations SHOULD restrict file access to a configurable set of allowed directories.
+
+### 23.6 Resource Limits
+
+Implementations SHOULD enforce configurable limits on:
+- Maximum number of assets in a pipeline.
+- Maximum depth of the DAG.
+- Maximum number of enrich API calls per pipeline execution.
+- Maximum total data size read/written.
+
+---
+
+## 24. Conformance
+
+### 24.1 Conformance Levels
+
+| Level | Sections Required |
+|-------|-------------------|
+| **Core** | 1–7 (document structure, input, output), 8.1–8.10 (basic transformations), 9 (expression language — grammar, precedence, core aggregates and comparison operators), 10 (data types — simple types only), 11 (null semantics), 12 (variable substitution), 19 (path resolution), 20 (validation rules), 21 (execution model), 22 (error catalog). |
+| **Extended** | Core + 8.11–8.31 (all transformations), 9.6 (all core functions), 10 (all data types including parameterized), 13 (secrets), 14 (configuration), 16 (hooks), 18 (config merging). |
+| **Streaming** | Extended + 15 (streaming inputs and outputs). |
+
+### 24.2 Conformance Declaration
+
+An implementation claiming conformance MUST:
+1. State the conformance level (Core, Extended, or Streaming).
+2. List any OPTIONAL features that are NOT supported.
+3. Document any implementation-specific extensions (additional formats, functions, transformations).
+4. Pass the conformance test suite for the claimed level (when available).
+
+### 24.3 Extension Mechanism
+
+- **Top-level keys** prefixed with `x-` are extension keys. Implementations MUST ignore unrecognized `x-` keys without error.
+- **Custom transformations** are handled via the `custom` operation key ([Section 8.31](#831-custom)).
+- **Additional functions** in the expression language are permitted but MUST NOT shadow core functions.
+
+### 24.4 Forward Compatibility
+
+A document with `version: "2.0"` processed by a runtime supporting a later version (e.g., 2.1) MUST be processed according to v2.0 rules. A document with an unrecognized version MUST be rejected with `E-VERSION-001`.
+
+---
+
+## Appendix A: EBNF Grammar Summary
+
+This appendix collects all grammar productions from the specification in one place.
+
+### A.1 Asset References
+
+```ebnf
+asset_ref = letter, { letter | digit | "_" | "-" } ;
+letter    = "A" | "B" | ... | "Z" | "a" | "b" | ... | "z" ;
+digit     = "0" | "1" | ... | "9" ;
+```
+
+### A.2 Column References
+
+```ebnf
+column_ref       = unqualified_ref | qualified_ref ;
+unqualified_ref  = identifier ;
+qualified_ref    = asset_ref, ".", identifier ;
+identifier       = letter, { letter | digit | "_" }
+                 | "`", { any_char - "`" }, "`" ;
+```
+
+### A.3 Expressions
+
+```ebnf
+expression     = or_expr, [ "as", identifier ] ;
+or_expr        = and_expr, { "OR", and_expr } ;
+and_expr       = not_expr, { "AND", not_expr } ;
+not_expr       = [ "NOT" ], comparison ;
+comparison     = addition, [ comp_op, addition ]
+               | addition, "IS", [ "NOT" ], "NULL"
+               | addition, [ "NOT" ], "IN", "(", expression_list, ")"
+               | addition, [ "NOT" ], "BETWEEN", addition, "AND", addition
+               | addition, [ "NOT" ], "LIKE", string_literal ;
+comp_op        = "=" | "!=" | "<>" | "<" | ">" | "<=" | ">=" ;
+addition       = multiplication, { ( "+" | "-" ), multiplication } ;
+multiplication = unary, { ( "*" | "/" | "%" ), unary } ;
+unary          = [ "-" ], primary ;
+primary        = literal | column_ref | function_call | case_expr
+               | cast_expr | "(", expression, ")" ;
+literal        = string_literal | integer_literal | double_literal
+               | boolean_literal | null_literal ;
+string_literal  = "'", { any_char - "'" | "''" }, "'" ;
+integer_literal = [ "-" ], digit, { digit } ;
+double_literal  = [ "-" ], digit, { digit }, ".", digit, { digit } ;
+boolean_literal = "true" | "false" ;
+null_literal    = "NULL" | "null" ;
+function_call  = identifier, "(", [ function_args ], ")" ;
+function_args  = [ "DISTINCT" ], expression_list ;
+expression_list = expression, { ",", expression } ;
+case_expr      = "CASE", { "WHEN", expression, "THEN", expression },
+                 [ "ELSE", expression ], "END" ;
+cast_expr      = "CAST", "(", expression, "AS", type_name, ")" ;
+```
+
+### A.4 Type Names
+
+```ebnf
+type_name          = simple_type | parameterized_type ;
+simple_type        = "string" | "integer" | "int" | "long" | "float"
+                   | "double" | "boolean" | "date" | "timestamp" | "binary" ;
+parameterized_type = "decimal", "(", integer_literal, ",", integer_literal, ")"
+                   | "array", "<", type_name, ">"
+                   | "map", "<", type_name, ",", type_name, ">"
+                   | "struct", "<", struct_fields, ">" ;
+struct_fields      = struct_field, { ",", struct_field } ;
+struct_field        = identifier, ":", type_name ;
+```
+
+### A.5 Variable Substitution
+
+```ebnf
+variable        = "${", var_name, [ ":", default_value ], "}" ;
+var_name        = identifier_char, { identifier_char } ;
+identifier_char = letter | digit | "_" | "." ;
+default_value   = { any_char - "}" } ;
+escaped_dollar  = "$$" ;
+```
+
+### A.6 Secret References
+
+```ebnf
+secret_ref = "{{", "secrets", ".", alias, "}}" ;
+alias      = letter, { letter | digit | "_" | "-" } ;
+```
+
+---
+
+## Appendix B: JSON Schema
+
+A machine-readable JSON Schema for validating Teckel v2.0 documents is published alongside this specification at:
+
+```
+spec/v2.0/teckel-schema.json
+```
+
+See the companion file for the complete schema definition.
+
+---
+
+## Appendix C: Complete Examples
+
+### C.1 Basic ETL: CSV to Parquet
+
+```yaml
+version: "2.0"
+
+input:
+  - name: raw
+    format: csv
+    path: "data/csv/employees.csv"
+    options:
+      header: true
+      sep: ","
+
+output:
+  - name: raw
+    format: parquet
+    mode: overwrite
+    path: "data/parquet/employees"
+```
+
+### C.2 Multi-step Pipeline with All Core Transformations
 
 ```yaml
 version: "2.0"
@@ -1318,103 +2624,187 @@ input:
       sep: ","
 
   - name: departments
-    format: csv
-    path: "data/csv/departments.csv"
-    options:
-      header: true
-      sep: ","
-
-  - name: salaries
     format: parquet
-    path: "data/parquet/salaries"
+    path: "data/parquet/departments"
 
 transformation:
-  - name: activeDepts
+  # Filter active employees
+  - name: active
     where:
-      from: departments
+      from: employees
       filter: "status = 'active'"
 
+  # Join with departments
   - name: enriched
     join:
-      left: employees
+      left: active
       right:
-        - name: activeDepts
+        - name: departments
           type: inner
           on:
-            - "employees.dept_id == activeDepts.dept_id"
-        - name: salaries
-          type: left
-          on:
-            - "employees.emp_id == salaries.emp_id"
+            - "active.dept_id = departments.id"
 
-  - name: withCategory
-    conditional:
+  # Select relevant columns
+  - name: projected
+    select:
       from: enriched
-      outputColumn: salary_band
-      branches:
-        - condition: "salary > 100000"
-          value: "'senior'"
-        - condition: "salary > 50000"
-          value: "'mid'"
-      otherwise: "'junior'"
+      columns:
+        - "active.name"
+        - "active.salary"
+        - "departments.dept_name"
 
+  # Aggregate by department
   - name: summary
     group:
-      from: withCategory
+      from: projected
       by:
         - dept_name
-        - salary_band
       agg:
         - "count(1) as headcount"
         - "avg(salary) as avg_salary"
         - "sum(salary) as total_salary"
 
+  # Sort by total salary descending
   - name: ranked
-    window:
+    orderBy:
       from: summary
-      partitionBy:
-        - dept_name
-      orderBy:
-        - total_salary
-      functions:
-        - expression: "rank()"
-          alias: band_rank
+      columns:
+        - column: total_salary
+          direction: desc
 
-  - name: topBands
-    where:
+  # Top 10 departments
+  - name: top10
+    limit:
       from: ranked
-      filter: "band_rank = 1"
-
-  - name: finalReport
-    order:
-      from: topBands
-      by:
-        - total_salary
-      order: Desc
+      count: 10
 
 output:
-  - name: finalReport
+  - name: top10
     format: parquet
     mode: overwrite
-    path: "data/output/salary_report"
+    path: "data/output/top_departments"
+```
 
-  - name: enriched
+### C.3 Pipeline with Extended Features
+
+```yaml
+version: "2.0"
+
+config:
+  cache:
+    autoCacheThreshold: 2
+
+secrets:
+  keys:
+    api_token:
+      key: enrichment-api-token
+
+input:
+  - name: orders
+    format: parquet
+    path: "${INPUT_BASE}/orders"
+
+  - name: customers
+    format: parquet
+    path: "${INPUT_BASE}/customers"
+
+transformation:
+  # Data quality checks
+  - name: validOrders
+    assertion:
+      from: orders
+      checks:
+        - column: order_id
+          rule: not_null
+          description: "Order ID must not be null"
+        - column: amount
+          rule: "amount > 0"
+          description: "Amount must be positive"
+      onFailure: drop
+
+  # Split by amount
+  - name: splitOrders
+    split:
+      from: validOrders
+      condition: "amount > 1000"
+      pass: highValueOrders
+      fail: standardOrders
+
+  # Enrich high-value orders
+  - name: enrichedHV
+    enrich:
+      from: highValueOrders
+      url: "https://api.example.com/v1/risk-score"
+      keyColumn: customer_id
+      responseColumn: risk_score
+      headers:
+        Authorization: "Bearer {{secrets.api_token}}"
+      onError: "null"
+
+  # Add category column
+  - name: categorized
+    conditional:
+      from: enrichedHV
+      outputColumn: risk_category
+      branches:
+        - condition: "risk_score > 80"
+          value: "'high_risk'"
+        - condition: "risk_score > 50"
+          value: "'medium_risk'"
+      otherwise: "'low_risk'"
+
+  # Window function for ranking
+  - name: ranked
+    window:
+      from: categorized
+      partitionBy: [risk_category]
+      orderBy:
+        - column: amount
+          direction: desc
+      functions:
+        - expression: "row_number()"
+          alias: rank_in_category
+
+output:
+  - name: ranked
     format: parquet
     mode: overwrite
-    path: "data/output/enriched_employees"
+    path: "${OUTPUT_BASE}/high_value_analysis"
+
+  - name: standardOrders
+    format: parquet
+    mode: overwrite
+    path: "${OUTPUT_BASE}/standard_orders"
 ```
 
 ---
 
-## Appendix B: YAML Schema (JSON Schema)
-
-A formal JSON Schema for validating Teckel documents will be published as a separate file in future versions of this specification.
-
----
-
-## Changelog
+## Appendix D: Changelog
 
 ### v2.0 (2026-03-27)
+
 - Initial formal specification.
-- Codified all transformation types from the reference implementation.
-- Defined expression language, data types, and conformance levels.
+- Adopted RFC 2119 requirement levels.
+- Added EBNF grammar for expression language with operator precedence.
+- Defined null semantics (SQL three-valued logic).
+- Made `version` field REQUIRED.
+- Renamed `order` transformation to `orderBy` to fix name collision.
+- Added per-column sort direction and null placement in `orderBy`.
+- Redesigned `sql` transformation: replaced `from` with explicit `views` list.
+- Redesigned `scd2` transformation: dual input (`current`/`incoming`) instead of single `from`.
+- Clarified output identity: outputs are sinks, not referenceable assets.
+- Clarified split produces two named assets; the split `name` is not referenceable.
+- Defined schema compatibility rules for set operations (positional matching, type widening).
+- Added window frame specification (`frame` field with `type`/`start`/`end`).
+- Added `onError`, `timeout`, `maxRetries` to enrich transformation.
+- Added variable escaping (`$$`), secret escaping, single-pass substitution rule.
+- Defined path resolution semantics (relative to working directory).
+- Added security considerations section.
+- Added error catalog with standardized error codes.
+- Added formal validation rules.
+- Added execution model (parallelism, optimization, error handling).
+- Added hook execution environment variables.
+- Added `x-` extension mechanism for forward compatibility.
+- Defined struct syntax: `struct<name: type, ...>`.
+- Added `count(*)` and `count(DISTINCT expr)` to core functions.
+- Added additional core functions: `replace`, `floor`, `ceil`, `power`, `sqrt`, `date_add`, `date_diff`, `to_date`, `to_timestamp`, `nullif`, `ifnull`, `ntile`, `first_value`, `last_value`.
