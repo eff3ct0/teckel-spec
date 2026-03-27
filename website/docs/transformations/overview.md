@@ -2,6 +2,8 @@
 
 Teckel provides 31 transformation types for building data pipelines declaratively in YAML. Each transformation is an asset with a unique name and exactly one operation key.
 
+> **Formal reference:** [Section 8 — Transformations](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#8-transformations) in the Teckel Specification.
+
 ```yaml
 transformation:
   - name: myTransformation

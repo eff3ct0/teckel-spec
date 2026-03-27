@@ -2,6 +2,8 @@
 
 Teckel provides a declarative data quality system through the top-level `quality` section. Quality checks are organized into **suites**, each scoped to a specific asset in the pipeline DAG.
 
+> **Formal reference:** [Section 17 — Data Quality](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#17-data-quality) in the Teckel Specification.
+
 ## Suite Structure
 
 A quality suite groups related checks that validate a single dataset. Every suite targets one asset and contains one or more checks.

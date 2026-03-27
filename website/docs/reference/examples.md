@@ -2,6 +2,8 @@
 
 This page contains fully annotated Teckel pipeline examples, from simple format conversion to multi-step pipelines with extended features.
 
+> **Formal reference:** [Appendix C — Complete Examples](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#appendix-c-complete-examples) in the Teckel Specification.
+
 ---
 
 ## Basic ETL: CSV to Parquet

@@ -2,6 +2,8 @@
 
 This page covers the security risks that Teckel implementations must address.
 
+> **Formal reference:** [Section 26 — Security Considerations](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#26-security-considerations) in the Teckel Specification.
+
 ---
 
 ## Expression Injection

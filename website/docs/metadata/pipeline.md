@@ -2,6 +2,8 @@
 
 The `pipeline` top-level key defines metadata about the pipeline as a whole. All fields are optional -- a minimal Teckel document works without any pipeline metadata.
 
+> **Formal reference:** [Section 18 — Metadata](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#18-metadata) in the Teckel Specification.
+
 ## Structure
 
 ```yaml

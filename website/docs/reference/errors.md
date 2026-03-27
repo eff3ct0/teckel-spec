@@ -2,6 +2,8 @@
 
 This page lists all error codes defined by the Teckel specification. Implementations must use these codes in diagnostic messages. Implementations may define additional codes prefixed with `E-X-` for implementation-specific errors.
 
+> **Formal reference:** [Section 25 — Error Catalog](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#25-error-catalog) in the Teckel Specification.
+
 ---
 
 ## Schema Errors

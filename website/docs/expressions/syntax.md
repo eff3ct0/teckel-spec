@@ -2,6 +2,8 @@
 
 Teckel uses a SQL-like expression language for filters, column definitions, aggregations, conditions, and computed values. Expressions appear throughout a Teckel document wherever a value needs to be computed rather than stated literally.
 
+> **Formal reference:** [Section 9 — Expression Language](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#9-expression-language) in the Teckel Specification.
+
 ## Literals
 
 The expression language supports five literal types.

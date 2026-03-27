@@ -2,6 +2,8 @@
 
 This page collects all grammar productions from the Teckel specification in one place. The grammar uses Extended Backus-Naur Form (EBNF) as defined in ISO/IEC 14977.
 
+> **Formal reference:** [Appendix A — EBNF Grammar Summary](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#appendix-a-ebnf-grammar-summary) in the Teckel Specification.
+
 ### Notation
 
 ```

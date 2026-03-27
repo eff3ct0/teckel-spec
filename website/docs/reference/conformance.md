@@ -2,6 +2,8 @@
 
 This page defines the conformance levels for Teckel implementations, extension mechanisms, and forward compatibility rules.
 
+> **Formal reference:** [Section 27 — Conformance](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#27-conformance) in the Teckel Specification.
+
 ---
 
 ## Conformance Levels

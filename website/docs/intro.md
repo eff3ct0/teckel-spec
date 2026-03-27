@@ -50,6 +50,13 @@ That is a complete, valid Teckel document. The `output` references the `users` i
 
 Things get more interesting when you add transformations between input and output. The next section walks you through building a real pipeline step by step.
 
+## Formal Specification
+
+This documentation is a user-friendly guide. For the formal, normative specification with RFC 2119 requirement levels, EBNF grammar, JSON Schema, and conformance rules, see:
+
+- **[Teckel Specification v2.0](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md)** -- The complete formal specification (27 sections, 3500+ lines).
+- **[JSON Schema v2.0](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-schema.json)** -- Machine-readable schema for validating Teckel documents.
+
 ## How This Guide Is Organized
 
 - **Getting Started** covers the basics: building your first pipeline, understanding the document structure, and learning the naming rules.

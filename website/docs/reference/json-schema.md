@@ -2,6 +2,8 @@
 
 The Teckel specification includes a machine-readable JSON Schema for validating Teckel v2.0 documents.
 
+> **Formal reference:** [Appendix B — JSON Schema](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#appendix-b-json-schema) in the Teckel Specification. Download the schema: [`teckel-schema.json`](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-schema.json).
+
 ---
 
 ## Location
