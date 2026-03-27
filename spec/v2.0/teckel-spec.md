@@ -237,10 +237,10 @@ A conforming implementation MUST process a Teckel document in this order:
 3. **YAML parsing** — Parse the resolved text as YAML 1.2.
 4. **Secret resolution** — Resolve `{{secrets.*}}` placeholders ([Section 13](#13-secrets)).
 5. **Schema validation** — Validate the document structure against this specification.
-6. **Semantic validation** — Apply the rules in [Section 20](#20-validation-rules).
+6. **Semantic validation** — Apply the rules in [Section 23](#23-validation-rules).
 7. **DAG construction** — Build the asset dependency graph.
 8. **Hook execution** — Run pre-execution hooks ([Section 16](#16-hooks)).
-9. **Pipeline execution** — Execute the DAG ([Section 21](#21-execution-model)).
+9. **Pipeline execution** — Execute the DAG ([Section 24](#24-execution-model)).
 10. **Hook execution** — Run post-execution hooks.
 
 ---
@@ -738,6 +738,8 @@ Each entry in `columns` is either:
 - Sorting is **stable**: rows with equal sort keys preserve their relative order from the input.
 - Sorting an empty dataset produces an empty dataset.
 - Default null ordering: `nulls last` for `asc`, `nulls last` for `desc`. This MAY be overridden per-column.
+
+> **Note:** This differs from ANSI SQL, which defaults to `NULLS LAST` for `ASC` and `NULLS FIRST` for `DESC`. Teckel uses `NULLS LAST` for both directions for consistency and predictability across backends.
 
 ---
 
@@ -1803,7 +1805,8 @@ A conforming implementation MUST support these functions:
 | `length(expr)` | integer | String length in characters. |
 | `substring(expr, start, len)` | string | Extract substring. 1-indexed. |
 | `replace(expr, search, replacement)` | string | Replace all occurrences. |
-| `coalesce(expr, ...)` | same as first non-NULL | First non-NULL argument. |
+
+> **Note:** The `coalesce` function is listed under [Conditional Functions (9.6.6)](#966-conditional-functions).
 
 #### 9.6.3 Numeric Functions
 
@@ -1959,6 +1962,8 @@ Default null ordering:
 |-----------|---------------|
 | `asc` | Nulls **last**. |
 | `desc` | Nulls **last**. |
+
+> **Note:** This differs from ANSI SQL (which defaults to `NULLS FIRST` for `DESC`). See [Section 8.4](#84-order-by) for rationale.
 
 This default MAY be overridden per-column in `orderBy` using the `nulls` field.
 
