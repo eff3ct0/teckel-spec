@@ -17,9 +17,15 @@
       "const": "2.0",
       "description": "Teckel specification version."
     },
+    "pipeline": { "$ref": "#/$defs/PipelineMetadata" },
     "config": { "$ref": "#/$defs/Config" },
     "secrets": { "$ref": "#/$defs/Secrets" },
     "hooks": { "$ref": "#/$defs/Hooks" },
+    "quality": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/QualitySuite" },
+      "description": "Data quality check suites. See spec §17."
+    },
     "templates": {
       "type": "array",
       "items": { "$ref": "#/$defs/Template" }
@@ -45,6 +51,11 @@
     "streamingOutput": {
       "type": "array",
       "items": { "$ref": "#/$defs/StreamingOutput" }
+    },
+    "exposures": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Exposure" },
+      "description": "Downstream consumer declarations. See spec §19."
     }
   },
 
@@ -73,6 +84,87 @@
       ]
     },
 
+    "Owner": {
+      "type": "object",
+      "required": ["name", "email"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "description": "Person or team name." },
+        "email": { "type": "string", "description": "Contact email." },
+        "type": {
+          "type": "string",
+          "enum": ["technical", "business", "steward"],
+          "default": "technical",
+          "description": "Owner role."
+        }
+      }
+    },
+
+    "Link": {
+      "type": "object",
+      "required": ["label", "url"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string" },
+        "url": { "type": "string" }
+      }
+    },
+
+    "Contact": {
+      "type": "object",
+      "required": ["name", "email"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" }
+      }
+    },
+
+    "CatalogConfig": {
+      "type": "object",
+      "required": ["target"],
+      "additionalProperties": false,
+      "properties": {
+        "target": { "type": "string", "description": "Catalog system identifier (e.g., openmetadata, datahub, atlas)." },
+        "namespace": { "type": "string", "description": "Namespace within the catalog." }
+      }
+    },
+
+    "ColumnMetadata": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "description": "Column name (MUST match a column in the dataset)." },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "constraints": { "type": "array", "items": { "type": "string" } },
+        "meta": { "type": "object", "additionalProperties": true },
+        "glossaryTerm": { "type": "string" }
+      }
+    },
+
+    "PipelineMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Pipeline-level metadata. See spec §18.2.",
+      "properties": {
+        "name": { "type": "string", "description": "Human-readable pipeline name." },
+        "namespace": { "type": "string", "description": "Globally unique namespace (e.g., com.company.finance)." },
+        "version": { "type": "string", "description": "Semantic version of the pipeline." },
+        "description": { "type": "string", "description": "Markdown-formatted pipeline description." },
+        "owner": { "$ref": "#/$defs/Owner" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "meta": { "type": "object", "additionalProperties": true },
+        "schedule": { "type": "string", "description": "Cron expression or ISO 8601 duration." },
+        "freshness": { "type": "string", "description": "Expected freshness as ISO 8601 duration." },
+        "links": { "type": "array", "items": { "$ref": "#/$defs/Link" } },
+        "contacts": { "type": "array", "items": { "$ref": "#/$defs/Contact" } },
+        "catalog": { "$ref": "#/$defs/CatalogConfig" }
+      }
+    },
+
     "Input": {
       "type": "object",
       "required": ["name", "format", "path"],
@@ -84,6 +176,14 @@
         "options": {
           "type": "object",
           "additionalProperties": { "$ref": "#/$defs/Primitive" }
+        },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "meta": { "type": "object", "additionalProperties": true },
+        "owner": { "$ref": "#/$defs/Owner" },
+        "columns": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ColumnMetadata" }
         }
       }
     },
@@ -104,6 +204,15 @@
         "options": {
           "type": "object",
           "additionalProperties": { "$ref": "#/$defs/Primitive" }
+        },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "meta": { "type": "object", "additionalProperties": true },
+        "freshness": { "type": "string", "description": "Expected update frequency as ISO 8601 duration." },
+        "maturity": {
+          "type": "string",
+          "enum": ["high", "medium", "low", "deprecated"],
+          "description": "Dataset lifecycle stage."
         }
       }
     },
@@ -149,40 +258,45 @@
       "type": "object",
       "required": ["name"],
       "properties": {
-        "name": { "$ref": "#/$defs/AssetRef" }
+        "name": { "$ref": "#/$defs/AssetRef" },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "removeTags": { "type": "array", "items": { "type": "string" } },
+        "meta": { "type": "object", "additionalProperties": true }
       },
+      "unevaluatedProperties": false,
       "oneOf": [
-        { "required": ["select"], "properties": { "name": true, "select": { "$ref": "#/$defs/SelectOp" } }, "additionalProperties": false },
-        { "required": ["where"], "properties": { "name": true, "where": { "$ref": "#/$defs/WhereOp" } }, "additionalProperties": false },
-        { "required": ["group"], "properties": { "name": true, "group": { "$ref": "#/$defs/GroupOp" } }, "additionalProperties": false },
-        { "required": ["orderBy"], "properties": { "name": true, "orderBy": { "$ref": "#/$defs/OrderByOp" } }, "additionalProperties": false },
-        { "required": ["join"], "properties": { "name": true, "join": { "$ref": "#/$defs/JoinOp" } }, "additionalProperties": false },
-        { "required": ["union"], "properties": { "name": true, "union": { "$ref": "#/$defs/UnionOp" } }, "additionalProperties": false },
-        { "required": ["intersect"], "properties": { "name": true, "intersect": { "$ref": "#/$defs/IntersectOp" } }, "additionalProperties": false },
-        { "required": ["except"], "properties": { "name": true, "except": { "$ref": "#/$defs/ExceptOp" } }, "additionalProperties": false },
-        { "required": ["distinct"], "properties": { "name": true, "distinct": { "$ref": "#/$defs/DistinctOp" } }, "additionalProperties": false },
-        { "required": ["limit"], "properties": { "name": true, "limit": { "$ref": "#/$defs/LimitOp" } }, "additionalProperties": false },
-        { "required": ["addColumns"], "properties": { "name": true, "addColumns": { "$ref": "#/$defs/AddColumnsOp" } }, "additionalProperties": false },
-        { "required": ["dropColumns"], "properties": { "name": true, "dropColumns": { "$ref": "#/$defs/DropColumnsOp" } }, "additionalProperties": false },
-        { "required": ["renameColumns"], "properties": { "name": true, "renameColumns": { "$ref": "#/$defs/RenameColumnsOp" } }, "additionalProperties": false },
-        { "required": ["castColumns"], "properties": { "name": true, "castColumns": { "$ref": "#/$defs/CastColumnsOp" } }, "additionalProperties": false },
-        { "required": ["window"], "properties": { "name": true, "window": { "$ref": "#/$defs/WindowOp" } }, "additionalProperties": false },
-        { "required": ["pivot"], "properties": { "name": true, "pivot": { "$ref": "#/$defs/PivotOp" } }, "additionalProperties": false },
-        { "required": ["unpivot"], "properties": { "name": true, "unpivot": { "$ref": "#/$defs/UnpivotOp" } }, "additionalProperties": false },
-        { "required": ["flatten"], "properties": { "name": true, "flatten": { "$ref": "#/$defs/FlattenOp" } }, "additionalProperties": false },
-        { "required": ["sample"], "properties": { "name": true, "sample": { "$ref": "#/$defs/SampleOp" } }, "additionalProperties": false },
-        { "required": ["conditional"], "properties": { "name": true, "conditional": { "$ref": "#/$defs/ConditionalOp" } }, "additionalProperties": false },
-        { "required": ["split"], "properties": { "name": true, "split": { "$ref": "#/$defs/SplitOp" } }, "additionalProperties": false },
-        { "required": ["sql"], "properties": { "name": true, "sql": { "$ref": "#/$defs/SqlOp" } }, "additionalProperties": false },
-        { "required": ["rollup"], "properties": { "name": true, "rollup": { "$ref": "#/$defs/RollupOp" } }, "additionalProperties": false },
-        { "required": ["cube"], "properties": { "name": true, "cube": { "$ref": "#/$defs/CubeOp" } }, "additionalProperties": false },
-        { "required": ["scd2"], "properties": { "name": true, "scd2": { "$ref": "#/$defs/SCD2Op" } }, "additionalProperties": false },
-        { "required": ["enrich"], "properties": { "name": true, "enrich": { "$ref": "#/$defs/EnrichOp" } }, "additionalProperties": false },
-        { "required": ["schemaEnforce"], "properties": { "name": true, "schemaEnforce": { "$ref": "#/$defs/SchemaEnforceOp" } }, "additionalProperties": false },
-        { "required": ["assertion"], "properties": { "name": true, "assertion": { "$ref": "#/$defs/AssertionOp" } }, "additionalProperties": false },
-        { "required": ["repartition"], "properties": { "name": true, "repartition": { "$ref": "#/$defs/RepartitionOp" } }, "additionalProperties": false },
-        { "required": ["coalesce"], "properties": { "name": true, "coalesce": { "$ref": "#/$defs/CoalesceOp" } }, "additionalProperties": false },
-        { "required": ["custom"], "properties": { "name": true, "custom": { "$ref": "#/$defs/CustomOp" } }, "additionalProperties": false }
+        { "required": ["select"], "properties": { "select": { "$ref": "#/$defs/SelectOp" } } },
+        { "required": ["where"], "properties": { "where": { "$ref": "#/$defs/WhereOp" } } },
+        { "required": ["group"], "properties": { "group": { "$ref": "#/$defs/GroupOp" } } },
+        { "required": ["orderBy"], "properties": { "orderBy": { "$ref": "#/$defs/OrderByOp" } } },
+        { "required": ["join"], "properties": { "join": { "$ref": "#/$defs/JoinOp" } } },
+        { "required": ["union"], "properties": { "union": { "$ref": "#/$defs/UnionOp" } } },
+        { "required": ["intersect"], "properties": { "intersect": { "$ref": "#/$defs/IntersectOp" } } },
+        { "required": ["except"], "properties": { "except": { "$ref": "#/$defs/ExceptOp" } } },
+        { "required": ["distinct"], "properties": { "distinct": { "$ref": "#/$defs/DistinctOp" } } },
+        { "required": ["limit"], "properties": { "limit": { "$ref": "#/$defs/LimitOp" } } },
+        { "required": ["addColumns"], "properties": { "addColumns": { "$ref": "#/$defs/AddColumnsOp" } } },
+        { "required": ["dropColumns"], "properties": { "dropColumns": { "$ref": "#/$defs/DropColumnsOp" } } },
+        { "required": ["renameColumns"], "properties": { "renameColumns": { "$ref": "#/$defs/RenameColumnsOp" } } },
+        { "required": ["castColumns"], "properties": { "castColumns": { "$ref": "#/$defs/CastColumnsOp" } } },
+        { "required": ["window"], "properties": { "window": { "$ref": "#/$defs/WindowOp" } } },
+        { "required": ["pivot"], "properties": { "pivot": { "$ref": "#/$defs/PivotOp" } } },
+        { "required": ["unpivot"], "properties": { "unpivot": { "$ref": "#/$defs/UnpivotOp" } } },
+        { "required": ["flatten"], "properties": { "flatten": { "$ref": "#/$defs/FlattenOp" } } },
+        { "required": ["sample"], "properties": { "sample": { "$ref": "#/$defs/SampleOp" } } },
+        { "required": ["conditional"], "properties": { "conditional": { "$ref": "#/$defs/ConditionalOp" } } },
+        { "required": ["split"], "properties": { "split": { "$ref": "#/$defs/SplitOp" } } },
+        { "required": ["sql"], "properties": { "sql": { "$ref": "#/$defs/SqlOp" } } },
+        { "required": ["rollup"], "properties": { "rollup": { "$ref": "#/$defs/RollupOp" } } },
+        { "required": ["cube"], "properties": { "cube": { "$ref": "#/$defs/CubeOp" } } },
+        { "required": ["scd2"], "properties": { "scd2": { "$ref": "#/$defs/SCD2Op" } } },
+        { "required": ["enrich"], "properties": { "enrich": { "$ref": "#/$defs/EnrichOp" } } },
+        { "required": ["schemaEnforce"], "properties": { "schemaEnforce": { "$ref": "#/$defs/SchemaEnforceOp" } } },
+        { "required": ["assertion"], "properties": { "assertion": { "$ref": "#/$defs/AssertionOp" } } },
+        { "required": ["repartition"], "properties": { "repartition": { "$ref": "#/$defs/RepartitionOp" } } },
+        { "required": ["coalesce"], "properties": { "coalesce": { "$ref": "#/$defs/CoalesceOp" } } },
+        { "required": ["custom"], "properties": { "custom": { "$ref": "#/$defs/CustomOp" } } }
       ]
     },
 
@@ -594,6 +708,148 @@
         "from": { "$ref": "#/$defs/AssetRef" },
         "component": { "type": "string" },
         "options": { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+
+    "BoundSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Numeric bound specification for quality checks.",
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "between": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+
+    "RangeSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "strictMin": { "type": "boolean", "default": false },
+        "strictMax": { "type": "boolean", "default": false }
+      }
+    },
+
+    "EscalateSpec": {
+      "type": "object",
+      "required": ["threshold", "severity"],
+      "additionalProperties": false,
+      "properties": {
+        "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+        "severity": { "type": "string", "enum": ["error", "warn", "info"] }
+      }
+    },
+
+    "QualityCheckEntry": {
+      "type": "object",
+      "required": ["type"],
+      "description": "A quality check within a suite. Discriminated by the 'type' field.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["schema", "completeness", "uniqueness", "validity", "statistical", "volume", "freshness", "referential", "crossColumn", "custom"]
+        },
+        "column": { "type": "string" },
+        "columns": {
+          "oneOf": [
+            { "type": "array", "items": { "type": "string" } },
+            { "type": "object", "properties": { "required": { "type": "array", "items": { "type": "string" } }, "forbidden": { "type": "array", "items": { "type": "string" } } }, "additionalProperties": false }
+          ]
+        },
+        "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+        "severity": { "type": "string", "enum": ["error", "warn", "info"] },
+        "escalate": { "$ref": "#/$defs/EscalateSpec" },
+        "description": { "type": "string" },
+        "acceptedValues": { "type": "array", "items": { "type": "string" } },
+        "range": { "$ref": "#/$defs/RangeSpec" },
+        "pattern": { "type": "string" },
+        "format": { "type": "string" },
+        "lengthBetween": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+        "mean": { "$ref": "#/$defs/BoundSpec" },
+        "min": { "$ref": "#/$defs/BoundSpec" },
+        "max": { "$ref": "#/$defs/BoundSpec" },
+        "sum": { "$ref": "#/$defs/BoundSpec" },
+        "stdev": { "$ref": "#/$defs/BoundSpec" },
+        "quantiles": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/BoundSpec" }
+        },
+        "rowCount": { "$ref": "#/$defs/BoundSpec" },
+        "columnCount": { "$ref": "#/$defs/BoundSpec" },
+        "maxAge": { "type": "string", "description": "ISO 8601 duration." },
+        "reference": {
+          "type": "object",
+          "required": ["asset", "column"],
+          "additionalProperties": false,
+          "properties": {
+            "asset": { "$ref": "#/$defs/AssetRef" },
+            "column": { "type": "string" }
+          }
+        },
+        "condition": { "$ref": "#/$defs/Condition" },
+        "types": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+
+    "QualitySuite": {
+      "type": "object",
+      "required": ["suite", "target", "checks"],
+      "additionalProperties": false,
+      "description": "A data quality check suite. See spec §17.",
+      "properties": {
+        "suite": { "type": "string", "description": "Suite name (for reporting)." },
+        "description": { "type": "string" },
+        "target": { "$ref": "#/$defs/AssetRef" },
+        "filter": { "$ref": "#/$defs/Condition" },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warn", "info"],
+          "default": "error",
+          "description": "Default severity for all checks in this suite."
+        },
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/QualityCheckEntry" }
+        }
+      }
+    },
+
+    "Exposure": {
+      "type": "object",
+      "required": ["name", "type", "depends_on"],
+      "additionalProperties": false,
+      "description": "Downstream consumer declaration. See spec §19.",
+      "properties": {
+        "name": { "type": "string", "description": "Exposure identifier." },
+        "type": {
+          "type": "string",
+          "enum": ["dashboard", "notebook", "analysis", "ml", "application", "pipeline"],
+          "description": "Consumer type."
+        },
+        "description": { "type": "string" },
+        "url": { "type": "string" },
+        "maturity": { "type": "string", "enum": ["high", "medium", "low"] },
+        "owner": { "$ref": "#/$defs/Owner" },
+        "depends_on": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/AssetRef" },
+          "description": "Assets consumed by this exposure."
+        },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "meta": { "type": "object", "additionalProperties": true }
       }
     },
 
