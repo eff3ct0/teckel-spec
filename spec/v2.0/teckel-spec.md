@@ -70,14 +70,17 @@ This is a **Draft** specification. It is subject to change. Feedback is welcome 
 14. [Configuration](#14-configuration)
 15. [Streaming](#15-streaming)
 16. [Hooks](#16-hooks)
-17. [Templates](#17-templates)
-18. [Config Merging](#18-config-merging)
-19. [Path Resolution](#19-path-resolution)
-20. [Validation Rules](#20-validation-rules)
-21. [Execution Model](#21-execution-model)
-22. [Error Catalog](#22-error-catalog)
-23. [Security Considerations](#23-security-considerations)
-24. [Conformance](#24-conformance)
+17. [Data Quality](#17-data-quality)
+18. [Metadata](#18-metadata)
+19. [Exposures](#19-exposures)
+20. [Templates](#20-templates)
+21. [Config Merging](#21-config-merging)
+22. [Path Resolution](#22-path-resolution)
+23. [Validation Rules](#23-validation-rules)
+24. [Execution Model](#24-execution-model)
+25. [Error Catalog](#25-error-catalog)
+26. [Security Considerations](#26-security-considerations)
+27. [Conformance](#27-conformance)
 - [Appendix A: EBNF Grammar Summary](#appendix-a-ebnf-grammar-summary)
 - [Appendix B: JSON Schema](#appendix-b-json-schema)
 - [Appendix C: Complete Examples](#appendix-c-complete-examples)
@@ -193,29 +196,35 @@ A Teckel document is a YAML 1.2 file with the following top-level keys:
 
 ```yaml
 version: "2.0"                    # REQUIRED — spec version
+pipeline: { ... }                 # OPTIONAL — pipeline-level metadata
 config: { ... }                   # OPTIONAL — pipeline configuration
 secrets: { ... }                  # OPTIONAL — secret key mappings
 hooks: { ... }                    # OPTIONAL — lifecycle hooks
+quality: [ ... ]                  # OPTIONAL — data quality check suites
 templates: [ ... ]                # OPTIONAL — reusable templates
 input: [ ... ]                    # REQUIRED — at least one input
 streamingInput: [ ... ]           # OPTIONAL — streaming sources
 transformation: [ ... ]           # OPTIONAL — transformation steps
 output: [ ... ]                   # REQUIRED — at least one output
 streamingOutput: [ ... ]          # OPTIONAL — streaming sinks
+exposures: [ ... ]                # OPTIONAL — downstream consumers
 ```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `version` | string | **Yes** | The Teckel spec version this document conforms to. MUST be `"2.0"` for this spec. |
+| `pipeline` | PipelineMetadata | No | Pipeline-level metadata. See [Section 18](#18-metadata). |
 | `config` | object | No | Pipeline-wide configuration. See [Section 14](#14-configuration). |
 | `secrets` | object | No | Secret key declarations. See [Section 13](#13-secrets). |
 | `hooks` | object | No | Lifecycle hooks. See [Section 16](#16-hooks). |
-| `templates` | List[object] | No | Reusable templates. See [Section 17](#17-templates). |
+| `quality` | List[QualitySuite] | No | Data quality check suites. See [Section 17](#17-data-quality). |
+| `templates` | List[object] | No | Reusable templates. See [Section 20](#20-templates). |
 | `input` | NonEmptyList[Input] | **Yes** | Data source definitions. |
 | `streamingInput` | List[StreamingInput] | No | Streaming source definitions. See [Section 15](#15-streaming). |
 | `transformation` | List[Transformation] | No | Transformation definitions. |
 | `output` | NonEmptyList[Output] | **Yes** | Data destination definitions. |
 | `streamingOutput` | List[StreamingOutput] | No | Streaming sink definitions. See [Section 15](#15-streaming). |
+| `exposures` | List[Exposure] | No | Downstream consumer declarations. See [Section 19](#19-exposures). |
 
 **Unknown top-level keys:** A conforming implementation MUST reject documents containing top-level keys not listed above, except for keys prefixed with `x-` (extension keys). Extension keys MUST be ignored by implementations that do not recognize them.
 
@@ -224,7 +233,7 @@ streamingOutput: [ ... ]          # OPTIONAL — streaming sinks
 A conforming implementation MUST process a Teckel document in this order:
 
 1. **Variable substitution** — Replace `${...}` placeholders in the raw YAML text ([Section 12](#12-variable-substitution)).
-2. **Config merging** — If multiple files are provided, merge them ([Section 18](#18-config-merging)).
+2. **Config merging** — If multiple files are provided, merge them ([Section 21](#21-config-merging)).
 3. **YAML parsing** — Parse the resolved text as YAML 1.2.
 4. **Secret resolution** — Resolve `{{secrets.*}}` placeholders ([Section 13](#13-secrets)).
 5. **Schema validation** — Validate the document structure against this specification.
@@ -307,6 +316,18 @@ input:
     path: <string>
     options:
       <key>: <primitive>
+    description: <string>
+    tags: [<string>]
+    meta:
+      <key>: <any>
+    owner:
+      name: <string>
+      email: <string>
+    columns:
+      - name: <string>
+        description: <string>
+        tags: [<string>]
+        constraints: [<string>]
 ```
 
 ### 6.2 Fixed Fields
@@ -315,8 +336,13 @@ input:
 |-------|------|----------|---------|-------------|
 | `name` | AssetRef | **Yes** | — | Unique asset identifier. |
 | `format` | string | **Yes** | — | Data format identifier. See [6.3](#63-formats). |
-| `path` | string | **Yes** | — | File path, URI, or connection string. See [Section 19](#19-path-resolution). |
+| `path` | string | **Yes** | — | File path, URI, or connection string. See [Section 22](#22-path-resolution). |
 | `options` | Map[string, primitive] | No | `{}` | Format-specific key-value options. |
+| `description` | string | No | — | Human-readable description. Markdown supported. See [Section 18](#18-metadata). |
+| `tags` | List[string] | No | `[]` | Classification labels. See [Section 18](#18-metadata). |
+| `meta` | Map[string, any] | No | `{}` | Open key-value metadata. See [Section 18](#18-metadata). |
+| `owner` | Owner | No | — | Asset-level owner override. See [Section 18](#18-metadata). |
+| `columns` | List[ColumnMetadata] | No | `[]` | Column-level metadata declarations. See [Section 18.4](#184-column-level-metadata). |
 
 ### 6.3 Formats
 
@@ -411,6 +437,12 @@ output:
     mode: <string>
     options:
       <key>: <primitive>
+    description: <string>
+    tags: [<string>]
+    meta:
+      <key>: <any>
+    freshness: <string>
+    maturity: <string>
 ```
 
 ### 7.2 Fixed Fields
@@ -419,9 +451,14 @@ output:
 |-------|------|----------|---------|-------------|
 | `name` | AssetRef | **Yes** | — | MUST match the name of an input or transformation asset. |
 | `format` | string | **Yes** | — | Output data format. Same values as input formats. |
-| `path` | string | **Yes** | — | Destination path or URI. See [Section 19](#19-path-resolution). |
+| `path` | string | **Yes** | — | Destination path or URI. See [Section 22](#22-path-resolution). |
 | `mode` | string | No | `"error"` | Write mode. See [7.3](#73-write-modes). |
 | `options` | Map[string, primitive] | No | `{}` | Format-specific key-value options. |
+| `description` | string | No | — | Human-readable description. See [Section 18](#18-metadata). |
+| `tags` | List[string] | No | `[]` | Classification labels. See [Section 18](#18-metadata). |
+| `meta` | Map[string, any] | No | `{}` | Open key-value metadata. See [Section 18](#18-metadata). |
+| `freshness` | string | No | — | Expected update frequency as ISO 8601 duration (e.g., `"PT24H"`). See [Section 18.5](#185-freshness-sla). |
+| `maturity` | string | No | — | `"high"`, `"medium"`, `"low"`, or `"deprecated"`. See [Section 18.6](#186-maturity). |
 
 ### 7.3 Write Modes
 
@@ -2184,7 +2221,698 @@ hooks:
 
 ---
 
-## 17. Templates
+## 17. Data Quality
+
+Teckel provides a declarative data quality system for defining checks that validate datasets at runtime. Quality checks are organized into **suites** scoped to specific assets.
+
+> **Relationship to Assertion transformation (8.28):** The `assertion` transformation is an inline, single-asset quality gate within the pipeline DAG. The `quality` section defined here is a **standalone, richer** quality specification that supports multiple quality dimensions, thresholds, severity levels, statistical checks, freshness validation, and cross-asset referential integrity. Implementations SHOULD support both; the `quality` section is the recommended approach for comprehensive data quality.
+
+### 17.1 Schema
+
+```yaml
+quality:
+  - suite: <string>
+    description: <string>
+    target: <AssetRef>
+    filter: <Condition>
+    severity: <string>
+    checks:
+      - ...
+```
+
+### 17.2 Quality Suite
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `suite` | string | **Yes** | — | Suite name (for reporting). |
+| `description` | string | No | — | Human-readable description of what this suite validates. |
+| `target` | AssetRef | **Yes** | — | Asset to validate. |
+| `filter` | Condition | No | — | Optional row filter — checks apply only to matching rows. |
+| `severity` | string | No | `"error"` | Default severity for all checks in this suite: `"error"`, `"warn"`, or `"info"`. |
+| `checks` | NonEmptyList[Check] | **Yes** | — | Quality checks to apply. |
+
+### 17.3 Check Types
+
+Each check has a `type` field that determines the quality dimension. The following check types are defined:
+
+#### 17.3.1 Schema Checks
+
+Validate the structural shape of the dataset.
+
+```yaml
+- type: schema
+  columns:
+    required: [id, name, email]           # MUST exist
+    forbidden: [ssn, credit_card]         # MUST NOT exist
+  types:
+    id: integer
+    amount: double
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | `"schema"` | **Yes** | — |
+| `columns.required` | List[string] | No | Columns that MUST be present. |
+| `columns.forbidden` | List[string] | No | Columns that MUST NOT be present (supports glob patterns: `pii_*`). |
+| `types` | Map[string, string] | No | Expected data types per column. |
+
+#### 17.3.2 Completeness Checks
+
+Validate that required values are present (non-null).
+
+```yaml
+- type: completeness
+  column: email
+  threshold: 0.95                         # at least 95% non-null
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `"completeness"` | **Yes** | — | — |
+| `column` | Column | **Yes** | — | Column to check. |
+| `threshold` | double | No | `1.0` | Minimum fraction of non-null values (0.0–1.0). `1.0` = all values must be non-null. |
+
+#### 17.3.3 Uniqueness Checks
+
+Validate that values are unique (no duplicates).
+
+```yaml
+- type: uniqueness
+  columns: [customer_id]                  # single or composite key
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `"uniqueness"` | **Yes** | — | — |
+| `columns` | NonEmptyList[Column] | **Yes** | — | Columns forming the uniqueness key. |
+| `threshold` | double | No | `1.0` | Minimum fraction of unique values. |
+
+#### 17.3.4 Validity Checks
+
+Validate that values conform to expected formats, ranges, or sets.
+
+```yaml
+# Accepted values
+- type: validity
+  column: status
+  acceptedValues: [active, inactive, pending]
+
+# Range constraint
+- type: validity
+  column: amount
+  range:
+    min: 0
+    max: 1000000
+    strictMin: true                       # exclusive lower bound (> 0, not >= 0)
+
+# Pattern matching
+- type: validity
+  column: email
+  pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+
+# Format validation
+- type: validity
+  column: phone
+  format: phone                           # built-in format validator
+
+# String length
+- type: validity
+  column: code
+  lengthBetween: [3, 10]
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `"validity"` | **Yes** | — | — |
+| `column` | Column | **Yes** | — | Column to validate. |
+| `acceptedValues` | List[string] | No | — | Allowed values (enumeration). |
+| `range` | RangeSpec | No | — | Numeric range constraint. |
+| `pattern` | string | No | — | Regular expression pattern. |
+| `format` | string | No | — | Built-in format name. See [17.3.4.1](#17341-built-in-formats). |
+| `lengthBetween` | [integer, integer] | No | — | `[min, max]` string length (inclusive). |
+| `threshold` | double | No | `1.0` | Minimum fraction of valid values. |
+
+**RangeSpec:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `min` | number | No | — | Minimum value. |
+| `max` | number | No | — | Maximum value. |
+| `strictMin` | boolean | No | `false` | Exclusive lower bound (`>` instead of `>=`). |
+| `strictMax` | boolean | No | `false` | Exclusive upper bound (`<` instead of `<=`). |
+
+##### 17.3.4.1 Built-in Formats
+
+Implementations MUST support these format validators:
+
+| Format | Description |
+|--------|-------------|
+| `email` | RFC 5322 email address. |
+| `uuid` | UUID (any version). |
+| `url` | Valid URL with scheme. |
+| `ipv4` | IPv4 address. |
+| `ipv6` | IPv6 address. |
+| `date` | ISO 8601 date (`YYYY-MM-DD`). |
+| `timestamp` | ISO 8601 timestamp. |
+| `phone` | International phone number format. |
+
+#### 17.3.5 Statistical Checks
+
+Validate statistical properties of numeric columns.
+
+```yaml
+- type: statistical
+  column: salary
+  mean:
+    between: [40000, 120000]
+  stdev:
+    max: 50000
+  quantiles:
+    0.25: { min: 30000 }
+    0.50: { between: [45000, 80000] }
+    0.75: { max: 150000 }
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `"statistical"` | **Yes** | — | — |
+| `column` | Column | **Yes** | — | Numeric column. |
+| `mean` | BoundSpec | No | — | Expected mean bounds. |
+| `min` | BoundSpec | No | — | Expected minimum value bounds. |
+| `max` | BoundSpec | No | — | Expected maximum value bounds. |
+| `sum` | BoundSpec | No | — | Expected sum bounds. |
+| `stdev` | BoundSpec | No | — | Expected standard deviation bounds. |
+| `quantiles` | Map[double, BoundSpec] | No | — | Expected quantile value bounds. Key is the percentile (0.0–1.0). |
+
+**BoundSpec:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `min` | number | Minimum expected value. |
+| `max` | number | Maximum expected value. |
+| `between` | [number, number] | `[min, max]` range (inclusive). |
+
+#### 17.3.6 Volume Checks
+
+Validate the size of the dataset.
+
+```yaml
+- type: volume
+  rowCount:
+    between: [1000, 100000]
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `"volume"` | **Yes** | — | — |
+| `rowCount` | BoundSpec | No | — | Expected row count bounds. |
+| `columnCount` | BoundSpec | No | — | Expected column count bounds. |
+
+#### 17.3.7 Freshness Checks
+
+Validate data recency based on a timestamp column.
+
+```yaml
+- type: freshness
+  column: updated_at
+  maxAge: "PT24H"                         # ISO 8601 duration — max 24 hours old
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `"freshness"` | **Yes** | — | — |
+| `column` | Column | **Yes** | — | Timestamp column. |
+| `maxAge` | string | **Yes** | — | ISO 8601 duration. The max value of `column` must be within `maxAge` of the current time. |
+
+#### 17.3.8 Referential Integrity Checks
+
+Validate that values exist in another asset (foreign key relationship).
+
+```yaml
+- type: referential
+  column: customer_id
+  reference:
+    asset: customers
+    column: id
+  threshold: 1.0                          # 100% of values must match
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `"referential"` | **Yes** | — | — |
+| `column` | Column | **Yes** | — | Column in the target asset. |
+| `reference.asset` | AssetRef | **Yes** | — | Referenced asset. |
+| `reference.column` | Column | **Yes** | — | Column in the referenced asset. |
+| `threshold` | double | No | `1.0` | Minimum fraction of values that must exist in the reference. |
+
+#### 17.3.9 Cross-Column Checks
+
+Validate relationships between columns within the same dataset.
+
+```yaml
+- type: crossColumn
+  condition: "start_date <= end_date"
+  description: "Start date must not be after end date"
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `"crossColumn"` | **Yes** | — | — |
+| `condition` | Condition | **Yes** | — | Boolean expression referencing columns in the target asset. |
+| `description` | string | No | — | Human-readable description. |
+| `threshold` | double | No | `1.0` | Minimum fraction of rows satisfying the condition. |
+
+#### 17.3.10 Custom Checks
+
+Validate using an arbitrary expression.
+
+```yaml
+- type: custom
+  condition: "amount > 0 AND currency IS NOT NULL"
+  description: "All transactions must have positive amount and currency"
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `"custom"` | **Yes** | — | — |
+| `condition` | Condition | **Yes** | — | Boolean expression evaluated per row. |
+| `description` | string | No | — | Human-readable description. |
+| `threshold` | double | No | `1.0` | Minimum fraction of rows passing. |
+
+### 17.4 Check Result Model
+
+Each check execution produces a result with the following fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `suite` | string | Suite name. |
+| `check_type` | string | Check type identifier. |
+| `target` | string | Asset name. |
+| `column` | string? | Column name (if applicable). |
+| `status` | `"pass"` \| `"warn"` \| `"fail"` \| `"error"` | Outcome. |
+| `severity` | string | Configured severity level. |
+| `observed_value` | any | Computed metric value. |
+| `expected` | string | Threshold/assertion description. |
+| `failing_rows` | integer? | Number of rows failing (for row-level checks). |
+| `failing_percent` | double? | Percentage of rows failing. |
+| `description` | string? | Check description. |
+| `timestamp` | string | ISO 8601 execution timestamp. |
+
+### 17.5 Severity and Failure Handling
+
+| Severity | Pipeline Behavior |
+|----------|-------------------|
+| `error` | Pipeline MUST abort with `E-QUALITY-001`. |
+| `warn` | Log warning with check details. Pipeline continues. |
+| `info` | Record metric only. No log warning. Pipeline continues. |
+
+Per-check severity overrides the suite-level default:
+
+```yaml
+quality:
+  - suite: orders-quality
+    target: orders
+    severity: error                       # suite default
+    checks:
+      - type: completeness
+        column: email
+        threshold: 0.95
+        severity: warn                    # override: just warn for email
+      - type: uniqueness
+        columns: [order_id]              # inherits suite severity: error
+```
+
+### 17.6 Conditional Severity
+
+Checks MAY define escalating severity based on the magnitude of the violation:
+
+```yaml
+- type: completeness
+  column: customer_id
+  threshold: 0.99
+  severity: warn
+  escalate:
+    threshold: 0.90
+    severity: error
+```
+
+When the observed completeness is:
+- `>= 0.99`: **pass**
+- `< 0.99` and `>= 0.90`: **warn**
+- `< 0.90`: **error**
+
+### 17.7 Valid Example
+
+```yaml
+quality:
+  - suite: orders-validation
+    description: "Quality checks for the orders dataset"
+    target: validatedOrders
+    checks:
+      # Schema validation
+      - type: schema
+        columns:
+          required: [order_id, customer_id, amount, created_at]
+          forbidden: [internal_id]
+
+      # Completeness
+      - type: completeness
+        column: customer_id
+        threshold: 1.0
+
+      # Uniqueness (composite key)
+      - type: uniqueness
+        columns: [order_id]
+
+      # Value validity
+      - type: validity
+        column: status
+        acceptedValues: [pending, confirmed, shipped, delivered, cancelled]
+
+      # Range check
+      - type: validity
+        column: amount
+        range:
+          min: 0
+          strictMin: true
+
+      # Statistical bounds
+      - type: statistical
+        column: amount
+        mean:
+          between: [50, 500]
+        quantiles:
+          0.99: { max: 10000 }
+
+      # Volume sanity
+      - type: volume
+        rowCount:
+          between: [100, 10000000]
+
+      # Freshness
+      - type: freshness
+        column: created_at
+        maxAge: "PT48H"
+
+      # Referential integrity
+      - type: referential
+        column: customer_id
+        reference:
+          asset: customers
+          column: id
+
+      # Cross-column logic
+      - type: crossColumn
+        condition: "shipped_at IS NULL OR shipped_at >= created_at"
+        description: "Shipping date must be after order creation"
+```
+
+---
+
+## 18. Metadata
+
+Teckel supports declarative metadata at three levels: **pipeline**, **asset**, and **column**. Metadata enables documentation, governance, cataloging, and lineage tracking without requiring external systems.
+
+### 18.1 Design Principles
+
+- **Metadata is optional.** No metadata field is required. A minimal Teckel document works without any metadata.
+- **Open extension via `meta`.** Every level has an open `meta` map for custom key-value pairs. Implementations MUST preserve and pass through `meta` values without interpretation.
+- **Tag propagation.** Tags declared on an input asset are **automatically inherited** by all downstream transformation assets that depend on it, unless explicitly overridden. This enables governance classification propagation (e.g., PII tagging).
+
+### 18.2 Pipeline-Level Metadata
+
+The `pipeline` top-level key defines metadata about the pipeline as a whole.
+
+```yaml
+pipeline:
+  name: <string>
+  namespace: <string>
+  version: <string>
+  description: <string>
+  owner:
+    name: <string>
+    email: <string>
+    type: <string>
+  tags: [<string>]
+  meta:
+    <key>: <any>
+  schedule: <string>
+  freshness: <string>
+  links:
+    - label: <string>
+      url: <string>
+  contacts:
+    - name: <string>
+      email: <string>
+      role: <string>
+  catalog:
+    target: <string>
+    namespace: <string>
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | string | No | — | Human-readable pipeline name. |
+| `namespace` | string | No | — | Globally unique namespace (e.g., `"com.company.finance"`). Combined with asset names to form URNs. |
+| `version` | string | No | — | Semantic version of the pipeline (e.g., `"1.2.0"`). |
+| `description` | string | No | — | Markdown-formatted description of the pipeline's purpose. |
+| `owner` | Owner | No | — | Primary pipeline owner. See [18.3](#183-owner). |
+| `tags` | List[string] | No | `[]` | Pipeline-level classification labels. |
+| `meta` | Map[string, any] | No | `{}` | Open key-value metadata. |
+| `schedule` | string | No | — | Expected execution schedule as cron expression (e.g., `"0 6 * * *"`) or ISO 8601 duration. |
+| `freshness` | string | No | — | Expected end-to-end freshness as ISO 8601 duration (e.g., `"PT24H"`). |
+| `links` | List[Link] | No | `[]` | External documentation links. |
+| `contacts` | List[Contact] | No | `[]` | Stakeholder contacts. |
+| `catalog` | CatalogConfig | No | — | Data catalog integration configuration. |
+
+### 18.3 Owner
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | string | **Yes** | — | Person or team name. |
+| `email` | string | **Yes** | — | Contact email. |
+| `type` | string | No | `"technical"` | Owner role: `"technical"`, `"business"`, or `"steward"`. |
+
+### 18.4 Column-Level Metadata
+
+Columns on inputs MAY carry metadata declarations. This enables column-level documentation, tagging, and constraint tracking.
+
+```yaml
+input:
+  - name: customers
+    format: parquet
+    path: "data/customers"
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tags: [primary_key]
+        constraints: [not_null, unique]
+      - name: email
+        description: "Customer email address"
+        tags: [pii, contact]
+        constraints: [not_null]
+        meta:
+          sensitivity: high
+          retention_days: 365
+      - name: created_at
+        description: "Account creation timestamp"
+        tags: [partition_key]
+```
+
+**ColumnMetadata object:**
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | string | **Yes** | — | Column name (MUST match a column in the dataset). |
+| `description` | string | No | — | Human-readable column description. |
+| `tags` | List[string] | No | `[]` | Column-level classification labels. |
+| `constraints` | List[string] | No | `[]` | Declared constraints. See [18.4.1](#1841-column-constraints). |
+| `meta` | Map[string, any] | No | `{}` | Open key-value metadata. |
+| `glossaryTerm` | string | No | — | Reference to a business glossary term. |
+
+#### 18.4.1 Column Constraints
+
+Column constraints are **declarative metadata** — they document expected properties but do NOT enforce them at runtime. Enforcement is done via the `quality` section ([Section 17](#17-data-quality)) or the `assertion` transformation.
+
+| Constraint | Description |
+|------------|-------------|
+| `not_null` | Column should not contain null values. |
+| `unique` | Column should contain unique values. |
+| `primary_key` | Column is part of the primary key (implies `not_null` + `unique`). |
+| `foreign_key(<asset>.<column>)` | Column references another asset's column. |
+
+### 18.5 Freshness SLA
+
+The `freshness` field (on `pipeline` or `output`) declares the expected maximum age of the data as an ISO 8601 duration.
+
+```
+PT1H        → 1 hour
+PT24H       → 24 hours
+P1D         → 1 day
+P7D         → 7 days
+PT30M       → 30 minutes
+```
+
+This is **metadata only** — it does not enforce freshness at runtime. To enforce freshness, use a `freshness` quality check ([Section 17.3.7](#1737-freshness-checks)).
+
+### 18.6 Maturity
+
+The `maturity` field on outputs indicates the lifecycle stage of the dataset.
+
+| Value | Description |
+|-------|-------------|
+| `high` | Production-grade. Stable schema, monitored, with SLA. |
+| `medium` | In active development. Schema may change. |
+| `low` | Experimental or prototype. No guarantees. |
+| `deprecated` | Scheduled for removal. Consumers should migrate. |
+
+### 18.7 Tag Propagation
+
+Tags declared on assets propagate downstream through the DAG:
+
+1. An input's tags are inherited by all transformations that reference it (directly or transitively).
+2. When a transformation has multiple upstream assets, it inherits the **union** of all upstream tags.
+3. A transformation MAY declare its own tags, which are **added** to the inherited set.
+4. A transformation MAY explicitly **remove** inherited tags using the `removeTags` field:
+
+```yaml
+transformation:
+  - name: anonymized
+    select:
+      from: customers
+      columns: [id, region]              # dropped pii columns
+    tags: [anonymized]
+    removeTags: [pii]                     # explicitly remove inherited pii tag
+```
+
+5. Output sinks inherit the tags of the asset they reference.
+
+### 18.8 Asset URN
+
+When a `pipeline.namespace` is declared, each asset's globally unique identifier (URN) is:
+
+```
+teckel://<namespace>/<asset_name>
+```
+
+Example: `teckel://com.company.finance/daily_revenue`
+
+Implementations SHOULD use this URN when emitting lineage events or registering assets in catalogs.
+
+### 18.9 Lineage
+
+Dataset-level lineage is **implicit** in the Teckel DAG structure (every `from`, `left`, `right`, `sources`, `views`, `current`, `incoming` field is a lineage edge). A conforming implementation SHOULD be able to:
+
+1. Export the full lineage graph as a JSON artifact.
+2. Emit OpenLineage-compatible `RunEvent` payloads with dataset facets.
+3. Determine the **upstream impact** (what feeds this asset?) and **downstream impact** (what breaks if this asset changes?) for any asset.
+
+Column-level lineage (which output columns derive from which input columns) is NOT declared in the YAML — it is **inferred** by the runtime from the transformation semantics.
+
+### 18.10 Catalog Integration
+
+The `pipeline.catalog` field declares how metadata should be exported to an external data catalog.
+
+```yaml
+pipeline:
+  catalog:
+    target: openmetadata             # catalog system identifier
+    namespace: finance.revenue       # catalog-specific namespace
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `target` | string | **Yes** | Catalog system identifier (e.g., `"openmetadata"`, `"datahub"`, `"atlas"`). |
+| `namespace` | string | No | Namespace within the catalog. |
+
+The catalog integration mechanism is implementation-defined. Implementations SHOULD generate a metadata artifact (e.g., `manifest.json`) containing all pipeline, asset, and column metadata in a machine-readable format.
+
+---
+
+## 19. Exposures
+
+Exposures declare **downstream consumers** of the pipeline's outputs — dashboards, notebooks, ML models, applications, or other pipelines. This completes the lineage graph by connecting data production to data consumption.
+
+### 19.1 Schema
+
+```yaml
+exposures:
+  - name: <string>
+    type: <string>
+    description: <string>
+    url: <string>
+    maturity: <string>
+    owner:
+      name: <string>
+      email: <string>
+    depends_on: [<AssetRef>]
+    tags: [<string>]
+    meta:
+      <key>: <any>
+```
+
+### 19.2 Fixed Fields
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | string | **Yes** | — | Exposure identifier. |
+| `type` | string | **Yes** | — | Consumer type. See [19.3](#193-exposure-types). |
+| `description` | string | No | — | What this consumer does with the data. |
+| `url` | string | No | — | Link to the consumer (dashboard URL, notebook link, etc.). |
+| `maturity` | string | No | — | `"high"`, `"medium"`, `"low"`. |
+| `owner` | Owner | No | — | Consumer owner/team. |
+| `depends_on` | NonEmptyList[AssetRef] | **Yes** | — | Assets consumed. MUST reference output asset names. |
+| `tags` | List[string] | No | `[]` | Classification labels. |
+| `meta` | Map[string, any] | No | `{}` | Custom metadata. |
+
+### 19.3 Exposure Types
+
+| Type | Description |
+|------|-------------|
+| `dashboard` | BI dashboard or report. |
+| `notebook` | Jupyter/Zeppelin notebook or analysis. |
+| `analysis` | Ad-hoc analysis or query. |
+| `ml` | Machine learning model or feature store. |
+| `application` | Application or microservice. |
+| `pipeline` | Another data pipeline. |
+
+### 19.4 Valid Example
+
+```yaml
+exposures:
+  - name: revenue_dashboard
+    type: dashboard
+    maturity: high
+    url: "https://bi.company.com/dashboards/revenue"
+    description: "Executive daily revenue tracking"
+    owner:
+      name: Analytics Team
+      email: analytics@company.com
+    depends_on: [daily_revenue, monthly_summary]
+    tags: [executive, finance]
+
+  - name: churn_model
+    type: ml
+    description: "Customer churn prediction model"
+    owner:
+      name: ML Engineering
+      email: ml@company.com
+    depends_on: [customer_features]
+    tags: [ml, production]
+    meta:
+      model_version: "3.2"
+      framework: xgboost
+```
+
+### 19.5 Semantics
+
+- Exposures are **metadata-only** — they do not affect pipeline execution.
+- The `depends_on` assets MUST reference assets defined in `input`, `transformation`, or referenceable via output `name`.
+- Exposures enable **downstream impact analysis**: when an asset's schema changes, the implementation can identify affected consumers.
+
+---
+
+## 20. Templates
 
 Templates define reusable configuration fragments.
 
@@ -2195,7 +2923,7 @@ templates:
       <key>: <value>
 ```
 
-### 17.1 Status
+### 20.1 Status
 
 > **Advisory.** Template semantics are not fully specified in v2.0. Implementations MAY support template expansion but MUST NOT require it for Core or Extended conformance. A future version will formalize template instantiation, parameterization, and composition.
 
@@ -2203,11 +2931,11 @@ Implementations that support templates SHOULD document their template expansion 
 
 ---
 
-## 18. Config Merging
+## 21. Config Merging
 
 Multiple Teckel documents MAY be merged into a single pipeline. This enables environment-specific overrides.
 
-### 18.1 Merge Semantics
+### 21.1 Merge Semantics
 
 | Value Type | Merge Behavior |
 |------------|---------------|
@@ -2215,7 +2943,7 @@ Multiple Teckel documents MAY be merged into a single pipeline. This enables env
 | Array (YAML sequence) | **Replaced** entirely by the overlay. |
 | Scalar | **Replaced** by the overlay. |
 
-### 18.2 Merge Order
+### 21.2 Merge Order
 
 Files are merged left to right. The rightmost file has the **highest** precedence.
 
@@ -2223,7 +2951,7 @@ Files are merged left to right. The rightmost file has the **highest** precedenc
 base.yaml + dev.yaml → merged
 ```
 
-### 18.3 Example
+### 21.3 Example
 
 **base.yaml:**
 ```yaml
@@ -2256,13 +2984,13 @@ output:
 
 ---
 
-## 19. Path Resolution
+## 22. Path Resolution
 
-### 19.1 Absolute Paths and URIs
+### 22.1 Absolute Paths and URIs
 
 Paths that are absolute (start with `/`) or contain a URI scheme (e.g., `s3://`, `gs://`, `hdfs://`, `file://`) are used as-is.
 
-### 19.2 Relative Paths
+### 22.2 Relative Paths
 
 Relative paths are resolved relative to the **working directory** of the runtime process, NOT relative to the YAML file location.
 
@@ -2272,7 +3000,7 @@ Implementations MAY provide a configuration option to set a base path for relati
 
 ---
 
-## 20. Validation Rules
+## 23. Validation Rules
 
 A conforming implementation MUST validate the following **before** execution. Each rule is stated formally, followed by the error code raised on violation.
 
@@ -2348,21 +3076,21 @@ transformation:
 
 ---
 
-## 21. Execution Model
+## 24. Execution Model
 
-### 21.1 DAG Resolution
+### 24.1 DAG Resolution
 
 The runtime resolves the asset DAG via **topological sort**. Assets with satisfied dependencies (all upstream assets computed) are eligible for execution.
 
-### 21.2 Parallelism
+### 24.2 Parallelism
 
 Independent branches of the DAG (assets with no mutual dependencies) MAY be executed in parallel. The implementation MUST guarantee that the observable output is equivalent to a sequential topological-order execution.
 
-### 21.3 Materialization
+### 24.3 Materialization
 
 The implementation MAY use **lazy evaluation** (defer computation until a downstream consumer needs the data) or **eager evaluation** (compute each asset as soon as dependencies are ready). The choice is implementation-defined.
 
-### 21.4 Optimization
+### 24.4 Optimization
 
 The implementation MAY apply optimizations such as:
 - **Predicate pushdown** — pushing `where` filters closer to the input.
@@ -2372,7 +3100,7 @@ The implementation MAY apply optimizations such as:
 
 Optimizations MUST NOT change the observable output of the pipeline.
 
-### 21.5 Error Handling
+### 24.5 Error Handling
 
 If any asset fails during execution:
 1. The implementation MUST abort all in-progress and pending assets.
@@ -2382,7 +3110,7 @@ If any asset fails during execution:
 
 ---
 
-## 22. Error Catalog
+## 25. Error Catalog
 
 | Code | Category | Description |
 |------|----------|-------------|
@@ -2414,41 +3142,51 @@ If any asset fails during execution:
 | `E-SECRET-001` | Secrets | Unresolved secret reference. |
 | `E-HOOK-001` | Hooks | Pre-execution hook failed (non-zero exit). |
 | `E-COMP-001` | Custom | Unregistered custom component. |
-| `E-QUALITY-001` | Quality | Assertion check failed (fail mode). |
+| `E-QUALITY-001` | Quality | Assertion or quality check failed (error severity). |
+| `E-QUALITY-002` | Quality | Unknown quality check type. |
+| `E-QUALITY-003` | Quality | Invalid threshold value (must be 0.0–1.0). |
+| `E-QUALITY-004` | Quality | Freshness check failed — data exceeds maxAge. |
+| `E-QUALITY-005` | Quality | Referential integrity check failed — values not found in reference asset. |
+| `E-META-001` | Metadata | Invalid owner type (expected: technical, business, steward). |
+| `E-META-002` | Metadata | Invalid maturity value (expected: high, medium, low, deprecated). |
+| `E-META-003` | Metadata | Invalid freshness duration (expected ISO 8601 duration). |
+| `E-META-004` | Metadata | Column metadata references non-existent column. |
+| `E-EXPOSE-001` | Exposures | Exposure depends_on references undefined asset. |
+| `E-EXPOSE-002` | Exposures | Unknown exposure type. |
 | `E-VERSION-001` | Version | Missing or unsupported version field. |
 
 Implementations MUST use these error codes in diagnostic messages. Implementations MAY define additional codes prefixed with `E-X-` for implementation-specific errors.
 
 ---
 
-## 23. Security Considerations
+## 26. Security Considerations
 
-### 23.1 Expression Injection
+### 26.1 Expression Injection
 
 The Teckel expression language and SQL pass-through (`sql` transformation) accept arbitrary string expressions. Implementations that construct backend queries from these expressions MUST sanitize inputs to prevent injection attacks (e.g., SQL injection in JDBC sources).
 
-### 23.2 Shell Command Injection
+### 26.2 Shell Command Injection
 
 Hooks execute shell commands. The `command` field MUST NOT be constructed from user-provided variable substitutions without proper escaping. Implementations SHOULD execute hooks via `sh -c` (or equivalent) with the command as a single string argument, not via shell interpolation of user inputs.
 
-### 23.3 Secret Exposure
+### 26.3 Secret Exposure
 
 - Secret values MUST NOT appear in log output, error messages, or diagnostic dumps.
 - Implementations MUST NOT write secret values to temporary files.
 - When displaying the resolved YAML (e.g., debug mode), secret placeholders MUST be shown as `{{secrets.<alias>}}` or `***`, never as the resolved value.
 
-### 23.4 HTTP Enrichment
+### 26.4 HTTP Enrichment
 
 The `enrich` transformation makes outbound HTTP requests. Implementations MUST:
 - Validate that the `url` uses `https://` in production configurations. HTTP (`http://`) SHOULD produce a warning.
 - Respect the `timeout` and `maxRetries` limits to prevent resource exhaustion.
 - Not follow redirects to different domains without explicit configuration.
 
-### 23.5 Path Traversal
+### 26.5 Path Traversal
 
 Input and output `path` values MUST be validated to prevent path traversal attacks (e.g., `../../etc/passwd`). Implementations SHOULD restrict file access to a configurable set of allowed directories.
 
-### 23.6 Resource Limits
+### 26.6 Resource Limits
 
 Implementations SHOULD enforce configurable limits on:
 - Maximum number of assets in a pipeline.
@@ -2458,17 +3196,17 @@ Implementations SHOULD enforce configurable limits on:
 
 ---
 
-## 24. Conformance
+## 27. Conformance
 
-### 24.1 Conformance Levels
+### 27.1 Conformance Levels
 
 | Level | Sections Required |
 |-------|-------------------|
-| **Core** | 1–7 (document structure, input, output), 8.1–8.10 (basic transformations), 9 (expression language — grammar, precedence, core aggregates and comparison operators), 10 (data types — simple types only), 11 (null semantics), 12 (variable substitution), 19 (path resolution), 20 (validation rules), 21 (execution model), 22 (error catalog). |
-| **Extended** | Core + 8.11–8.31 (all transformations), 9.6 (all core functions), 10 (all data types including parameterized), 13 (secrets), 14 (configuration), 16 (hooks), 18 (config merging). |
+| **Core** | 1–7 (document structure, input, output), 8.1–8.10 (basic transformations), 9 (expression language — grammar, precedence, core aggregates and comparison operators), 10 (data types — simple types only), 11 (null semantics), 12 (variable substitution), 22 (path resolution), 23 (validation rules), 24 (execution model), 25 (error catalog). |
+| **Extended** | Core + 8.11–8.31 (all transformations), 9.6 (all core functions), 10 (all data types including parameterized), 13 (secrets), 14 (configuration), 16 (hooks), 17 (data quality), 18 (metadata), 19 (exposures), 21 (config merging). |
 | **Streaming** | Extended + 15 (streaming inputs and outputs). |
 
-### 24.2 Conformance Declaration
+### 27.2 Conformance Declaration
 
 An implementation claiming conformance MUST:
 1. State the conformance level (Core, Extended, or Streaming).
@@ -2476,13 +3214,13 @@ An implementation claiming conformance MUST:
 3. Document any implementation-specific extensions (additional formats, functions, transformations).
 4. Pass the conformance test suite for the claimed level (when available).
 
-### 24.3 Extension Mechanism
+### 27.3 Extension Mechanism
 
 - **Top-level keys** prefixed with `x-` are extension keys. Implementations MUST ignore unrecognized `x-` keys without error.
 - **Custom transformations** are handled via the `custom` operation key ([Section 8.31](#831-custom)).
 - **Additional functions** in the expression language are permitted but MUST NOT shadow core functions.
 
-### 24.4 Forward Compatibility
+### 27.4 Forward Compatibility
 
 A document with `version: "2.0"` processed by a runtime supporting a later version (e.g., 2.1) MUST be processed according to v2.0 rules. A document with an unrecognized version MUST be rejected with `E-VERSION-001`.
 
@@ -2808,3 +3546,13 @@ output:
 - Defined struct syntax: `struct<name: type, ...>`.
 - Added `count(*)` and `count(DISTINCT expr)` to core functions.
 - Added additional core functions: `replace`, `floor`, `ceil`, `power`, `sqrt`, `date_add`, `date_diff`, `to_date`, `to_timestamp`, `nullif`, `ifnull`, `ntile`, `first_value`, `last_value`.
+- Added Data Quality section (17): quality suites with 10 check types — schema, completeness, uniqueness, validity, statistical, volume, freshness, referential integrity, cross-column, custom. Threshold-based (soft) checks, severity levels (error/warn/info), conditional escalation, built-in format validators (email, UUID, URL, IPv4, IPv6, date, timestamp, phone).
+- Added Metadata section (18): pipeline-level, asset-level, and column-level metadata. Owner with role types (technical/business/steward), tags with automatic downstream propagation, open `meta` extension map, freshness SLA (ISO 8601 duration), maturity lifecycle, column constraints, glossary terms, asset URN scheme, lineage export, catalog integration.
+- Added Exposures section (19): downstream consumer declarations (dashboard, notebook, ML, application, pipeline). Enables bidirectional impact analysis.
+- Added `pipeline` top-level key for pipeline-level metadata.
+- Added `quality` top-level key for data quality suites.
+- Added `exposures` top-level key for downstream consumers.
+- Added metadata fields to Input: `description`, `tags`, `meta`, `owner`, `columns`.
+- Added metadata fields to Output: `description`, `tags`, `meta`, `freshness`, `maturity`.
+- Added `removeTags` field to transformations for explicit tag de-propagation.
+- Added 11 new error codes for quality, metadata, and exposures.
