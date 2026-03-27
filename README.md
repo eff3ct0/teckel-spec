@@ -10,11 +10,15 @@ The specification defines the syntax, semantics, expression language, and runtim
 |---------|--------|------|
 | 2.0     | Draft  | 2026-03-27 |
 
-## Documents
+## Documentation
+
+**[Read the documentation](https://eff3ct0.github.io/teckel-spec/)** — User-friendly guide with tutorials, examples, and reference material.
+
+## Specification
 
 | Document | Description |
 |----------|-------------|
-| [Teckel Specification v2.0](spec/v2.0/teckel-spec.md) | Full specification: document structure, 31 transformation types, expression language with EBNF grammar, data types, null semantics, validation rules, execution model, error catalog, security considerations, and conformance levels. |
+| [Teckel Specification v2.0](spec/v2.0/teckel-spec.md) | Full formal specification: 27 sections covering document structure, 31 transformation types, expression language with EBNF grammar, data quality, metadata, exposures, null semantics, validation rules, execution model, error catalog, security considerations, and conformance levels. |
 | [JSON Schema v2.0](spec/v2.0/teckel-schema.json) | Machine-readable JSON Schema for validating Teckel v2.0 documents. |
 
 ## Conformance Levels
