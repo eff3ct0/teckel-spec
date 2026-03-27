@@ -40,7 +40,7 @@ const config: Config = {
       'classic',
       {
         docs: {
-          routeBasePath: '/',
+          routeBasePath: '/docs',
           sidebarPath: './sidebars.ts',
           editUrl:
             'https://github.com/eff3ct0/teckel-spec/edit/main/website/',
