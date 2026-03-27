@@ -11,6 +11,7 @@ build-dir = "book"
 [output.html]
 default-theme = "navy"
 preferred-dark-theme = "navy"
+additional-css = ["theme/css/custom.css"]
 git-repository-url = "https://github.com/eff3ct0/teckel-spec"
 edit-url-template = "https://github.com/eff3ct0/teckel-spec/edit/main/docs/{path}"
 site-url = "/teckel-spec/"
