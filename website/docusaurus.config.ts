@@ -11,8 +11,8 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://eff3ct0.github.io',
-  baseUrl: '/teckel-spec/',
+  url: 'https://teckel.rafaelfernandez.dev',
+  baseUrl: '/',
 
   organizationName: 'eff3ct0',
   projectName: 'teckel-spec',

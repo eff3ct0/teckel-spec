@@ -60,7 +60,7 @@ function Playground(): React.JSX.Element {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    fetch('/teckel-spec/teckel-schema.json')
+    fetch('/teckel-schema.json')
       .then((r) => r.json())
       .then((s) => setSchema(s))
       .catch(() =>
