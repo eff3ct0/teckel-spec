@@ -35,6 +35,18 @@ const config: Config = {
     format: 'md',
   },
 
+  themes: [
+    [
+      require.resolve('@easyops-cn/docusaurus-search-local'),
+      {
+        hashed: true,
+        docsRouteBasePath: '/docs',
+        indexBlog: false,
+        language: ['en'],
+      },
+    ],
+  ],
+
   presets: [
     [
       'classic',
@@ -65,6 +77,11 @@ const config: Config = {
   ],
 
   themeConfig: {
+    image: 'img/og-image.png',
+    metadata: [
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:site', content: '@raborfield' },
+    ],
     colorMode: {
       defaultMode: 'light',
       disableSwitch: false,
