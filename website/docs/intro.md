@@ -1,3 +1,8 @@
+---
+slug: /
+sidebar_position: 1
+---
+
 # Introduction
 
 Teckel is a declarative language for building data pipelines. You describe your data sources, transformations, and outputs in YAML, and a runtime engine takes care of execution. No imperative code, no boilerplate -- just a clear description of what your data should look like when it comes out the other end.

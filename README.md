@@ -12,7 +12,7 @@ The specification defines the syntax, semantics, expression language, and runtim
 
 ## Documentation
 
-**[Read the documentation](https://eff3ct0.github.io/teckel-spec/)** — User-friendly guide with tutorials, examples, and reference material.
+**[Read the documentation](https://eff3ct0.github.io/teckel-spec/)** — User-friendly guide with tutorials, examples, and reference material. Built with [Docusaurus](https://docusaurus.io).
 
 ## Specification
 
