@@ -42,22 +42,9 @@
   </style>
 
 <defs>
-    <linearGradient id="input-g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.05"/>
-    </linearGradient>
-    <linearGradient id="transform-g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.05"/>
-    </linearGradient>
-    <linearGradient id="output-g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#22c55e" stop-opacity="0.05"/>
-    </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="2" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9" fill="none" stroke="#71717a" stroke-width="1.5"/>
+    </marker>
   </defs>
 
   <!-- Background -->
@@ -69,7 +56,7 @@
 
   <!-- Input nodes -->
   <g transform="translate(40, 70)">
-    <rect width="160" height="100" rx="12" fill="url(#input-g)" stroke="#3b82f6" stroke-opacity="0.4" stroke-width="1"/>
+    <rect width="160" height="100" rx="12" fill="#3b82f6" fill-opacity="0.08" stroke="#3b82f6" stroke-opacity="0.4" stroke-width="1"/>
     <text x="80" y="24" text-anchor="middle" fill="#3b82f6" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" letter-spacing="0.08em" font-weight="500">INPUT</text>
     <text x="80" y="48" text-anchor="middle" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">rawOrders</text>
     <text x="80" y="68" text-anchor="middle" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10">csv · /data/orders</text>
@@ -77,7 +64,7 @@
   </g>
 
   <g transform="translate(40, 194)">
-    <rect width="160" height="100" rx="12" fill="url(#input-g)" stroke="#3b82f6" stroke-opacity="0.4" stroke-width="1"/>
+    <rect width="160" height="100" rx="12" fill="#3b82f6" fill-opacity="0.08" stroke="#3b82f6" stroke-opacity="0.4" stroke-width="1"/>
     <text x="80" y="24" text-anchor="middle" fill="#3b82f6" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" letter-spacing="0.08em" font-weight="500">INPUT</text>
     <text x="80" y="48" text-anchor="middle" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">customers</text>
     <text x="80" y="68" text-anchor="middle" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10">parquet · /data/cust</text>
@@ -88,16 +75,10 @@
   <path d="M200,120 C260,120 260,170 320,170" stroke="#3f3f46" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
   <path d="M200,244 C260,244 260,190 320,190" stroke="#3f3f46" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
 
-  <!-- Arrow marker -->
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 1 L 10 5 L 0 9" fill="none" stroke="#71717a" stroke-width="1.5"/>
-    </marker>
-  </defs>
 
   <!-- Transformation: Join -->
   <g transform="translate(320, 130)">
-    <rect width="160" height="100" rx="12" fill="url(#transform-g)" stroke="#a855f7" stroke-opacity="0.4" stroke-width="1"/>
+    <rect width="160" height="100" rx="12" fill="#a855f7" fill-opacity="0.08" stroke="#a855f7" stroke-opacity="0.4" stroke-width="1"/>
     <text x="80" y="24" text-anchor="middle" fill="#a855f7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" letter-spacing="0.08em" font-weight="500">TRANSFORMATION</text>
     <text x="80" y="48" text-anchor="middle" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">enriched</text>
     <text x="80" y="68" text-anchor="middle" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10">join · inner</text>
@@ -109,7 +90,7 @@
 
   <!-- Transformation: Select -->
   <g transform="translate(520, 130)">
-    <rect width="160" height="100" rx="12" fill="url(#transform-g)" stroke="#a855f7" stroke-opacity="0.4" stroke-width="1"/>
+    <rect width="160" height="100" rx="12" fill="#a855f7" fill-opacity="0.08" stroke="#a855f7" stroke-opacity="0.4" stroke-width="1"/>
     <text x="80" y="24" text-anchor="middle" fill="#a855f7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" letter-spacing="0.08em" font-weight="500">TRANSFORMATION</text>
     <text x="80" y="48" text-anchor="middle" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">summary</text>
     <text x="80" y="68" text-anchor="middle" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10">select · 4 columns</text>
@@ -121,7 +102,7 @@
 
   <!-- Output node -->
   <g transform="translate(720, 130)">
-    <rect width="120" height="100" rx="12" fill="url(#output-g)" stroke="#22c55e" stroke-opacity="0.4" stroke-width="1"/>
+    <rect width="120" height="100" rx="12" fill="#22c55e" fill-opacity="0.08" stroke="#22c55e" stroke-opacity="0.4" stroke-width="1"/>
     <text x="60" y="24" text-anchor="middle" fill="#22c55e" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" letter-spacing="0.08em" font-weight="500">OUTPUT</text>
     <text x="60" y="48" text-anchor="middle" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">result</text>
     <text x="60" y="68" text-anchor="middle" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10">parquet</text>

@@ -41,16 +41,6 @@
     }
   </style>
 
-<defs>
-    <linearGradient id="req" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.12"/>
-      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.03"/>
-    </linearGradient>
-    <linearGradient id="opt" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#a1a1aa" stop-opacity="0.08"/>
-      <stop offset="100%" stop-color="#a1a1aa" stop-opacity="0.02"/>
-    </linearGradient>
-  </defs>
 
   <rect width="720" height="520" rx="16" class="bg-main"/>
   <rect width="720" height="520" rx="16" class="bg-border" stroke-width="1" fill="none"/>
@@ -70,7 +60,7 @@
   <!-- Section rows -->
   <!-- version (required) -->
   <g transform="translate(40, 92)">
-    <rect width="640" height="42" rx="8" fill="url(#req)" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="0.75"/>
+    <rect width="640" height="42" rx="8" fill="#3b82f6" fill-opacity="0.08" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#3b82f6" opacity="0.7"/>
     <text x="28" y="28" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">version</text>
     <text x="130" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Spec version this document conforms to</text>
@@ -79,7 +69,7 @@
 
   <!-- pipeline (optional) -->
   <g transform="translate(40, 142)">
-    <rect width="640" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect width="640" height="42" rx="8" fill="#a1a1aa" fill-opacity="0.05" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
     <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">pipeline</text>
     <text x="138" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Name, description, owner, tags, schedule</text>
@@ -88,7 +78,7 @@
 
   <!-- conf (optional) -->
   <g transform="translate(40, 192)">
-    <rect width="640" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect width="640" height="42" rx="8" fill="#a1a1aa" fill-opacity="0.05" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
     <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">conf</text>
     <text x="94" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Spark configuration, variables, environment overrides</text>
@@ -97,7 +87,7 @@
 
   <!-- secrets (optional) -->
   <g transform="translate(40, 242)">
-    <rect width="640" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect width="640" height="42" rx="8" fill="#a1a1aa" fill-opacity="0.05" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
     <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">secrets</text>
     <text x="120" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Secret key declarations, resolved at runtime</text>
@@ -106,7 +96,7 @@
 
   <!-- input (required) -->
   <g transform="translate(40, 292)">
-    <rect width="310" height="42" rx="8" fill="url(#req)" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="0.75"/>
+    <rect width="310" height="42" rx="8" fill="#3b82f6" fill-opacity="0.08" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#3b82f6" opacity="0.7"/>
     <text x="28" y="28" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">input</text>
     <text x="100" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Data sources</text>
@@ -115,7 +105,7 @@
 
   <!-- transformation (optional) -->
   <g transform="translate(370, 292)">
-    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect width="310" height="42" rx="8" fill="#a1a1aa" fill-opacity="0.05" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
     <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">transformation</text>
     <text x="196" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">31 operations</text>
@@ -124,7 +114,7 @@
 
   <!-- output (required) -->
   <g transform="translate(40, 342)">
-    <rect width="310" height="42" rx="8" fill="url(#req)" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="0.75"/>
+    <rect width="310" height="42" rx="8" fill="#3b82f6" fill-opacity="0.08" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#3b82f6" opacity="0.7"/>
     <text x="28" y="28" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">output</text>
     <text x="108" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Data sinks</text>
@@ -133,7 +123,7 @@
 
   <!-- quality (optional) -->
   <g transform="translate(370, 342)">
-    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect width="310" height="42" rx="8" fill="#a1a1aa" fill-opacity="0.05" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
     <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">quality</text>
     <text x="120" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Data quality suites</text>
@@ -142,7 +132,7 @@
 
   <!-- hooks (optional) -->
   <g transform="translate(40, 392)">
-    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect width="310" height="42" rx="8" fill="#a1a1aa" fill-opacity="0.05" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
     <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">hooks</text>
     <text x="100" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Lifecycle hooks</text>
@@ -151,7 +141,7 @@
 
   <!-- exposures (optional) -->
   <g transform="translate(370, 392)">
-    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect width="310" height="42" rx="8" fill="#a1a1aa" fill-opacity="0.05" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
     <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">exposures</text>
     <text x="150" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Consumers</text>
@@ -160,7 +150,7 @@
 
   <!-- templates (optional) -->
   <g transform="translate(40, 442)">
-    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect width="310" height="42" rx="8" fill="#a1a1aa" fill-opacity="0.05" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
     <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">templates</text>
     <text x="140" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Reusable transforms</text>
@@ -169,7 +159,7 @@
 
   <!-- streaming (optional) -->
   <g transform="translate(370, 442)">
-    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect width="310" height="42" rx="8" fill="#a1a1aa" fill-opacity="0.05" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
     <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
     <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">streaming*</text>
     <text x="158" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Stream I/O</text>
