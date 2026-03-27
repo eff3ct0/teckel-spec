@@ -55,6 +55,8 @@ transformation:
 
 ## SCD Type 2 (8.25)
 
+![SCD Type 2 flow](/img/diagrams/scd2-flow.svg)
+
 Slowly Changing Dimension Type 2 — tracks historical changes to dimension records. This transformation takes two inputs rather than a single `from`.
 
 **Schema:**

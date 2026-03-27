@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" fill="none">
+  <defs>
+    <linearGradient id="bg8" x1="0" y1="0" x2="720" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </linearGradient>
+    <marker id="arr8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9" fill="none" stroke="#71717a" stroke-width="1.5"/>
+    </marker>
+    <marker id="arr8-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9" fill="none" stroke="#ef4444" stroke-opacity="0.5" stroke-width="1.5"/>
+    </marker>
+  </defs>
+
+  <rect width="720" height="300" rx="16" fill="url(#bg8)"/>
+  <rect width="720" height="300" rx="16" stroke="#27272a" stroke-width="1" fill="none"/>
+
+  <text x="360" y="36" text-anchor="middle" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" letter-spacing="0.1em">HOOKS LIFECYCLE</text>
+
+  <!-- Timeline -->
+  <line x1="60" y1="130" x2="660" y2="130" stroke="#27272a" stroke-width="2"/>
+
+  <!-- Pre-hook -->
+  <g transform="translate(60, 60)">
+    <rect width="130" height="50" rx="8" fill="#f59e0b" fill-opacity="0.08" stroke="#f59e0b" stroke-opacity="0.25" stroke-width="0.75"/>
+    <text x="14" y="20" fill="#fbbf24" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9" font-weight="600">PRE-HOOK</text>
+    <text x="14" y="38" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10">on: before</text>
+    <circle cx="65" cy="70" r="4" fill="#f59e0b" opacity="0.6"/>
+  </g>
+
+  <!-- Pipeline execution -->
+  <g transform="translate(230, 60)">
+    <rect width="260" height="50" rx="8" fill="#a855f7" fill-opacity="0.08" stroke="#a855f7" stroke-opacity="0.25" stroke-width="0.75"/>
+    <text x="130" y="20" text-anchor="middle" fill="#c084fc" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9" font-weight="600">PIPELINE EXECUTION</text>
+    <text x="130" y="38" text-anchor="middle" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10">input → transformation → output</text>
+    <circle cx="0" cy="70" r="4" fill="#a855f7" opacity="0.6"/>
+    <circle cx="260" cy="70" r="4" fill="#a855f7" opacity="0.6"/>
+  </g>
+
+  <!-- Post-hook -->
+  <g transform="translate(530, 60)">
+    <rect width="130" height="50" rx="8" fill="#22c55e" fill-opacity="0.08" stroke="#22c55e" stroke-opacity="0.25" stroke-width="0.75"/>
+    <text x="14" y="20" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9" font-weight="600">POST-HOOK</text>
+    <text x="14" y="38" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10">on: after</text>
+    <circle cx="65" cy="70" r="4" fill="#22c55e" opacity="0.6"/>
+  </g>
+
+  <!-- Arrows on timeline -->
+  <path d="M125,130 L230,130" stroke="#3f3f46" stroke-width="1.5" fill="none" marker-end="url(#arr8)"/>
+  <path d="M490,130 L530,130" stroke="#3f3f46" stroke-width="1.5" fill="none" marker-end="url(#arr8)"/>
+
+  <!-- Failure path -->
+  <g transform="translate(280, 160)">
+    <text x="80" y="14" text-anchor="middle" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">Pipeline fails?</text>
+
+    <!-- Failure branch -->
+    <path d="M80,22 L80,50" stroke="#ef4444" stroke-opacity="0.4" stroke-width="1.5" stroke-dasharray="4,3" fill="none" marker-end="url(#arr8-red)"/>
+  </g>
+
+  <!-- Error hook -->
+  <g transform="translate(295, 218)">
+    <rect width="130" height="50" rx="8" fill="#ef4444" fill-opacity="0.08" stroke="#ef4444" stroke-opacity="0.25" stroke-width="0.75"/>
+    <text x="14" y="20" fill="#f87171" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9" font-weight="600">ERROR HOOK</text>
+    <text x="14" y="38" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10">on: error</text>
+  </g>
+
+  <!-- Hook detail boxes -->
+  <g transform="translate(40, 278)">
+    <text x="0" y="0" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">Each hook executes a shell command · Hooks run sequentially in declaration order · Non-zero exit = pipeline abort</text>
+  </g>
+</svg>

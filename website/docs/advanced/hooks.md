@@ -4,6 +4,8 @@ Hooks execute external shell commands at pipeline lifecycle events. They enable 
 
 ---
 
+![Hooks lifecycle](/img/diagrams/hooks-lifecycle.svg)
+
 ## Schema
 
 ```yaml

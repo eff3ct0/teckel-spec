@@ -4,6 +4,8 @@ This chapter covers two mechanisms for parameterizing Teckel documents: variable
 
 ---
 
+![Variable and secret resolution](/img/diagrams/variable-resolution.svg)
+
 ## Variable Substitution
 
 Variables allow Teckel documents to be parameterized with external values, making pipelines portable across environments.

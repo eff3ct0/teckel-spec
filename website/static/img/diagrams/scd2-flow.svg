@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" fill="none">
+  <defs>
+    <linearGradient id="bgS" x1="0" y1="0" x2="800" y2="340" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </linearGradient>
+    <marker id="arrS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9" fill="none" stroke="#71717a" stroke-width="1.5"/>
+    </marker>
+  </defs>
+
+  <rect width="800" height="340" rx="16" fill="url(#bgS)"/>
+  <rect width="800" height="340" rx="16" stroke="#27272a" stroke-width="1" fill="none"/>
+
+  <text x="400" y="36" text-anchor="middle" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" letter-spacing="0.1em">SCD TYPE 2 — SLOWLY CHANGING DIMENSION</text>
+
+  <!-- Existing dimension table -->
+  <g transform="translate(40, 56)">
+    <text x="0" y="14" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">Existing dimension (from)</text>
+    <rect x="0" y="24" width="320" height="22" rx="4" fill="#3f3f46" fill-opacity="0.3"/>
+    <text x="10" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">id</text>
+    <text x="50" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">name</text>
+    <text x="120" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">city</text>
+    <text x="190" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">valid_from</text>
+    <text x="268" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">valid_to</text>
+
+    <rect x="0" y="48" width="320" height="20" rx="0" fill="#3b82f6" fill-opacity="0.04"/>
+    <text x="10" y="62" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">1</text>
+    <text x="50" y="62" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">Alice</text>
+    <text x="120" y="62" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">NYC</text>
+    <text x="190" y="62" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">2024-01</text>
+    <text x="268" y="62" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">9999-12</text>
+
+    <rect x="0" y="70" width="320" height="20" rx="0" fill="transparent"/>
+    <text x="10" y="84" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">2</text>
+    <text x="50" y="84" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">Bob</text>
+    <text x="120" y="84" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">LA</text>
+    <text x="190" y="84" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">2024-01</text>
+    <text x="268" y="84" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">9999-12</text>
+
+    <!-- Current indicator -->
+    <text x="308" y="62" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="7">current</text>
+    <text x="308" y="84" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="7">current</text>
+  </g>
+
+  <!-- New records -->
+  <g transform="translate(420, 56)">
+    <text x="0" y="14" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">Incoming updates (updates)</text>
+    <rect x="0" y="24" width="200" height="22" rx="4" fill="#3f3f46" fill-opacity="0.3"/>
+    <text x="10" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">id</text>
+    <text x="50" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">name</text>
+    <text x="120" y="39" fill="#f59e0b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">city</text>
+
+    <rect x="0" y="48" width="200" height="20" rx="0" fill="#f59e0b" fill-opacity="0.06"/>
+    <text x="10" y="62" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">1</text>
+    <text x="50" y="62" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">Alice</text>
+    <text x="120" y="62" fill="#fbbf24" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">SF</text>
+    <text x="170" y="62" fill="#f59e0b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="7">changed!</text>
+  </g>
+
+  <!-- Arrow: merge -->
+  <g transform="translate(310, 130)">
+    <path d="M0,0 L0,30" stroke="#3f3f46" stroke-width="1.5" fill="none" marker-end="url(#arrS)"/>
+    <path d="M210,0 L210,30" stroke="#3f3f46" stroke-width="1.5" fill="none"/>
+    <path d="M210,30 L0,30" stroke="#3f3f46" stroke-width="1.5" fill="none"/>
+    <text x="105" y="24" text-anchor="middle" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">SCD2 merge on: id</text>
+  </g>
+
+  <!-- Result table -->
+  <g transform="translate(40, 180)">
+    <text x="0" y="14" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">Result — full history preserved</text>
+    <rect x="0" y="24" width="380" height="22" rx="4" fill="#3f3f46" fill-opacity="0.3"/>
+    <text x="10" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">id</text>
+    <text x="50" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">name</text>
+    <text x="120" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">city</text>
+    <text x="190" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">valid_from</text>
+    <text x="268" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">valid_to</text>
+    <text x="340" y="39" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="8" font-weight="600">is_current</text>
+
+    <!-- Alice old (expired) -->
+    <rect x="0" y="48" width="380" height="20" rx="0" fill="#ef4444" fill-opacity="0.04"/>
+    <text x="10" y="62" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">1</text>
+    <text x="50" y="62" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">Alice</text>
+    <text x="120" y="62" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">NYC</text>
+    <text x="190" y="62" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">2024-01</text>
+    <text x="268" y="62" fill="#f87171" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">2025-03</text>
+    <text x="340" y="62" fill="#f87171" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">false</text>
+
+    <!-- Alice new (current) -->
+    <rect x="0" y="70" width="380" height="20" rx="0" fill="#22c55e" fill-opacity="0.06"/>
+    <text x="10" y="84" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">1</text>
+    <text x="50" y="84" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">Alice</text>
+    <text x="120" y="84" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">SF</text>
+    <text x="190" y="84" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">2025-03</text>
+    <text x="268" y="84" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">9999-12</text>
+    <text x="340" y="84" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">true</text>
+
+    <!-- Bob (unchanged) -->
+    <rect x="0" y="92" width="380" height="20" rx="0" fill="transparent"/>
+    <text x="10" y="106" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">2</text>
+    <text x="50" y="106" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">Bob</text>
+    <text x="120" y="106" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">LA</text>
+    <text x="190" y="106" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">2024-01</text>
+    <text x="268" y="106" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">9999-12</text>
+    <text x="340" y="106" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">true</text>
+  </g>
+
+  <!-- Annotations -->
+  <g transform="translate(450, 230)">
+    <rect width="310" height="80" rx="8" fill="#a1a1aa" fill-opacity="0.03" stroke="#27272a" stroke-width="0.75"/>
+    <text x="16" y="20" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9" font-weight="500">SCD2 behavior</text>
+    <text x="16" y="40" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">1. Changed rows → expire old, insert new</text>
+    <text x="16" y="56" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">2. Unchanged rows → keep as-is</text>
+    <text x="16" y="72" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">3. New rows → insert with is_current=true</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="40" y="330" fill="#3f3f46" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">Tracked columns define what constitutes a change · valid_from/valid_to/is_current column names are configurable</text>
+</svg>

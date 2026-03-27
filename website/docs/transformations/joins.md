@@ -4,6 +4,8 @@ The `join` transformation combines datasets by matching rows across two or more 
 
 ---
 
+![Join types](/img/diagrams/join-types.svg)
+
 ## Schema
 
 ```yaml

@@ -4,6 +4,8 @@ The `window` transformation applies window functions over partitions of a datase
 
 ---
 
+![Window functions](/img/diagrams/window-function.svg)
+
 ## Schema
 
 ```yaml

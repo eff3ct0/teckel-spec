@@ -2,6 +2,8 @@
 
 Every Teckel pipeline is a **directed acyclic graph** (DAG). Understanding this is essential to writing correct pipelines, because the DAG — not the textual order of your YAML — determines how and when each step executes.
 
+![DAG execution model](/img/diagrams/dag-execution.svg)
+
 ## Nodes and Edges
 
 A Teckel document defines three kinds of assets, and each becomes a node in the graph:

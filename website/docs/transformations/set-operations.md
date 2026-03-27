@@ -2,6 +2,8 @@
 
 Set operations combine or compare entire datasets. Teckel provides three set operations: Union, Intersect, and Except.
 
+![Set operations](/img/diagrams/set-operations.svg)
+
 All three require **schema compatibility**: source datasets must have the same number of columns, matched positionally (by order, not by name). The output uses column names from the first source. Column types must be compatible — the runtime applies implicit type widening where possible (e.g., `int` + `long` becomes `long`) and raises `E-SCHEMA-001` for incompatible types.
 
 ---

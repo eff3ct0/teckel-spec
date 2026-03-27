@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" fill="none">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="720" y2="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </linearGradient>
+    <linearGradient id="req" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.03"/>
+    </linearGradient>
+    <linearGradient id="opt" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#a1a1aa" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#a1a1aa" stop-opacity="0.02"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="720" height="520" rx="16" fill="url(#bg2)"/>
+  <rect width="720" height="520" rx="16" stroke="#27272a" stroke-width="1" fill="none"/>
+
+  <text x="360" y="36" text-anchor="middle" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" letter-spacing="0.1em">TECKEL DOCUMENT STRUCTURE</text>
+
+  <!-- Required badge -->
+  <g transform="translate(44, 56)">
+    <rect width="68" height="20" rx="10" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6" stroke-opacity="0.3" stroke-width="0.75"/>
+    <text x="34" y="14" text-anchor="middle" fill="#60a5fa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9" font-weight="600">REQUIRED</text>
+  </g>
+  <g transform="translate(124, 56)">
+    <rect width="68" height="20" rx="10" fill="#a1a1aa" fill-opacity="0.1" stroke="#a1a1aa" stroke-opacity="0.2" stroke-width="0.75"/>
+    <text x="34" y="14" text-anchor="middle" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9" font-weight="600">OPTIONAL</text>
+  </g>
+
+  <!-- Section rows -->
+  <!-- version (required) -->
+  <g transform="translate(40, 92)">
+    <rect width="640" height="42" rx="8" fill="url(#req)" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#3b82f6" opacity="0.7"/>
+    <text x="28" y="28" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">version</text>
+    <text x="130" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Spec version this document conforms to</text>
+    <text x="604" y="28" text-anchor="middle" fill="#3b82f6" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500" opacity="0.8">§ 3</text>
+  </g>
+
+  <!-- pipeline (optional) -->
+  <g transform="translate(40, 142)">
+    <rect width="640" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
+    <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">pipeline</text>
+    <text x="138" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Name, description, owner, tags, schedule</text>
+    <text x="604" y="28" text-anchor="middle" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">§ 18</text>
+  </g>
+
+  <!-- conf (optional) -->
+  <g transform="translate(40, 192)">
+    <rect width="640" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
+    <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">conf</text>
+    <text x="94" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Spark configuration, variables, environment overrides</text>
+    <text x="604" y="28" text-anchor="middle" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">§ 5</text>
+  </g>
+
+  <!-- secrets (optional) -->
+  <g transform="translate(40, 242)">
+    <rect width="640" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
+    <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">secrets</text>
+    <text x="120" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Secret key declarations, resolved at runtime</text>
+    <text x="604" y="28" text-anchor="middle" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">§ 6</text>
+  </g>
+
+  <!-- input (required) -->
+  <g transform="translate(40, 292)">
+    <rect width="310" height="42" rx="8" fill="url(#req)" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#3b82f6" opacity="0.7"/>
+    <text x="28" y="28" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">input</text>
+    <text x="100" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Data sources</text>
+    <text x="284" y="28" text-anchor="middle" fill="#3b82f6" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500" opacity="0.8">§ 7</text>
+  </g>
+
+  <!-- transformation (optional) -->
+  <g transform="translate(370, 292)">
+    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
+    <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">transformation</text>
+    <text x="196" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">31 operations</text>
+    <text x="284" y="28" text-anchor="middle" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">§ 8</text>
+  </g>
+
+  <!-- output (required) -->
+  <g transform="translate(40, 342)">
+    <rect width="310" height="42" rx="8" fill="url(#req)" stroke="#3b82f6" stroke-opacity="0.25" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#3b82f6" opacity="0.7"/>
+    <text x="28" y="28" fill="#e4e4e7" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">output</text>
+    <text x="108" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Data sinks</text>
+    <text x="284" y="28" text-anchor="middle" fill="#3b82f6" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500" opacity="0.8">§ 14</text>
+  </g>
+
+  <!-- quality (optional) -->
+  <g transform="translate(370, 342)">
+    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
+    <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">quality</text>
+    <text x="120" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Data quality suites</text>
+    <text x="284" y="28" text-anchor="middle" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">§ 17</text>
+  </g>
+
+  <!-- hooks (optional) -->
+  <g transform="translate(40, 392)">
+    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
+    <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">hooks</text>
+    <text x="100" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Lifecycle hooks</text>
+    <text x="284" y="28" text-anchor="middle" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">§ 16</text>
+  </g>
+
+  <!-- exposures (optional) -->
+  <g transform="translate(370, 392)">
+    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
+    <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">exposures</text>
+    <text x="150" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Consumers</text>
+    <text x="284" y="28" text-anchor="middle" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">§ 15</text>
+  </g>
+
+  <!-- templates (optional) -->
+  <g transform="translate(40, 442)">
+    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
+    <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">templates</text>
+    <text x="140" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Reusable transforms</text>
+    <text x="284" y="28" text-anchor="middle" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">§ 12</text>
+  </g>
+
+  <!-- streaming (optional) -->
+  <g transform="translate(370, 442)">
+    <rect width="310" height="42" rx="8" fill="url(#opt)" stroke="#3f3f46" stroke-opacity="0.4" stroke-width="0.75"/>
+    <rect x="12" y="11" width="4" height="20" rx="2" fill="#71717a" opacity="0.5"/>
+    <text x="28" y="28" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="600">streaming*</text>
+    <text x="158" y="28" fill="#71717a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">Stream I/O</text>
+    <text x="284" y="28" text-anchor="middle" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="500">§ 13</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="40" y="506" fill="#3f3f46" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">§ = Teckel Specification v2.0 section reference</text>
+</svg>

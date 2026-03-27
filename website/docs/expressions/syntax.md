@@ -4,6 +4,8 @@ Teckel uses a SQL-like expression language for filters, column definitions, aggr
 
 > **Formal reference:** [Section 9 — Expression Language](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#9-expression-language) in the Teckel Specification.
 
+![Expression anatomy](/img/diagrams/expression-tree.svg)
+
 ## Literals
 
 The expression language supports five literal types.

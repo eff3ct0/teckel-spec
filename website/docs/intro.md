@@ -25,6 +25,10 @@ Teckel separates the two. You declare the "what" in a YAML document. The runtime
 
 Teckel is designed for data engineers and analytics engineers who want to define batch (and streaming) data pipelines without writing application code. If you spend your days moving data between systems and transforming it along the way, Teckel gives you a structured, versionable, reviewable format for that work.
 
+## How a Pipeline Flows
+
+![Pipeline execution flow](/img/diagrams/pipeline-flow.svg)
+
 ## A First Look
 
 Here is the simplest possible Teckel pipeline. It reads a CSV file and writes it out as Parquet:

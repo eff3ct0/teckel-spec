@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 440" fill="none">
+  <defs>
+    <linearGradient id="bg6" x1="0" y1="0" x2="880" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="880" height="440" rx="16" fill="url(#bg6)"/>
+  <rect width="880" height="440" rx="16" stroke="#27272a" stroke-width="1" fill="none"/>
+
+  <text x="440" y="36" text-anchor="middle" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" letter-spacing="0.1em">31 TRANSFORMATION TYPES</text>
+
+  <!-- Category 1: Filtering -->
+  <g transform="translate(40, 56)">
+    <rect width="192" height="166" rx="10" fill="#3b82f6" fill-opacity="0.04" stroke="#3b82f6" stroke-opacity="0.2" stroke-width="0.75"/>
+    <text x="16" y="24" fill="#60a5fa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="600" letter-spacing="0.04em">FILTERING</text>
+    <text x="16" y="50" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">select</text>
+    <text x="16" y="70" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">where</text>
+    <text x="16" y="90" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">distinct</text>
+    <text x="16" y="110" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">limit</text>
+    <text x="16" y="130" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">sample</text>
+    <text x="176" y="156" text-anchor="end" fill="#3f3f46" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">5 types</text>
+  </g>
+
+  <!-- Category 2: Aggregation -->
+  <g transform="translate(248, 56)">
+    <rect width="192" height="166" rx="10" fill="#a855f7" fill-opacity="0.04" stroke="#a855f7" stroke-opacity="0.2" stroke-width="0.75"/>
+    <text x="16" y="24" fill="#c084fc" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="600" letter-spacing="0.04em">AGGREGATION</text>
+    <text x="16" y="50" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">group</text>
+    <text x="16" y="70" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">orderBy</text>
+    <text x="16" y="90" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">rollup</text>
+    <text x="16" y="110" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">cube</text>
+    <text x="176" y="156" text-anchor="end" fill="#3f3f46" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">4 types</text>
+  </g>
+
+  <!-- Category 3: Joins + Set -->
+  <g transform="translate(456, 56)">
+    <rect width="192" height="166" rx="10" fill="#22c55e" fill-opacity="0.04" stroke="#22c55e" stroke-opacity="0.2" stroke-width="0.75"/>
+    <text x="16" y="24" fill="#4ade80" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="600" letter-spacing="0.04em">JOINS + SETS</text>
+    <text x="16" y="50" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">join</text>
+    <text x="70" y="50" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">7 join modes</text>
+    <text x="16" y="70" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">union</text>
+    <text x="16" y="90" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">intersect</text>
+    <text x="16" y="110" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">except</text>
+    <text x="176" y="156" text-anchor="end" fill="#3f3f46" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">4 types</text>
+  </g>
+
+  <!-- Category 4: Columns -->
+  <g transform="translate(664, 56)">
+    <rect width="192" height="166" rx="10" fill="#f59e0b" fill-opacity="0.04" stroke="#f59e0b" stroke-opacity="0.2" stroke-width="0.75"/>
+    <text x="16" y="24" fill="#fbbf24" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="600" letter-spacing="0.04em">COLUMNS</text>
+    <text x="16" y="50" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">addColumns</text>
+    <text x="16" y="70" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">dropColumns</text>
+    <text x="16" y="90" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">renameColumns</text>
+    <text x="16" y="110" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">castColumns</text>
+    <text x="176" y="156" text-anchor="end" fill="#3f3f46" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">4 types</text>
+  </g>
+
+  <!-- Category 5: Window -->
+  <g transform="translate(40, 238)">
+    <rect width="128" height="106" rx="10" fill="#06b6d4" fill-opacity="0.04" stroke="#06b6d4" stroke-opacity="0.2" stroke-width="0.75"/>
+    <text x="16" y="24" fill="#22d3ee" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="600" letter-spacing="0.04em">WINDOW</text>
+    <text x="16" y="50" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">window</text>
+    <text x="112" y="96" text-anchor="end" fill="#3f3f46" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">1 type</text>
+  </g>
+
+  <!-- Category 6: Reshaping -->
+  <g transform="translate(184, 238)">
+    <rect width="192" height="166" rx="10" fill="#ec4899" fill-opacity="0.04" stroke="#ec4899" stroke-opacity="0.2" stroke-width="0.75"/>
+    <text x="16" y="24" fill="#f472b6" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="600" letter-spacing="0.04em">RESHAPING</text>
+    <text x="16" y="50" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">pivot</text>
+    <text x="16" y="70" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">unpivot</text>
+    <text x="16" y="90" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">flatten</text>
+    <text x="16" y="110" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">conditional</text>
+    <text x="16" y="130" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">split</text>
+    <text x="176" y="156" text-anchor="end" fill="#3f3f46" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">5 types</text>
+  </g>
+
+  <!-- Category 7: Advanced -->
+  <g transform="translate(392, 238)">
+    <rect width="464" height="166" rx="10" fill="#ef4444" fill-opacity="0.04" stroke="#ef4444" stroke-opacity="0.2" stroke-width="0.75"/>
+    <text x="16" y="24" fill="#f87171" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" font-weight="600" letter-spacing="0.04em">ADVANCED</text>
+
+    <text x="16" y="50" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">sql</text>
+    <text x="16" y="70" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">rollup</text>
+    <text x="16" y="90" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">scd2</text>
+    <text x="16" y="110" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">enrich</text>
+
+    <text x="150" y="50" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">schemaEnforce</text>
+    <text x="150" y="70" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">assertion</text>
+    <text x="150" y="90" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">repartition</text>
+    <text x="150" y="110" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">coalesce</text>
+
+    <text x="330" y="50" fill="#d4d4d8" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">custom</text>
+
+    <text x="448" y="156" text-anchor="end" fill="#3f3f46" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">9 types</text>
+  </g>
+
+  <!-- Total -->
+  <text x="440" y="426" text-anchor="middle" fill="#52525b" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10">5 + 4 + 4 + 4 + 1 + 5 + 8 = 31 transformation types · Teckel Specification v2.0 § 8</text>
+</svg>

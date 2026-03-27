@@ -4,6 +4,8 @@ Every Teckel document is a YAML file with a defined set of top-level keys. This 
 
 > **Formal reference:** [Section 4 — Document Structure](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#4-document-structure) in the Teckel Specification.
 
+![Teckel document structure](/img/diagrams/document-structure.svg)
+
 ## Skeleton Document
 
 Here is a complete skeleton showing every top-level key with comments:
