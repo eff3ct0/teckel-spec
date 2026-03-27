@@ -1,9 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" fill="none">
-  <defs>
-    <linearGradient id="bg8" x1="0" y1="0" x2="720" y2="300" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#09090b"/>
-      <stop offset="100%" stop-color="#18181b"/>
-    </linearGradient>
+  <style>
+    /* Default: dark mode (existing colors) */
+    .bg-main { fill: none; }
+    .bg-border { stroke: #27272a; }
+
+    /* Light mode overrides */
+    @media (prefers-color-scheme: light) {
+      .bg-border { stroke: #e4e4e7; }
+
+      /* Text color inversions */
+      text[fill="#e4e4e7"] { fill: #18181b; }
+      text[fill="#d4d4d8"] { fill: #27272a; }
+      text[fill="#a1a1aa"] { fill: #52525b; }
+      text[fill="#71717a"] { fill: #6b7280; }
+      text[fill="#52525b"] { fill: #71717a; }
+      text[fill="#3f3f46"] { fill: #a1a1aa; }
+
+      /* Stroke/line inversions */
+      path[stroke="#3f3f46"] { stroke: #d4d4d8; }
+      line[stroke="#3f3f46"] { stroke: #d4d4d8; }
+      line[stroke="#27272a"] { stroke: #e4e4e7; }
+      path[stroke="#27272a"] { stroke: #e4e4e7; }
+
+      /* Arrow markers */
+      marker path[stroke="#71717a"] { stroke: #6b7280; }
+      marker path[stroke="#ef4444"] { stroke: #ef4444; }
+
+      /* Rect borders */
+      rect[stroke="#27272a"] { stroke: #e4e4e7; }
+      rect[stroke="#3f3f46"] { stroke: #d4d4d8; }
+
+      /* Card/container fills - subtle backgrounds */
+      rect[fill="#3f3f46"] { fill: #d4d4d8; }
+
+      /* Venn diagram cover fills (used in except/anti) */
+      circle[fill="#18181b"] { fill: #ffffff; }
+
+      /* Table header backgrounds */
+      rect[fill-opacity="0.3"][fill="#3f3f46"] { fill: #e4e4e7; fill-opacity: 0.5; }
+    }
+  </style>
+
+<defs>
     <marker id="arr8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
       <path d="M 0 1 L 10 5 L 0 9" fill="none" stroke="#71717a" stroke-width="1.5"/>
     </marker>
@@ -12,8 +50,8 @@
     </marker>
   </defs>
 
-  <rect width="720" height="300" rx="16" fill="url(#bg8)"/>
-  <rect width="720" height="300" rx="16" stroke="#27272a" stroke-width="1" fill="none"/>
+  <rect width="720" height="300" rx="16" class="bg-main"/>
+  <rect width="720" height="300" rx="16" class="bg-border" stroke-width="1" fill="none"/>
 
   <text x="360" y="36" text-anchor="middle" fill="#a1a1aa" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" letter-spacing="0.1em">HOOKS LIFECYCLE</text>
 
