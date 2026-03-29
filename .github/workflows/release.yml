@@ -31,10 +31,16 @@ jobs:
       - name: Package spec artifacts
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+          # Determine which spec version directory to package
+          if [ -d "spec/v3.0" ]; then
+            SPEC_DIR="spec/v3.0"
+          else
+            SPEC_DIR="spec/v2.0"
+          fi
           mkdir -p release-artifacts
-          cp spec/v2.0/teckel-spec.md "release-artifacts/teckel-spec-${VERSION}.md"
-          cp spec/v2.0/teckel-schema.json "release-artifacts/teckel-schema-${VERSION}.json"
-          tar -czf "release-artifacts/teckel-spec-${VERSION}.tar.gz" spec/v2.0/
+          cp "${SPEC_DIR}/teckel-spec.md" "release-artifacts/teckel-spec-${VERSION}.md"
+          cp "${SPEC_DIR}/teckel-schema.json" "release-artifacts/teckel-schema-${VERSION}.json"
+          tar -czf "release-artifacts/teckel-spec-${VERSION}.tar.gz" "${SPEC_DIR}/"
 
       - name: Determine pre-release
         id: prerelease

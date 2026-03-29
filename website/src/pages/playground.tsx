@@ -194,8 +194,8 @@ function Playground(): React.JSX.Element {
             <h1 className="playground-title">Playground</h1>
             <p className="playground-desc">
               Write or paste a Teckel YAML document. Validation runs in real time against the{' '}
-              <a href="https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-schema.json">
-                v2.0 JSON Schema
+              <a href="https://github.com/eff3ct0/teckel-spec/blob/main/spec/v3.0/teckel-schema.json">
+                v3.0 JSON Schema
               </a>.
             </p>
           </div>

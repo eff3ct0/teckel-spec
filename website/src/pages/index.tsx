@@ -7,7 +7,7 @@ function Hero() {
   return (
     <section className="hero-section">
       <div className="hero-content">
-        <div className="hero-badge">Specification v2.0</div>
+        <div className="hero-badge">Specification v3.0</div>
         <h1 className="hero-title">
           Data pipelines,<br />declared in YAML.
         </h1>
@@ -22,7 +22,7 @@ function Hero() {
           </Link>
           <Link
             className="hero-btn hero-btn-secondary"
-            to="https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md"
+            to="https://github.com/eff3ct0/teckel-spec/blob/main/spec/v3.0/teckel-spec.md"
           >
             Read the spec
           </Link>
@@ -62,7 +62,7 @@ function YamlExample() {
             lines of YAML.
           </p>
           <ul className="feature-list">
-            <li>31 transformation types</li>
+            <li>45 transformation types</li>
             <li>SQL-like expression language</li>
             <li>Declarative data quality checks</li>
             <li>Runtime-agnostic specification</li>
@@ -76,7 +76,7 @@ function YamlExample() {
             <span className="code-filename">pipeline.yaml</span>
           </div>
           <pre className="code-block">
-{`version: "2.0"
+{`version: "3.0"
 
 input:
   - name: orders
@@ -121,9 +121,9 @@ output:
 
 const features = [
   {
-    title: '31 Transformations',
+    title: '45 Transformations',
     description:
-      'Select, filter, join, group, window, pivot, set operations, SCD2, and more. Every operation is a YAML key.',
+      'Select, filter, join, group, window, pivot, merge, as-of join, grouping sets, NA operations, and more. Every operation is a YAML key.',
     color: '#3b82f6',
   },
   {

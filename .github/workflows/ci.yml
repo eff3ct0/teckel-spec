@@ -58,9 +58,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Validate JSON Schema is valid JSON
-        run: python3 -c "import json; json.load(open('spec/v2.0/teckel-schema.json'))"
+        run: |
+          python3 -c "import json; json.load(open('spec/v2.0/teckel-schema.json'))"
+          python3 -c "import json; json.load(open('spec/v3.0/teckel-schema.json'))"
 
       - name: Schema files in sync
         run: |
-          diff spec/v2.0/teckel-schema.json website/static/teckel-schema.json \
-            || (echo "::error::website/static/teckel-schema.json is out of sync with spec/v2.0/teckel-schema.json" && exit 1)
+          diff spec/v3.0/teckel-schema.json website/static/teckel-schema.json \
+            || (echo "::error::website/static/teckel-schema.json is out of sync with spec/v3.0/teckel-schema.json" && exit 1)

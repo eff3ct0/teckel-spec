@@ -54,15 +54,19 @@ const config: Config = {
         docs: {
           routeBasePath: '/docs',
           sidebarPath: './sidebars.ts',
-          lastVersion: '2.0',
+          lastVersion: '3.0',
           versions: {
             current: {
               label: 'Next',
               path: 'next',
             },
+            '3.0': {
+              label: '3.0',
+              path: '',
+            },
             '2.0': {
               label: '2.0',
-              path: '',
+              path: '2.0',
             },
           },
           editUrl:
