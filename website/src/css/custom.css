@@ -513,6 +513,101 @@ tr:last-child td {
   font-size: 13px;
 }
 
+/* ─── Navbar mobile ─────────────────────────────────────────────────────── */
+
+@media (max-width: 996px) {
+  /* Ensure hamburger menu and search don't overlap */
+  .navbar__toggle {
+    order: -1;
+  }
+
+  .navbar__brand {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Stack search bar full-width inside mobile sidebar */
+  .navbar-sidebar .navbar__search {
+    padding: 0.75rem 1rem;
+  }
+
+  .navbar-sidebar .navbar__search-input {
+    width: 100%;
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  /* Search container in navbar — shrink to icon on small screens */
+  .navbar .navbar__search {
+    margin-left: auto;
+  }
+
+  .navbar .navbar__search-input {
+    width: 36px;
+    padding: 6px 8px;
+    cursor: pointer;
+    transition: width 0.2s ease;
+  }
+
+  .navbar .navbar__search-input:focus {
+    width: 160px;
+    cursor: text;
+  }
+
+  /* Navbar sidebar (hamburger menu) */
+  .navbar-sidebar {
+    background: var(--ifm-background-color);
+    border-right: 1px solid var(--ifm-color-emphasis-200);
+    width: 80vw;
+    max-width: 320px;
+  }
+
+  .navbar-sidebar__brand {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  }
+
+  .navbar-sidebar__items {
+    padding: 0.5rem 0;
+  }
+
+  .navbar-sidebar .menu__link {
+    padding: 10px 1rem;
+    font-size: 14px;
+  }
+
+  /* Version dropdown in mobile sidebar */
+  .navbar-sidebar .dropdown__menu {
+    position: static;
+    box-shadow: none;
+    border: 1px solid var(--ifm-color-emphasis-200);
+    border-radius: 6px;
+    margin: 0.25rem 1rem;
+  }
+
+  /* External links in mobile sidebar */
+  .navbar-sidebar .navbar__link {
+    padding: 10px 1rem;
+    font-size: 14px;
+    display: block;
+  }
+}
+
+/* ─── Search results overlay — mobile fix ───────────────────────────────── */
+
+@media (max-width: 768px) {
+  /* docusaurus-search-local results dropdown */
+  .search-result-match {
+    font-size: 13px;
+  }
+
+  .search-bar-container .dropdown {
+    max-width: 90vw;
+    right: 0;
+    left: auto;
+  }
+}
+
 /* ─── Diagrams ──────────────────────────────────────────────────────────── */
 
 .theme-doc-markdown p > img {
