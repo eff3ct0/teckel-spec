@@ -245,3 +245,43 @@ transformation:
 ```
 
 > **Tip:** Split is useful for data quality workflows where you want to route valid and invalid records to separate processing paths.
+
+---
+
+## Transpose (8.41) {#transpose}
+
+*New in v3.0.*
+
+Transposes a dataset, swapping rows and columns. Non-index columns become rows, and original rows become columns.
+
+**Schema:**
+
+| Field          | Type          | Required | Default | Description                                |
+|----------------|---------------|----------|---------|--------------------------------------------|
+| `from`         | AssetRef      | Yes      | --      | Source asset.                              |
+| `indexColumns` | List[Column]  | No       | `[]`    | Columns to preserve as row index.          |
+
+**Example -- transpose a metrics table:**
+
+```yaml
+transformation:
+  - name: transposed
+    transpose:
+      from: monthlyMetrics
+      indexColumns: [metric_name]
+```
+
+Given input:
+
+| metric_name | jan | feb | mar |
+|-------------|-----|-----|-----|
+| revenue     | 100 | 120 | 90  |
+| costs       | 80  | 85  | 70  |
+
+The output swaps rows and columns, with `metric_name` values becoming column headers and `jan`, `feb`, `mar` becoming rows.
+
+**Key behaviors:**
+- All non-index columns must have compatible types.
+- If `indexColumns` is empty, all rows are transposed with auto-generated column names.
+
+> **Tip:** Transpose is useful for rotating summary tables for display or for preparing data for tools that expect a different orientation.

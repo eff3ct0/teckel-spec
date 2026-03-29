@@ -181,3 +181,116 @@ transformation:
 This produces rows for each (region, product_category) pair, totals per region, totals per product category, and a grand total.
 
 > **Tip:** Cube is more expensive than rollup because it computes all 2^N combinations of N grouping columns. Use rollup when you only need hierarchical subtotals along one dimension.
+
+---
+
+## Grouping Sets (8.42) {#groupingsets}
+
+*New in v3.0.*
+
+Aggregation with arbitrary grouping column combinations. Grouping sets generalize rollup and cube by letting you specify exactly which grouping combinations to compute.
+
+**Schema:**
+
+| Field  | Type                          | Required | Description                           |
+|--------|-------------------------------|----------|---------------------------------------|
+| `from` | AssetRef                      | Yes      | Source asset.                        |
+| `sets` | NonEmptyList[List[Column]]    | Yes      | List of grouping column sets.        |
+| `agg`  | NonEmptyList[Expression]      | Yes      | Aggregate expressions.               |
+
+**Example -- custom grouping combinations:**
+
+```yaml
+transformation:
+  - name: salesReport
+    groupingSets:
+      from: sales
+      sets:
+        - [region, product]
+        - [region]
+        - [product]
+        - []
+      agg:
+        - "sum(amount) as total"
+        - "count(1) as cnt"
+```
+
+This produces aggregation groups for `(region, product)`, `(region)`, `(product)`, and `()` (grand total). Non-grouped columns in subtotal rows are `NULL`.
+
+> **Tip:** Use the `grouping(col)` function to distinguish real NULLs from grouping NULLs in the output. The `grouping_id(col, ...)` function returns a bitmask identifying which columns are aggregated.
+
+---
+
+## Describe (8.43) {#describe}
+
+*New in v3.0.*
+
+Computes descriptive statistics for numeric columns, similar to `pandas.DataFrame.describe()`.
+
+**Schema:**
+
+| Field        | Type          | Required | Default     | Description                                            |
+|--------------|---------------|----------|-------------|--------------------------------------------------------|
+| `from`       | AssetRef      | Yes      | --          | Source asset.                                          |
+| `columns`    | List[Column]  | No       | all numeric | Columns to describe.                                   |
+| `statistics` | List[string]  | No       | all         | Statistics to compute: `count`, `mean`, `stddev`, `min`, `max`, `25%`, `50%`, `75%`. |
+
+The output has one row per statistic, one column per input column, plus a `summary` column naming the statistic.
+
+**Example -- describe salary and age columns:**
+
+```yaml
+transformation:
+  - name: stats
+    describe:
+      from: employees
+      columns: [salary, age]
+```
+
+**Example -- compute specific statistics:**
+
+```yaml
+transformation:
+  - name: keyStats
+    describe:
+      from: measurements
+      statistics: [count, mean, min, max]
+```
+
+> **Tip:** `describe` is useful for exploratory data analysis and data profiling within a pipeline.
+
+---
+
+## Crosstab (8.44) {#crosstab}
+
+*New in v3.0.*
+
+Computes a frequency cross-tabulation (contingency table) of two columns. The output has `col1` values as rows, `col2` distinct values as columns, and counts as values.
+
+**Schema:**
+
+| Field  | Type     | Required | Description                  |
+|--------|----------|----------|------------------------------|
+| `from` | AssetRef | Yes      | Source asset.                |
+| `col1` | Column   | Yes      | Row dimension column.        |
+| `col2` | Column   | Yes      | Column dimension column.     |
+
+**Example -- cross-tabulate department by status:**
+
+```yaml
+transformation:
+  - name: deptStatusMatrix
+    crosstab:
+      from: employees
+      col1: department
+      col2: status
+```
+
+Given employees with departments (Engineering, Sales) and statuses (active, inactive), this produces:
+
+| department  | active | inactive |
+|-------------|--------|----------|
+| Engineering | 25     | 3        |
+| Sales       | 18     | 5        |
+
+> **Tip:** Crosstab is a specialized form of pivot optimized for frequency counting. Use `pivot` with explicit aggregations for more complex cross-tabulation needs.

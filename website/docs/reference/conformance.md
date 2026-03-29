@@ -2,7 +2,7 @@
 
 This page defines the conformance levels for Teckel implementations, extension mechanisms, and forward compatibility rules.
 
-> **Formal reference:** [Section 27 — Conformance](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#27-conformance) in the Teckel Specification.
+> **Formal reference:** [Section 27 — Conformance](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v3.0/teckel-spec.md#27-conformance) in the Teckel Specification.
 
 ---
 
@@ -35,13 +35,17 @@ A Core implementation supports the essential building blocks for declarative ETL
 
 The Extended level adds all transformations, full function support, parameterized types, secrets, configuration, hooks, data quality, metadata, exposures, and config merging.
 
+:::info v3.0 Extended Conformance
+In Teckel 3.0, the Extended level now covers sections 8.11-8.31 (v2 transformations) **plus** sections 8.32-8.45 (the 14 new v3 transformations: offset, tail, fillNa, dropNa, replace, merge, parse, asOfJoin, lateralJoin, transpose, groupingSets, describe, crosstab, hint). It also requires all v3 core functions (9.13), including the new collection, higher-order, struct, JSON, interval, statistical, and variant function categories, and all data types including the new simple types (byte, short, timestamp_ntz, time, variant) and parameterized types (char, varchar, interval).
+:::
+
 **Required sections (in addition to Core):**
 
 | Sections | Coverage |
 |----------|----------|
-| 8.11–8.31 | All transformations: addColumns, dropColumns, renameColumns, castColumns, window, pivot, unpivot, flatten, sample, conditional, split, sql, rollup, cube, scd2, enrich, schemaEnforce, assertion, repartition, coalesce, custom |
-| 9.6 | All core functions (aggregate, string, numeric, date/time, window, conditional) |
-| 10 | All data types including parameterized (decimal, array, map, struct) |
+| 8.11-8.45 | All transformations: addColumns, dropColumns, renameColumns, castColumns, window, pivot, unpivot, flatten, sample, conditional, split, sql, rollup, cube, scd2, enrich, schemaEnforce, assertion, repartition, coalesce, custom, offset, tail, fillNa, dropNa, replace, merge, parse, asOfJoin, lateralJoin, transpose, groupingSets, describe, crosstab, hint |
+| 9.13 | All core functions (aggregate, string, numeric, date/time, window, conditional, collection, higher-order, struct, JSON, interval, statistical, variant) |
+| 10 | All data types including parameterized (decimal, char, varchar, time, interval, array, map, struct) and new simple types (byte, short, timestamp_ntz, time, variant) |
 | 13 | Secrets |
 | 14 | Configuration |
 | 16 | Hooks |
@@ -94,7 +98,7 @@ Extensions:
 Top-level keys prefixed with `x-` are extension keys. Implementations must ignore unrecognized `x-` keys without raising an error. This allows documents to carry implementation-specific metadata without breaking other runtimes.
 
 ```yaml
-version: "2.0"
+version: "3.0"
 
 x-spark-config:
   spark.sql.shuffle.partitions: 200
@@ -138,7 +142,7 @@ Implementations may support additional functions in the expression language beyo
 
 ## Forward Compatibility
 
-A document with `version: "2.0"` processed by a runtime that supports a later version (for example, 2.1) must be processed according to v2.0 rules. The runtime must not apply v2.1-specific behavior to a v2.0 document.
+A document with `version: "3.0"` processed by a runtime that supports a later version (for example, 3.1) must be processed according to v3.0 rules. The runtime must not apply v3.1-specific behavior to a v3.0 document.
 
 A document with an unrecognized version must be rejected with error `E-VERSION-001`.
 

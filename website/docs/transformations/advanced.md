@@ -405,4 +405,144 @@ transformation:
         method: "sha256"
 ```
 
-> **Tip:** Use `custom` as an escape hatch for domain-specific logic that cannot be expressed with built-in transformations. Keep the component interface simple — one dataset in, one dataset out.
+> **Tip:** Use `custom` as an escape hatch for domain-specific logic that cannot be expressed with built-in transformations. Keep the component interface simple -- one dataset in, one dataset out.
+
+---
+
+## Merge (8.37) {#merge}
+
+*New in v3.0.*
+
+Performs a MERGE (upsert) operation combining INSERT, UPDATE, and DELETE actions on matched/unmatched rows. This is similar to SQL's `MERGE INTO` statement.
+
+> **Note:** This transformation takes **two** inputs (`target` and `source`) rather than a single `from`, similar to `scd2`.
+
+**Schema:**
+
+| Field                      | Type                    | Required | Default | Description                                        |
+|----------------------------|-------------------------|----------|---------|----------------------------------------------------|
+| `target`                   | AssetRef                | Yes      | --      | Target asset to modify.                            |
+| `source`                   | AssetRef                | Yes      | --      | Source asset with new/updated data.                |
+| `on`                       | NonEmptyList[Condition] | Yes      | --      | Match conditions.                                  |
+| `whenMatched`              | List[MergeAction]       | No       | `[]`    | Actions for matched rows.                          |
+| `whenNotMatched`           | List[MergeAction]       | No       | `[]`    | Actions for source rows not in target.             |
+| `whenNotMatchedBySource`   | List[MergeAction]       | No       | `[]`    | Actions for target rows not in source.             |
+
+**MergeAction object:**
+
+| Field       | Type                    | Required    | Default | Description                                                |
+|-------------|-------------------------|-------------|---------|------------------------------------------------------------|
+| `action`    | `"update"`, `"insert"`, or `"delete"` | Yes | --  | Action type.                                               |
+| `condition` | Condition               | No          | --      | Additional condition for this action.                      |
+| `set`       | Map[Column, Expression] | Conditional | --      | Column assignments. Required for `update`/`insert` unless `star` is `true`. |
+| `star`      | boolean                 | No          | `false` | Use all columns from source (INSERT * / UPDATE *).         |
+
+**Example -- upsert customers:**
+
+```yaml
+transformation:
+  - name: mergedCustomers
+    merge:
+      target: existingCustomers
+      source: newData
+      on:
+        - "existingCustomers.id = newData.id"
+      whenMatched:
+        - action: update
+          condition: "existingCustomers.updated_at < newData.updated_at"
+          set:
+            name: "newData.name"
+            email: "newData.email"
+            updated_at: "current_timestamp()"
+      whenNotMatched:
+        - action: insert
+          star: true
+```
+
+**Example -- merge with delete:**
+
+```yaml
+transformation:
+  - name: syncedInventory
+    merge:
+      target: inventory
+      source: latestSnapshot
+      on:
+        - "inventory.sku = latestSnapshot.sku"
+      whenMatched:
+        - action: update
+          set:
+            quantity: "latestSnapshot.quantity"
+            updated_at: "current_timestamp()"
+      whenNotMatched:
+        - action: insert
+          star: true
+      whenNotMatchedBySource:
+        - action: delete
+```
+
+**Key behaviors:**
+- Actions within each `when*` clause are evaluated in order; the first matching condition wins.
+- At most one action per row is executed.
+- The output is the full target dataset after all actions have been applied.
+
+> **Tip:** Use `star: true` for simple cases where all source columns should be inserted or updated. Use explicit `set` mappings when you need to transform values during the merge.
+
+---
+
+## Hint (8.45) {#hint}
+
+*New in v3.0.*
+
+Provides optimizer hints to the execution engine. Hints are advisory -- implementations that do not recognize a hint must ignore it with a warning (not an error).
+
+**Schema:**
+
+| Field   | Type                    | Required | Description                    |
+|---------|-------------------------|----------|--------------------------------|
+| `from`  | AssetRef                | Yes      | Source asset.                  |
+| `hints` | NonEmptyList[HintSpec]  | Yes      | Hint specifications.           |
+
+**HintSpec object:**
+
+| Field        | Type              | Required | Default | Description                         |
+|--------------|-------------------|----------|---------|-------------------------------------|
+| `name`       | string            | Yes      | --      | Hint name (e.g., `broadcast`).      |
+| `parameters` | List[Expression]  | No       | `[]`    | Hint parameters.                    |
+
+**Common hints:** `broadcast`, `merge`, `shuffle_hash`, `shuffle_replicate_nl`, `coalesce`, `repartition`, `rebalance`.
+
+**Example -- broadcast a small table for join optimization:**
+
+```yaml
+transformation:
+  - name: hintedProducts
+    hint:
+      from: products
+      hints:
+        - name: broadcast
+
+  - name: joined
+    join:
+      left: orders
+      right:
+        - name: hintedProducts
+          type: inner
+          on:
+            - "orders.product_id = hintedProducts.id"
+```
+
+**Example -- multiple hints:**
+
+```yaml
+transformation:
+  - name: optimized
+    hint:
+      from: largeTable
+      hints:
+        - name: repartition
+          parameters: ["200"]
+        - name: coalesce
+```
+
+> **Tip:** Use `broadcast` hints on small dimension tables before joins to avoid expensive shuffle operations. The hint is ignored if the runtime does not support it or if the table is too large.

@@ -1,8 +1,8 @@
 # JSON Schema
 
-The Teckel specification includes a machine-readable JSON Schema for validating Teckel v2.0 documents.
+The Teckel specification includes a machine-readable JSON Schema for validating Teckel documents.
 
-> **Formal reference:** [Appendix B — JSON Schema](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-spec.md#appendix-b-json-schema) in the Teckel Specification. Download the schema: [`teckel-schema.json`](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v2.0/teckel-schema.json).
+> **Formal reference:** [Appendix B — JSON Schema](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v3.0/teckel-spec.md#appendix-b-json-schema) in the Teckel Specification. Download the schema: [`teckel-schema.json`](https://github.com/eff3ct0/teckel-spec/blob/main/spec/v3.0/teckel-schema.json).
 
 ---
 
@@ -11,10 +11,14 @@ The Teckel specification includes a machine-readable JSON Schema for validating 
 The JSON Schema is published alongside the specification at:
 
 ```
-spec/v2.0/teckel-schema.json
+spec/v3.0/teckel-schema.json
 ```
 
-This schema defines the structure of a valid Teckel v2.0 document, including all top-level keys, input/output definitions, transformation operations, configuration, secrets, hooks, quality suites, metadata, and exposures.
+This schema defines the structure of a valid Teckel v3.0 document, including all top-level keys, input/output definitions, transformation operations (including the 14 new v3.0 transforms), configuration, secrets, hooks, quality suites, metadata, and exposures.
+
+:::info v3.0 Schema
+The v3.0 schema adds support for the 14 new transformation types introduced in Teckel 3.0 (offset, tail, fillNa, dropNa, replace, merge, parse, asOfJoin, lateralJoin, transpose, groupingSets, describe, crosstab, hint), new data types (byte, short, char, varchar, timestamp_ntz, time, intervals, variant), and the expanded expression language. A hosted copy is available at [`/teckel-schema-v3.json`](/teckel-schema-v3.json).
+:::
 
 ---
 
@@ -32,7 +36,7 @@ import json
 from jsonschema import validate, ValidationError
 
 # Load the schema
-with open("spec/v2.0/teckel-schema.json") as f:
+with open("spec/v3.0/teckel-schema.json") as f:
     schema = json.load(f)
 
 # Load and convert the Teckel YAML document
@@ -54,7 +58,7 @@ except ValidationError as e:
 yq eval -o=json pipeline.yaml > pipeline.json
 
 # Validate against the schema
-ajv validate -s spec/v2.0/teckel-schema.json -d pipeline.json
+ajv validate -s spec/v3.0/teckel-schema.json -d pipeline.json
 ```
 
 ### Editor Integration
@@ -68,7 +72,7 @@ Add to your `.vscode/settings.json`:
 ```json
 {
   "yaml.schemas": {
-    "./spec/v2.0/teckel-schema.json": "*.teckel.yaml"
+    "./spec/v3.0/teckel-schema.json": "*.teckel.yaml"
   }
 }
 ```

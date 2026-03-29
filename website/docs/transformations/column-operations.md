@@ -150,3 +150,160 @@ transformation:
 - Type names are case-insensitive: `Integer`, `INTEGER`, and `integer` are all equivalent.
 
 > **Tip:** To enforce strict casting where invalid values should fail the pipeline, follow `castColumns` with an `assertion` transformation that checks for unexpected NULLs.
+
+---
+
+## Fill NA (8.34) {#fillna}
+
+*New in v3.0.*
+
+Replaces NULL values in specified columns with a fill value.
+
+**Schema:**
+
+| Field     | Type                   | Required    | Default | Description                             |
+|-----------|------------------------|-------------|---------|-----------------------------------------|
+| `from`    | AssetRef               | Yes         | --      | Source asset.                           |
+| `columns` | List[Column]           | No          | all     | Columns to fill.                        |
+| `value`   | primitive              | Conditional | --      | Single fill value for all target columns. |
+| `values`  | Map[Column, primitive] | Conditional | --      | Per-column fill values.                  |
+
+Exactly one of `value` or `values` must be provided. Providing both or neither raises `E-OP-004`.
+
+**Example -- fill all NULLs with a single value:**
+
+```yaml
+transformation:
+  - name: filled
+    fillNa:
+      from: metrics
+      value: 0
+```
+
+**Example -- per-column fill values:**
+
+```yaml
+transformation:
+  - name: filled
+    fillNa:
+      from: users
+      values:
+        name: "unknown"
+        age: 0
+        active: false
+```
+
+> **Tip:** Use `fillNa` as a cleaner alternative to multiple `addColumns` with `coalesce` expressions when you need to replace NULLs with defaults.
+
+---
+
+## Replace (8.36) {#replace}
+
+*New in v3.0.*
+
+Replaces specific values in specified columns with new values.
+
+**Schema:**
+
+| Field      | Type                      | Required | Default | Description                           |
+|------------|---------------------------|----------|---------|---------------------------------------|
+| `from`     | AssetRef                  | Yes      | --      | Source asset.                         |
+| `columns`  | List[Column]              | No       | all     | Columns to apply replacements.         |
+| `mappings` | NonEmptyList[Replacement] | Yes      | --      | Old to new value pairs.                |
+
+**Replacement object:**
+
+| Field | Type      | Required | Description         |
+|-------|-----------|----------|---------------------|
+| `old` | primitive | Yes      | Value to match.     |
+| `new` | primitive | Yes      | Replacement value.  |
+
+**Example -- normalize status values:**
+
+```yaml
+transformation:
+  - name: cleaned
+    replace:
+      from: orders
+      columns: [status]
+      mappings:
+        - old: "N/A"
+          new: "unknown"
+        - old: ""
+          new: "unknown"
+        - old: "cancelled"
+          new: "canceled"
+```
+
+**Example -- replace values across all columns:**
+
+```yaml
+transformation:
+  - name: sanitized
+    replace:
+      from: survey
+      mappings:
+        - old: -999
+          new: 0
+```
+
+> **Tip:** `replace` is useful for data cleaning tasks where specific sentinel values need to be normalized. For NULL replacement, use `fillNa` instead.
+
+---
+
+## Parse (8.38) {#parse}
+
+*New in v3.0.*
+
+Parses string columns containing structured data (CSV or JSON) into typed columns.
+
+**Schema:**
+
+| Field    | Type                | Required | Default    | Description                               |
+|----------|---------------------|----------|------------|-------------------------------------------|
+| `from`   | AssetRef            | Yes      | --         | Source asset.                             |
+| `column` | Column              | Yes      | --         | String column to parse.                   |
+| `format` | `"json"` or `"csv"` | Yes      | --         | Parse format.                             |
+| `schema` | List[SchemaColumn]  | No       | (inferred) | Expected schema for parsed data.          |
+| `options` | Map[string, string] | No      | `{}`       | Format-specific options.                  |
+
+The `schema` entries use the same format as `schemaEnforce` columns (with `name` and `dataType` fields).
+
+**Example -- parse JSON payload into typed columns:**
+
+```yaml
+transformation:
+  - name: parsedEvents
+    parse:
+      from: rawLogs
+      column: payload
+      format: json
+      schema:
+        - name: event_type
+          dataType: string
+        - name: timestamp
+          dataType: timestamp
+        - name: metadata
+          dataType: "map<string, string>"
+```
+
+**Example -- parse embedded CSV data:**
+
+```yaml
+transformation:
+  - name: parsedCSV
+    parse:
+      from: rawData
+      column: csv_field
+      format: csv
+      options:
+        delimiter: "|"
+        header: "true"
+```
+
+**Key behaviors:**
+- The parsed column is replaced by the structured result columns.
+- Malformed values produce NULL for the affected fields.
+- If `schema` is omitted, the implementation attempts schema inference.
+
+> **Tip:** Always provide `schema` in production pipelines for predictable results. Schema inference can be unreliable with inconsistent data.

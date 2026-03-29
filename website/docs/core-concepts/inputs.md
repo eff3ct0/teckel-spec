@@ -177,3 +177,7 @@ Each input becomes an independent node in the pipeline DAG. Transformations can 
 - Reading an input that produces zero rows is valid. The resulting dataset has the schema but no data.
 - If the path does not exist or is unreadable, the pipeline fails with error `E-IO-001`.
 - Option values must be primitives: strings, booleans, integers, or doubles. YAML native types are respected — `true` is boolean, `"true"` is the string literal, `42` is an integer.
+
+:::info v3.0 Data Types
+Teckel 3.0 expands the type system with additional types that may appear in input schemas: `byte`/`tinyint`, `short`/`smallint`, `char(n)`, `varchar(n)`, `timestamp_ntz` (timestamp without timezone), `time`, interval types, and `variant` (semi-structured data). See [Data Types and Null Semantics](../advanced/types-and-nulls.md) for the complete type reference.
+:::

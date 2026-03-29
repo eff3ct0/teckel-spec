@@ -1,6 +1,6 @@
 # Functions
 
-A conforming Teckel implementation must support the core functions listed on this page. Functions are called with standard syntax: `function_name(arg1, arg2, ...)`. Calls can be nested to arbitrary depth.
+A conforming Teckel implementation must support the core functions listed on this page. Functions are called with standard syntax: `function_name(arg1, arg2, ...)`. Calls can be nested to arbitrary depth. Named arguments (`name => value`) are also supported in v3.0.
 
 ## Aggregate Functions
 
@@ -288,4 +288,203 @@ For more advanced conditional logic, use the [CASE expression](syntax.md#case-ex
 ```yaml
 columns:
   - "CASE WHEN score >= 90 THEN 'A' WHEN score >= 80 THEN 'B' WHEN score >= 70 THEN 'C' ELSE 'F' END as grade"
+```
+
+---
+
+## Collection Functions (v3.0) {#collection-functions}
+
+Collection functions operate on arrays and maps. These are new in Teckel 3.0.
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `size(expr)` | integer | Number of elements in array or entries in map. |
+| `array_contains(array, value)` | boolean | True if array contains the value. |
+| `element_at(array_or_map, key)` | varies | Element at index (array, 0-based) or key (map). |
+| `explode(expr)` | rows | Expands array/map into multiple rows. |
+| `explode_outer(expr)` | rows | Like `explode`, but preserves NULL/empty as a single row. |
+| `posexplode(expr)` | rows | Like `explode`, but also produces a position column. |
+| `flatten(array)` | array | Flattens a nested array by one level. |
+| `array_distinct(array)` | array | Removes duplicates from an array. |
+| `array_sort(array)` | array | Sorts array elements in ascending order. |
+| `array_union(a1, a2)` | array | Union of two arrays (no duplicates). |
+| `array_intersect(a1, a2)` | array | Elements common to both arrays. |
+| `array_except(a1, a2)` | array | Elements in a1 but not a2. |
+| `array_join(array, delim)` | string | Concatenates array elements with a delimiter. |
+| `array_position(array, elem)` | integer | 1-based position of element (0 if not found). |
+| `array_remove(array, elem)` | array | Removes all occurrences of element. |
+| `array_repeat(elem, count)` | array | Creates an array repeating element count times. |
+| `arrays_zip(a1, a2, ...)` | array | Merges arrays into an array of structs. |
+| `array_compact(array)` | array | Removes NULL elements from an array. |
+| `map_keys(map)` | array | Returns the map's keys as an array. |
+| `map_values(map)` | array | Returns the map's values as an array. |
+| `map_concat(m1, m2, ...)` | map | Merges multiple maps. Later keys overwrite. |
+| `map_from_arrays(keys, values)` | map | Creates a map from key and value arrays. |
+| `map_from_entries(array)` | map | Creates a map from key-value struct entries. |
+| `map_entries(map)` | array | Returns key-value struct entries as an array. |
+
+### Examples
+
+```yaml
+columns:
+  - "size(tags) as tag_count"
+  - "array_contains(roles, 'admin') as is_admin"
+  - "array_join(tags, ', ') as tags_string"
+  - "map_keys(attributes) as attr_names"
+```
+
+## Higher-Order Functions (v3.0) {#higher-order-functions}
+
+Higher-order functions accept lambda expressions as arguments. See [Lambda Expressions](syntax.md#lambda-expressions).
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `transform(array, func)` | array | Apply function to each element. |
+| `filter(array, func)` | array | Keep elements matching predicate. |
+| `aggregate(array, zero, merge)` | varies | Reduce array to single value. |
+| `exists(array, func)` | boolean | True if any element matches predicate. |
+| `forall(array, func)` | boolean | True if all elements match predicate. |
+| `transform_keys(map, func)` | map | Apply function to each key. |
+| `transform_values(map, func)` | map | Apply function to each value. |
+| `map_filter(map, func)` | map | Keep entries matching predicate. |
+| `zip_with(a1, a2, func)` | array | Merge two arrays element-wise using function. |
+
+### Examples
+
+```yaml
+columns:
+  - "transform(prices, x -> x * 1.1) as prices_with_tax"
+  - "filter(scores, x -> x >= 60) as passing_scores"
+  - "aggregate(amounts, 0, (acc, x) -> acc + x) as total"
+  - "exists(tags, t -> t = 'urgent') as has_urgent"
+  - "transform_values(metrics, (k, v) -> round(v, 2)) as rounded_metrics"
+```
+
+## Struct Functions (v3.0) {#struct-functions}
+
+Functions for creating and manipulating struct values.
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `struct(expr, ...)` | struct | Creates a struct from positional values. |
+| `named_struct(name, val, ...)` | struct | Creates a struct with named fields. |
+| `with_field(struct, name, value)` | struct | Adds or replaces a field in a struct. |
+| `drop_fields(struct, name, ...)` | struct | Removes fields from a struct. |
+
+### Examples
+
+```yaml
+columns:
+  - "named_struct('name', full_name, 'age', age) as person"
+  - "with_field(address, 'country', 'US') as updated_address"
+  - "drop_fields(record, 'internal_id', 'debug_info') as clean_record"
+```
+
+## JSON Functions (v3.0) {#json-functions}
+
+Functions for parsing, generating, and querying JSON data.
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `from_json(string, schema)` | struct | Parse JSON string into a struct. |
+| `to_json(expr)` | string | Convert struct/array/map to JSON string. |
+| `get_json_object(string, path)` | string | Extract value by JSONPath. |
+| `json_tuple(string, key, ...)` | tuple | Extract multiple values from JSON string. |
+| `schema_of_json(string)` | string | Infer schema of a JSON string as DDL. |
+| `parse_json(string)` | variant | Parse JSON string to variant type. |
+
+### Examples
+
+```yaml
+columns:
+  - "get_json_object(payload, '$.user.name') as user_name"
+  - "to_json(named_struct('id', id, 'name', name)) as json_output"
+  - "from_json(raw_json, 'struct<name: string, age: int>') as parsed"
+```
+
+## Interval and Temporal Functions (v3.0) {#interval-functions}
+
+Extended temporal functions including interval construction and additional date/time operations.
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `make_interval(years, months, weeks, days, hours, mins, secs)` | interval | Construct a calendar interval. |
+| `make_ym_interval(years, months)` | interval | Construct a year-month interval. |
+| `make_dt_interval(days, hours, mins, secs)` | interval | Construct a day-time interval. |
+| `extract(field FROM expr)` | integer | Extract field from date/timestamp/interval. |
+| `date_trunc(unit, expr)` | timestamp | Truncate timestamp to specified unit. |
+| `months_between(end, start)` | double | Number of months between two dates. |
+| `add_months(date, n)` | date | Add N months to a date. |
+| `last_day(date)` | date | Last day of the month. |
+| `next_day(date, dayOfWeek)` | date | Next occurrence of the given day of week. |
+| `current_timestamp_ntz()` | timestamp_ntz | Current local timestamp without timezone. |
+| `to_timestamp_ntz(expr, format)` | timestamp_ntz | Parse string to timestamp without timezone. |
+| `current_time()` | time | Current time of day. |
+| `make_time(hour, min, sec)` | time | Construct time from components. |
+
+### Examples
+
+```yaml
+columns:
+  - "extract(QUARTER FROM order_date) as quarter"
+  - "date_trunc('month', event_timestamp) as month_start"
+  - "months_between(end_date, start_date) as duration_months"
+  - "last_day(report_date) as month_end"
+  - "current_timestamp_ntz() as local_now"
+```
+
+## Statistical Aggregate Functions (v3.0) {#statistical-functions}
+
+Statistical functions for advanced analytics.
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `stddev(expr)` | double | Sample standard deviation. |
+| `stddev_samp(expr)` | double | Sample standard deviation. |
+| `stddev_pop(expr)` | double | Population standard deviation. |
+| `variance(expr)` | double | Sample variance. |
+| `var_samp(expr)` | double | Sample variance. |
+| `var_pop(expr)` | double | Population variance. |
+| `corr(expr1, expr2)` | double | Pearson correlation coefficient. |
+| `covar_samp(expr1, expr2)` | double | Sample covariance. |
+| `covar_pop(expr1, expr2)` | double | Population covariance. |
+| `skewness(expr)` | double | Skewness. |
+| `kurtosis(expr)` | double | Excess kurtosis. |
+| `percentile(expr, p)` | double | Exact percentile (p in [0, 1]). |
+| `percentile_approx(expr, p, accuracy)` | double | Approximate percentile. |
+| `grouping(expr)` | integer | 1 if column is aggregated in a grouping set, 0 otherwise. |
+| `grouping_id(expr, ...)` | integer | Bitmask of grouping columns. |
+
+### Examples
+
+```yaml
+# In a groupBy transformation
+agg:
+  - "stddev(salary) as salary_stddev"
+  - "corr(hours_worked, output) as productivity_correlation"
+  - "percentile_approx(response_time, 0.95) as p95_latency"
+  - "skewness(order_amount) as amount_skew"
+```
+
+## Variant Functions (v3.0) {#variant-functions}
+
+Functions for working with the semi-structured `variant` data type.
+
+| Function | Return Type | Description |
+|----------|-------------|-------------|
+| `parse_json(string)` | variant | Parse JSON string to variant. |
+| `to_json(variant)` | string | Convert variant to JSON string. |
+| `variant_get(variant, path, type)` | typed | Extract and cast value from variant by JSONPath. |
+| `try_variant_get(variant, path, type)` | typed | Like `variant_get`, returns NULL on failure. |
+| `is_variant_null(variant)` | boolean | True if variant value is JSON null. |
+| `schema_of_variant(variant)` | string | Infer schema of variant as DDL string. |
+
+### Examples
+
+```yaml
+columns:
+  - "parse_json(raw_payload) as data"
+  - "variant_get(data, '$.user.name', 'string') as user_name"
+  - "try_variant_get(data, '$.count', 'integer') as count"
+  - "is_variant_null(data) as is_empty"
 ```

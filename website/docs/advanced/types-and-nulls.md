@@ -15,20 +15,29 @@ Teckel supports the following data types. Type names are **case-insensitive**: `
 | Type | Description | Example Values |
 |------|-------------|----------------|
 | `string` | Variable-length UTF-8 text | `'hello'`, `''` |
+| `byte` or `tinyint` | 8-bit signed integer *(v3.0)* | `-128`, `127` |
+| `short` or `smallint` | 16-bit signed integer *(v3.0)* | `-32768`, `32767` |
 | `integer` or `int` | 32-bit signed integer | `42`, `-1`, `0` |
-| `long` | 64-bit signed integer | `2147483648` |
+| `long` or `bigint` | 64-bit signed integer | `2147483648` |
 | `float` | 32-bit IEEE 754 floating point | `3.14` |
 | `double` | 64-bit IEEE 754 floating point | `3.141592653589793` |
 | `boolean` | Boolean | `true`, `false` |
-| `date` | Calendar date (no time component) | `2025-01-15` |
-| `timestamp` | Date with time and timezone | `2025-01-15T10:30:00Z` |
-| `binary` | Arbitrary binary data | — |
+| `date` | Calendar date (no time component) | `DATE '2025-01-15'` |
+| `timestamp` | Date with time and timezone (UTC-normalized) | `TIMESTAMP '2025-01-15T10:30:00Z'` |
+| `timestamp_ntz` | Date with time, no timezone adjustment *(v3.0)* | `TIMESTAMP_NTZ '2025-01-15T10:30:00'` |
+| `time` | Time of day without date *(v3.0)* | `10:30:00`, `23:59:59.999` |
+| `binary` | Arbitrary binary data | `X'DEADBEEF'` |
+| `variant` | Semi-structured data (schema-on-read) *(v3.0)* | JSON objects, arrays, scalars |
 
 #### Parameterized Types
 
 | Type | Syntax | Example |
 |------|--------|---------|
 | `decimal` | `decimal(precision, scale)` | `decimal(10, 2)` |
+| `char` | `char(n)` *(v3.0)* | `char(10)` |
+| `varchar` | `varchar(n)` *(v3.0)* | `varchar(255)` |
+| `time` | `time(precision)` *(v3.0)* | `time(6)` |
+| `interval` | `interval qualifier` *(v3.0)* | `interval year to month` |
 | `array` | `array<elementType>` | `array<string>` |
 | `map` | `map<keyType, valueType>` | `map<string, integer>` |
 | `struct` | `struct<field: type, ...>` | `struct<name: string, age: int>` |
@@ -72,18 +81,44 @@ targetType: "struct<name: string, age: int>"
 targetType: "struct<address: struct<city: string, zip: string>, active: boolean>"
 ```
 
+**Interval** *(v3.0)* represents a duration of time. There are two kinds: year-month intervals and day-time intervals.
+
+```yaml
+# Year-month interval
+targetType: "interval year to month"
+
+# Day-time interval
+targetType: "interval day to second"
+```
+
+Interval values participate in arithmetic with temporal types (e.g., `date + interval`, `timestamp - timestamp`).
+
+**Variant** *(v3.0)* holds semi-structured data that can be queried with schema-on-read semantics. Use `parse_json()` to create variant values and `variant_get()` to extract typed values.
+
 ### EBNF Grammar for Type Names
 
 ```ebnf
 type_name          = simple_type | parameterized_type ;
-simple_type        = "string" | "integer" | "int" | "long" | "float"
-                   | "double" | "boolean" | "date" | "timestamp" | "binary" ;
+simple_type        = "string" | "byte" | "tinyint" | "short" | "smallint"
+                   | "integer" | "int" | "long" | "bigint" | "float"
+                   | "double" | "boolean" | "date" | "timestamp"
+                   | "timestamp_ntz" | "binary" | "variant" | "time" ;
 parameterized_type = "decimal", "(", integer_literal, ",", integer_literal, ")"
+                   | "char", "(", integer_literal, ")"
+                   | "varchar", "(", integer_literal, ")"
+                   | "time", "(", integer_literal, ")"
                    | "array", "<", type_name, ">"
                    | "map", "<", type_name, ",", type_name, ">"
-                   | "struct", "<", struct_fields, ">" ;
+                   | "struct", "<", struct_fields, ">"
+                   | "interval", interval_qualifier ;
 struct_fields      = struct_field, { ",", struct_field } ;
 struct_field       = identifier, ":", type_name ;
+interval_qualifier = "year", [ "to", "month" ]
+                   | "month"
+                   | "day", [ "to", ( "hour" | "minute" | "second" ) ]
+                   | "hour", [ "to", ( "minute" | "second" ) ]
+                   | "minute", [ "to", "second" ]
+                   | "second" ;
 ```
 
 ### Implicit Type Widening
@@ -92,11 +127,16 @@ When an operation involves mixed types, the runtime automatically widens the nar
 
 | From | To | Context |
 |------|----|---------|
-| `integer` | `long` | Arithmetic with a `long` operand |
-| `integer`, `long` | `double` | Arithmetic with a `double` operand |
+| `byte` | `short` | Arithmetic with a `short` operand |
+| `byte`, `short` | `integer` | Arithmetic with an `integer` operand |
+| `byte`, `short`, `integer` | `long` | Arithmetic with a `long` operand |
+| `byte`, `short`, `integer`, `long` | `double` | Arithmetic with a `double` operand |
 | `float` | `double` | Arithmetic with a `double` operand |
-| `integer`, `long` | `decimal` | Arithmetic with a `decimal` operand |
-| `date` | `timestamp` | Comparison with a `timestamp` operand |
+| `byte`, `short`, `integer`, `long` | `decimal` | Arithmetic with a `decimal` operand |
+| `char(n)` | `varchar(m)` where m >= n | String context |
+| `char(n)`, `varchar(n)` | `string` | String context |
+| `date` | `timestamp_ntz` | Comparison or arithmetic with `timestamp_ntz` |
+| `date`, `timestamp_ntz` | `timestamp` | Comparison or arithmetic with `timestamp` |
 
 If a widening cannot be performed safely, the implementation raises `E-TYPE-001`.
 

@@ -230,3 +230,93 @@ transformation:
 ```
 
 > **Tip:** Always qualify column references in join conditions. Unqualified references like `"id = id"` will produce error `E-JOIN-001` for ambiguity.
+
+---
+
+## As-of Join (8.39) {#asof-join}
+
+*New in v3.0.*
+
+Temporal join that matches each left row with the closest right row by an ordered column (typically a timestamp). This is commonly used in financial and time-series data where you want to match events with the most recent preceding reference data.
+
+**Schema:**
+
+| Field              | Type            | Required | Default      | Description                                           |
+|--------------------|-----------------|----------|--------------|-------------------------------------------------------|
+| `left`             | AssetRef        | Yes      | --           | Left asset.                                           |
+| `right`            | AssetRef        | Yes      | --           | Right asset.                                          |
+| `leftAsOf`         | Column          | Yes      | --           | Left temporal/ordered column.                         |
+| `rightAsOf`        | Column          | Yes      | --           | Right temporal/ordered column.                        |
+| `on`               | List[Condition] | No       | `[]`         | Additional equi-join conditions.                      |
+| `type`             | `"inner"` or `"left"` | No | `"left"`     | Join type.                                            |
+| `direction`        | `"backward"` or `"forward"` or `"nearest"` | No | `"backward"` | Match direction.                     |
+| `tolerance`        | Expression      | No       | --           | Maximum allowed distance between as-of values.        |
+| `allowExactMatches`| boolean         | No       | `true`       | Whether exact matches are included.                   |
+
+**Directions:**
+- `backward` -- match the latest right row where `rightAsOf <= leftAsOf`.
+- `forward` -- match the earliest right row where `rightAsOf >= leftAsOf`.
+- `nearest` -- match the closest right row by absolute distance.
+
+**Example -- match trades with the most recent quote:**
+
+```yaml
+transformation:
+  - name: tradeWithQuote
+    asOfJoin:
+      left: trades
+      right: quotes
+      leftAsOf: trade_time
+      rightAsOf: quote_time
+      on:
+        - "trades.symbol = quotes.symbol"
+      direction: backward
+      tolerance: "INTERVAL 5 MINUTES"
+```
+
+**Example -- forward-looking join for next event:**
+
+```yaml
+transformation:
+  - name: withNextEvent
+    asOfJoin:
+      left: actions
+      right: events
+      leftAsOf: action_time
+      rightAsOf: event_time
+      direction: forward
+```
+
+> **Tip:** Use `tolerance` to limit how far back (or forward) the join looks for a match. Without it, the join matches the closest row regardless of distance.
+
+---
+
+## Lateral Join (8.40) {#lateral-join}
+
+*New in v3.0.*
+
+Correlated join where the right side may reference columns from the left side. This is similar to SQL's `LATERAL JOIN` or `CROSS APPLY`.
+
+**Schema:**
+
+| Field  | Type                                     | Required | Default   | Description                                       |
+|--------|------------------------------------------|----------|-----------|---------------------------------------------------|
+| `left` | AssetRef                                 | Yes      | --        | Left asset.                                       |
+| `right`| AssetRef                                 | Yes      | --        | Right asset (may reference left columns).         |
+| `type` | `"inner"` or `"left"` or `"cross"`       | No       | `"inner"` | Join type.                                        |
+| `on`   | List[Condition]                          | No       | `[]`      | Additional join condition.                        |
+
+**Example -- lateral join with a correlated subquery:**
+
+```yaml
+transformation:
+  - name: withLatest
+    lateralJoin:
+      left: customers
+      right: latestOrders
+      type: left
+      on:
+        - "customers.id = latestOrders.customer_id"
+```
+
+> **Tip:** Lateral joins are useful for "top-N per group" patterns and for joining with table-generating functions where the right side depends on values from the left.
