@@ -756,6 +756,60 @@ html:not([data-theme='dark']) {
   .features-grid {
     grid-template-columns: 1fr;
   }
+
+  .hero-section {
+    padding: 3rem 1rem 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+    padding: 0 0.5rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-btn {
+    width: 100%;
+    max-width: 260px;
+    justify-content: center;
+  }
+
+  .diagram-section {
+    padding: 1rem 0 2rem;
+  }
+
+  .example-section,
+  .features-section,
+  .cta-section {
+    padding: 2rem 0.5rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .code-block {
+    font-size: 11px;
+  }
+
+  .cta-title {
+    font-size: 1.25rem;
+  }
+
+  .playground-main {
+    padding: 1rem 0.75rem 2rem;
+  }
+
+  .playground-title {
+    font-size: 1.25rem;
+  }
 }
 
 .feature-card {

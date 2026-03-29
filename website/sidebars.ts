@@ -80,6 +80,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Reference',
       items: [
+        'reference/changelog',
         'reference/errors',
         'reference/conformance',
         'reference/security',

@@ -4439,6 +4439,77 @@ output:
 
 ## Appendix D: Changelog
 
+### v3.0 (2026-03-29)
+
+Full alignment with Apache Spark Connect protocol (`expressions.proto`, `types.proto`, `relations.proto`).
+
+**Expression Language:**
+- Added lambda expressions for higher-order functions: `x -> x + 1`, `(acc, x) -> acc + x`.
+- Added star/wildcard expressions: `*`, `asset.*`.
+- Added nested value access: `struct.field`, `map['key']`, `array[0]`, composable to arbitrary depth.
+- Added inline window expressions: `func() OVER (PARTITION BY ... ORDER BY ... ROWS BETWEEN ...)`.
+- Added `TRY_CAST(expr AS type)` — returns NULL on failure instead of error.
+- **Breaking:** `CAST` now follows ANSI SQL (error on failure). v2.0 pipelines using CAST for lenient parsing should migrate to `TRY_CAST`.
+- Added string concatenation operator: `||`.
+- Added null-safe equality operator: `<=>`.
+- Added `RLIKE` for regex matching.
+- Added named function arguments: `func(key => value)`.
+- Added typed literal syntax: `DATE '2025-01-01'`, `TIMESTAMP '...'`, `TIMESTAMP_NTZ '...'`, `X'hex'`.
+- Added complex literal constructors: `ARRAY(...)`, `MAP(...)`, `STRUCT(...)`, `NAMED_STRUCT(...)`.
+- Added `INTERVAL` literal syntax: `INTERVAL 30 DAYS`, `INTERVAL 1 YEAR 6 MONTHS`.
+
+**Data Types:**
+- Added `byte` / `tinyint` (8-bit signed integer).
+- Added `short` / `smallint` (16-bit signed integer).
+- Added `bigint` as alias for `long`.
+- Added `char(n)` (fixed-length string) and `varchar(n)` (variable-length with max).
+- Added `timestamp_ntz` (timestamp without timezone).
+- Added `time` / `time(p)` (time of day with optional fractional precision).
+- Added `interval year to month` and `interval day to second`.
+- Added `variant` (semi-structured / schema-on-read data).
+- Extended implicit widening rules for new types.
+
+**Core Functions (7 new categories, 90+ functions):**
+- Collection functions (24): `size`, `array_contains`, `explode`, `explode_outer`, `flatten`, `array_sort`, `array_distinct`, `array_union`, `array_intersect`, `array_except`, `map_keys`, `map_values`, `map_concat`, etc.
+- Higher-order functions (9): `transform`, `filter`, `aggregate`, `exists`, `forall`, `transform_keys`, `transform_values`, `map_filter`, `zip_with`.
+- Struct functions (4): `struct`, `named_struct`, `with_field`, `drop_fields`.
+- JSON functions (6): `from_json`, `to_json`, `get_json_object`, `json_tuple`, `schema_of_json`, `parse_json`.
+- Interval and temporal functions (13): `make_interval`, `make_ym_interval`, `make_dt_interval`, `extract`, `date_trunc`, `months_between`, `add_months`, `current_timestamp_ntz`, `current_time`, etc.
+- Statistical aggregate functions (15): `stddev`, `variance`, `corr`, `covar_samp`, `covar_pop`, `skewness`, `kurtosis`, `percentile`, `percentile_approx`, `grouping`, `grouping_id`, etc.
+- Variant functions (6): `parse_json`, `variant_get`, `try_variant_get`, `is_variant_null`, `schema_of_variant`.
+
+**New Transformations (14):**
+- `offset` (§8.32) — skip first N rows.
+- `tail` (§8.33) — return last N rows.
+- `fillNa` (§8.34) — replace NULL values with defaults.
+- `dropNa` (§8.35) — drop rows with NULL values.
+- `replace` (§8.36) — replace specific values.
+- `merge` (§8.37) — MERGE INTO / upsert with matched/unmatched actions.
+- `parse` (§8.38) — parse JSON/CSV string columns into typed columns.
+- `asOfJoin` (§8.39) — temporal join (backward/forward/nearest).
+- `lateralJoin` (§8.40) — correlated join.
+- `transpose` (§8.41) — swap rows and columns.
+- `groupingSets` (§8.42) — arbitrary grouping column combinations.
+- `describe` (§8.43) — descriptive statistics.
+- `crosstab` (§8.44) — frequency cross-tabulation.
+- `hint` (§8.45) — optimizer hints (advisory).
+
+**Enhanced Existing Transformations:**
+- `union`, `intersect`, `except`: added `byName` (match columns by name) and `allowMissingColumns` (fill missing with NULL).
+- `sample`: added `lowerBound`/`upperBound` (range-based sampling) and `deterministicOrder`.
+
+**JSON Schema:**
+- Added 14 new transformation `$defs` and `oneOf` entries.
+- Added `byName`, `allowMissingColumns` to `UnionOp`, `IntersectOp`, `ExceptOp`.
+- Added `lowerBound`, `upperBound`, `deterministicOrder` to `SampleOp`.
+- Added `Replacement`, `MergeAction`, `HintSpec` and related supporting `$defs`.
+- `SampleOp.fraction` changed from required to optional (use `fraction` or `lowerBound`/`upperBound`).
+
+**Grammar (Appendix A):**
+- Updated A.3 (Expressions) and A.4 (Type Names) with all v3 productions.
+
+---
+
 ### v2.0 (2026-03-27)
 
 - Initial formal specification.
