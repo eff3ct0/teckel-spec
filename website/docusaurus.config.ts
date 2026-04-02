@@ -94,16 +94,32 @@ const config: Config = {
     navbar: {
       title: 'Teckel',
       logo: {
-        alt: 'Rafael Fernandez logo',
+        alt: 'Teckel logo',
         src: 'img/r-logo.png',
         srcDark: 'img/r-logo-dark.png',
+        href: 'https://teckel.rafaelfernandez.dev',
       },
       items: [
         {
           type: 'docSidebar',
           sidebarId: 'docsSidebar',
           position: 'left',
-          label: 'Documentation',
+          label: 'Spec',
+        },
+        {
+          href: 'https://teckel.rafaelfernandez.dev/rs/docs/intro',
+          label: 'Parser',
+          position: 'left',
+        },
+        {
+          href: 'https://teckel.rafaelfernandez.dev/api/docs/intro',
+          label: 'Engine',
+          position: 'left',
+        },
+        {
+          href: 'https://teckel.rafaelfernandez.dev/ui/docs/intro',
+          label: 'Editor',
+          position: 'left',
         },
         {
           to: '/playground',
@@ -119,22 +135,38 @@ const config: Config = {
           label: 'GitHub',
           position: 'right',
         },
-        {
-          href: 'https://github.com/eff3ct0/teckel',
-          label: 'Reference Implementation',
-          position: 'right',
-        },
       ],
     },
     footer: {
       style: 'light',
       links: [
         {
+          title: 'Ecosystem',
+          items: [
+            {
+              label: 'Specification',
+              href: 'https://teckel.rafaelfernandez.dev/docs/intro',
+            },
+            {
+              label: 'Rust Parser',
+              href: 'https://teckel.rafaelfernandez.dev/rs/docs/intro',
+            },
+            {
+              label: 'API Engine',
+              href: 'https://teckel.rafaelfernandez.dev/api/docs/intro',
+            },
+            {
+              label: 'Visual Editor',
+              href: 'https://teckel.rafaelfernandez.dev/ui/docs/intro',
+            },
+          ],
+        },
+        {
           title: 'Resources',
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/eff3ct0/teckel-spec',
+              href: 'https://github.com/eff3ct0',
             },
             {
               label: 'Apache License 2.0',

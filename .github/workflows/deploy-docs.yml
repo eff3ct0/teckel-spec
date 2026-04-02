@@ -1,8 +1,10 @@
-name: Deploy Docusaurus to GitHub Pages
+name: Deploy Unified Docs to GitHub Pages
 
 on:
   push:
     branches: [main]
+  repository_dispatch:
+    types: [docs-updated]
   workflow_dispatch:
 
 permissions:
@@ -18,26 +20,90 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # ── Checkout all repos ──────────────────────────────
+      - name: Checkout teckel-spec
+        uses: actions/checkout@v4
+        with:
+          path: teckel-spec
 
+      - name: Checkout teckel-rs
+        uses: actions/checkout@v4
+        with:
+          repository: eff3ct0/teckel-rs
+          path: teckel-rs
+
+      - name: Checkout teckel-api
+        uses: actions/checkout@v4
+        with:
+          repository: eff3ct0/teckel-api
+          path: teckel-api
+
+      - name: Checkout teckel-ui
+        uses: actions/checkout@v4
+        with:
+          repository: eff3ct0/teckel-ui
+          path: teckel-ui
+
+      # ── Setup Node ──────────────────────────────────────
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: website/package-lock.json
+          node-version: 22
 
-      - name: Install dependencies
-        working-directory: website
-        run: npm ci
+      # ── Build teckel-spec (root site) ───────────────────
+      - name: Build teckel-spec
+        working-directory: teckel-spec/website
+        run: |
+          npm ci
+          npm run build
 
-      - name: Build site
-        working-directory: website
-        run: npm run build
+      # ── Build sub-sites (skip if website/ doesn't exist) ─
+      - name: Build teckel-rs docs
+        working-directory: teckel-rs/website
+        run: |
+          npm ci
+          npm run build
+        continue-on-error: true
 
-      - name: Upload artifact
+      - name: Build teckel-api docs
+        working-directory: teckel-api/website
+        run: |
+          npm ci
+          npm run build
+        continue-on-error: true
+
+      - name: Build teckel-ui docs
+        working-directory: teckel-ui/website
+        run: |
+          npm ci
+          npm run build
+        continue-on-error: true
+
+      # ── Merge all builds into one directory ─────────────
+      - name: Merge site outputs
+        run: |
+          mkdir -p merged-site
+          cp -r teckel-spec/website/build/* merged-site/
+
+          if [ -d "teckel-rs/website/build" ]; then
+            mkdir -p merged-site/rs
+            cp -r teckel-rs/website/build/* merged-site/rs/
+          fi
+
+          if [ -d "teckel-api/website/build" ]; then
+            mkdir -p merged-site/api
+            cp -r teckel-api/website/build/* merged-site/api/
+          fi
+
+          if [ -d "teckel-ui/website/build" ]; then
+            mkdir -p merged-site/ui
+            cp -r teckel-ui/website/build/* merged-site/ui/
+          fi
+
+      # ── Upload merged artifact ──────────────────────────
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: website/build
+          path: merged-site
 
   deploy:
     needs: build
